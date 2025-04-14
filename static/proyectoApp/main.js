@@ -27,10 +27,15 @@ function listadoCategoria() {
                     { data: "nombre" },
                     { data: "proyecto" },
                     { data: "id_padre" },
-                    { data: "categoria_relacionada" },
+                    { data: "categoria_relacionada"
+                     },
                     { data: "nivel" },
                     { data: "final" },
-                    { data: "total_costo" },
+                    { data: "total_costo",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { 
                         data: null, 
                         render: function(data, type, row) {
@@ -162,11 +167,31 @@ function listadoAdquisiciones() {
                     { data: "id_categoria" },
                     { data: "tipo_origen" },
                     { data: "tipo_categoria" },
-                    { data: "costo_unitario" },
-                    { data: "crecimiento" },
-                    { data: "flete" },
-                    { data: "total" },
-                    { data: "total_con_flete" },
+                    { data: "costo_unitario",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "crecimiento",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "flete",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "total",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "total_con_flete",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { 
                         data: null, 
                         render: function(data, type, row) {
@@ -262,10 +287,26 @@ function listadoEquiposConstruccion() {
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
-                    { data: "horas_maquina_unidad" },
-                    { data: "costo_maquina_hora" },
-                    { data: "total_horas_maquina" },
-                    { data: "total_usd" },
+                    { data: "horas_maquina_unidad",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "costo_maquina_hora",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "total_horas_maquina",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "total_usd",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { 
                         data: null, 
                         render: function(data, type, row) {
@@ -356,18 +397,66 @@ function listadoManoObra() {
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },  // ✅ Mostrar nombre en lugar de ID
-                    { data: "horas_hombre_unidad" },
-                    { data: "fp" },
-                    { data: "rendimiento" },  // ✅ Nuevo campo
-                    { data: "horas_hombre_final" },  // ✅ Nuevo campo calculado
-                    { data: "cantidad_horas_hombre" },  // ✅ Nuevo campo calculado
-                    { data: "costo_hombre_hora" },
-                    { data: "tarifas_usd_hh_mod" },
-                    { data: "tarifa_usd_hh_equipos" },
-                    { data: "total_hh" },
-                    { data: "total_usd_mod" },
-                    { data: "total_usd_equipos" },
-                    { data: "total_usd" },  // ✅ Nuevo cálculo
+                    { data: "horas_hombre_unidad",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "fp",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "rendimiento",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },  // ✅ Nuevo campo
+                    { data: "horas_hombre_final",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },  // ✅ Nuevo campo calculado
+                    { data: "cantidad_horas_hombre",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },  // ✅ Nuevo campo calculado
+                    { data: "costo_hombre_hora",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "tarifas_usd_hh_mod",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "tarifa_usd_hh_equipos",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "total_hh",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "total_usd_mod",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "total_usd_equipos",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "total_usd",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },  // ✅ Nuevo cálculo
                     
                     { 
                         data: null, 
@@ -461,12 +550,33 @@ function listadoMaterialesOtros() {
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
-                    { data: "costo_unidad" },
-                    { data: "crecimiento" },
+                    { data: "costo_unidad",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "crecimiento",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     
-                    { data: "total_usd" },
-                    { data: "fletes" },
-                    { data: "total_sitio" },
+                    { 
+                        data: "total_usd",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                    },
+                    { data: "fletes",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }    
+                     },
+                    { data: "total_sitio",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { 
                         data: null, 
                         render: function(data, type, row) {
@@ -561,11 +671,31 @@ function listadoEspecificoCategoria() {
                     { data: "id" },
                     { data: "id_categoria" },
                     { data: "unidad" },
-                    { data: "cantidad" },
-                    { data: "dedicacion" },
-                    { data: "duracion" },
-                    { data: "costo" },
-                    { data: "total" },
+                    { data: "cantidad",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "dedicacion",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "duracion",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "costo",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "total",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { 
                         data: null, 
                         render: function(data, type, row) {
@@ -655,14 +785,39 @@ function listadoStaffEnami() {
                 data: response,
                 columns: [
                     { data: "id" },
-                    { data: "nombre" },
-                    { data: "valor" },
-                    { data: "dotacion" },
-                    { data: "duracion" },
-                    { data: "factor_utilizacion" },
-                    { data: "total_horas_hombre" },
-                    { data: "costo_total" },
                     { data: "categoria" },
+                    { data: "nombre" },
+                    { data: "valor",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "dotacion",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "duracion",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "factor_utilizacion",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "total_horas_hombre",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "costo_total",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    
                     { 
                         data: null, 
                         render: function(data, type, row) {
@@ -752,9 +907,21 @@ function listadoCantidades() {
                     { data: "id" },
                     { data: "id_categoria" },
                     { data: "unidad_medida" },
-                    { data: "cantidad" },
-                    { data: "fc" },
-                    { data: "cantidad_final" },
+                    { data: "cantidad",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "fc",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "cantidad_final",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { 
                         data: null, 
                         render: function(data, type, row) {
@@ -848,13 +1015,41 @@ function listadoContratoSubcontrato() {
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
-                    { data: "costo_laboral_indirecto_usd_hh" },
-                    { data: "total_usd_indirectos_contratista" },
-                    { data: "usd_por_unidad" },
-                    { data: "fc_subcontrato" },
-                    { data: "usd_total_subcontrato" },
-                    { data: "costo_contrato_total" },
-                    { data: "costo_contrato_unitario" },
+                    { data: "costo_laboral_indirecto_usd_hh",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "total_usd_indirectos_contratista",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "usd_por_unidad",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "fc_subcontrato",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "usd_total_subcontrato",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "costo_contrato_total",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "costo_contrato_unitario",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { 
                         data: null, 
                         render: function(data, type, row) {
@@ -953,15 +1148,39 @@ function listadoCotizacionMateriales() {
                     { data: "tipo_moneda" },
                     { data: "pais_entrega" },
                     { data: "fecha_cotizacion_referencia" },
-                    { data: "cotizacion_usd" },
-                    { data: "cotizacion_clp" },
-                    { data: "factor_correccion" },
-                    { data: "moneda_aplicada" },
-                    { data: "flete_unitario" },
+                    { data: "cotizacion_usd",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "cotizacion_clp",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "factor_correccion",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "moneda_aplicada",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "flete_unitario",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { data: "origen_precio" },
                     { data: "cotizacion" },
                     { data: "moneda_origen" },
-                    { data: "tasa_cambio" },
+                    { data: "tasa_cambio",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { 
                         data: null, 
                         render: function(data, type, row) {
@@ -1055,9 +1274,17 @@ function listadoIngenieriaDetallesContraparte() {
                     { data: "id" },
                     { data: "id_categoria" },
                     { data: "nombre" },
-                    { data: "UF" },
+                    { data: "UF",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { data: "MB" },
-                    { data: "total_usd" },
+                    { data: "total_usd",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { 
                         data: null, 
                         render: function(data, type, row) {
@@ -1149,13 +1376,33 @@ function listadoGestionPermisos() {
                     { data: "id" },
                     { data: "id_categoria" },
                     { data: "nombre" },
-                    { data: "dedicacion" },
-                    { data: "meses" },
-                    { data: "cantidad" },
+                    { data: "dedicacion",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "meses",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL').format(data)}`;
+                        }
+                     },
+                    { data: "cantidad",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL').format(data)}`;
+                        }
+                     },
                     { data: "turno" },
                     { data: "MB" },
-                    { data: "HH" },
-                    { data: "total_usd" },
+                    { data: "HH",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "total_usd",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { 
                         data: null, 
                         render: function(data, type, row) {
@@ -1247,9 +1494,21 @@ function listadoDueno() {
                     { data: "id" },
                     { data: "id_categoria" },
                     { data: "nombre" },
-                    { data: "total_hh" },
-                    { data: "costo_hh_us" },
-                    { data: "costo_total" },
+                    { data: "total_hh",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "costo_hh_us",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "costo_total",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { 
                         data: null, 
                         render: function(data, type, row) {
@@ -1339,8 +1598,16 @@ function listadoMB() {
                 data: response,
                 columns: [
                     { data: "id" },
-                    { data: "mb" },
-                    { data: "fc" },
+                    { data: "mb",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "fc",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { data: "anio" },
                     { 
                         data: null, 
@@ -1433,14 +1700,46 @@ function listadoAdministracionSupervision() {
                     { data: "id" },
                     { data: "id_categoria" },
                     { data: "unidad" },
-                    { data: "precio_unitario_clp" },
-                    { data: "total_unitario" },
-                    { data: "factor_uso" },
-                    { data: "cantidad_u_persona" },
-                    { data: "mb_seleccionado" },
-                    { data: "costo_total_clp" },
-                    { data: "costo_total_us" },
-                    { data: "costo_total_mb" },
+                    { data: "precio_unitario_clp",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "total_unitario",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "factor_uso",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "cantidad_u_persona",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "mb_seleccionado",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "costo_total_clp",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "costo_total_us",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "costo_total_mb",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { 
                         data: null, 
                         render: function(data, type, row) {
@@ -1535,14 +1834,46 @@ function listadoPersonalIndirectoContratista() {
                     { data: "mb_seleccionado" },
                     { data: "turno" },
                     { data: "unidad" },
-                    { data: "hh_mes" },
-                    { data: "plazo_mes" },
-                    { data: "total_hh" },
-                    { data: "precio_unitario_clp_hh" },
-                    { data: "tarifa_usd_hh" },
-                    { data: "costo_total_clp" },
-                    { data: "costo_total_us" },
-                    { data: "costo_total_mb" },
+                    { data: "hh_mes",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "plazo_mes",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "total_hh",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "precio_unitario_clp_hh",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "tarifa_usd_hh",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "costo_total_clp",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "costo_total_us",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "costo_total_mb",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { 
                         data: null, 
                         render: function(data, type, row) {
@@ -1635,11 +1966,27 @@ function listadoServiciosApoyo() {
                     { data: "id" },
                     { data: "id_categoria" },
                     { data: "unidad" },
-                    { data: "cantidad" },
-                    { data: "hh_totales" },
-                    { data: "tarifas_clp" },
+                    { data: "cantidad",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "hh_totales",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "tarifas_clp",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { data: "mb" },
-                    { data: "total_usd" },
+                    { data: "total_usd",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { 
                         data: null, 
                         render: function(data, type, row) {
@@ -1730,12 +2077,32 @@ function listadoOtrosADM() {
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
-                    { data: "HH" },
+                    { data: "HH",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { data: "MB" },
-                    { data: "total_usd" },
-                    { data: "dedicacion" },
-                    { data: "meses" },
-                    { data: "cantidad" },
+                    { data: "total_usd",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "dedicacion",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "meses",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL').format(data)}`;
+                        }
+                     },
+                    { data: "cantidad",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { data: "turno" },
                     { 
                         data: null, 
@@ -1830,10 +2197,26 @@ function listadoAdministrativoFinanciero() {
                     { data: "id" },
                     { data: "id_categoria" },
                     { data: "unidad" },
-                    { data: "valor" },
-                    { data: "meses" },
-                    { data: "sobre_contrato_base" },
-                    { data: "costo_total" },
+                    { data: "valor",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "meses",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL').format(data)}`;
+                        }
+                     },
+                    { data: "sobre_contrato_base",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "costo_total",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { 
                         data: null, 
                         render: function(data, type, row) {
@@ -1926,8 +2309,16 @@ function listadoDatosEP() {
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
-                    { data: "hh_profesionales" },
-                    { data: "precio_hh" },
+                    { data: "hh_profesionales",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "precio_hh",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { 
                         data: null, 
                         render: function(data, type, row) {
@@ -2023,12 +2414,36 @@ function listadoDatosOtrosEP() {
                         data: "id_categoria", 
                         
                     },
-                    { data: "comprador", title: "Comprador" },
-                    { data: "dedicacion", title: "Dedicación" },
-                    { data: "plazo", title: "Plazo" },
-                    { data: "sueldo_pax", title: "Sueldo Pax" },
-                    { data: "gestiones", title: "Gestión" },
-                    { data: "viajes", title: "Viajes" },
+                    { data: "comprador", title: "Comprador",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "dedicacion", title: "Dedicación",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "plazo", title: "Plazo",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "sueldo_pax", title: "Sueldo Pax",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "gestiones", title: "Gestión",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "viajes", title: "Viajes",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { 
                         data: null, 
                         title: "Editar",

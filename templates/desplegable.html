@@ -1,4 +1,5 @@
 {% extends 'inicio.html' %} 
+{% load custom_filters %}
 
 {% block content %}
 <div class="container mt-4">
@@ -23,7 +24,9 @@
                     <td><strong>{{ categoria.nombre }}</strong></td>
                     <td>
                         <span class="badge bg-secondary rounded-pill">
-                            ${{ categoria.total_costo|floatformat:2 }}
+                            ${{ categoria.total_costo|formato_chileno }}
+
+
                         </span>
                     </td>
                     <td>
@@ -101,7 +104,10 @@ function generateSubcategoriasHTML(data, level = 1) {
                         <div class="d-flex justify-content-between align-items-center">
                             <span>${item.nombre}</span>
                             <div>
-                                <span class="badge bg-white text-dark rounded-pill me-2">$${item.costo}</span>
+                                <span class="badge bg-white text-dark rounded-pill me-2">
+    ${parseFloat(item.costo).toLocaleString('es-CL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+</span>
+
                                 <button class="btn btn-sm btn-outline-secondary toggle-subsubcategorias" data-id="${item.id}" data-level="${level}">
                                     <i class="bi bi-chevron-down"></i>
                                 </button>
