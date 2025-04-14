@@ -1,0 +1,46 @@
+
+{% extends 'inicio.html' %}
+{% load static %}
+{% block content %}
+
+{% block extra_css %}
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+
+{% endblock extra_css %}
+
+<h3>Tabla de Ingenieria de Detalles Contraparte</h3>
+
+<div class="d-flex gap-2 mb-3">
+    <a href="{% url 'crear_ingenieria_detalles_contraparte' %}" class="btn btn-success">Crear Ingenieria Detalles Contraparte <i class="bi bi-file-earmark-diff-fill"></i></a>
+    <a href="{% url 'exportar_excel' 'IngenieriaDetallesContraparte' %}" class="btn btn-primary">Exportar a Excel</a>
+</div>
+
+<!-- Tabla de Detalle -->
+<table id="tabla_ingenieria_detalles_contraparte" class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Id Categoria</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">UF</th>
+            <th scope="col">MB</th>
+            <th scope="col">Total USD</th>
+            
+            
+            <th scope="col">Editar</th>
+            <th scope="col">Eliminar</th>
+            
+            
+        </tr>
+    </thead>
+    <tbody>
+        
+    </tbody>
+</table>
+
+
+{% endblock %}
+{% block extrajs %}
+
+{% endblock extrajs %}

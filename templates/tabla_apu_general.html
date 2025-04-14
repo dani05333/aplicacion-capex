@@ -1,0 +1,32 @@
+{% extends 'inicio.html' %}
+
+{% block content %}
+
+<h3>Tabla de APU General</h3>
+
+<a href="{% url 'crear_apu_general' %}" class="btn btn-success mb-3">Crear Apu General <i class="bi bi-file-earmark-diff-fill"></i></a>
+<!-- Tabla de Detalle -->
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Nombre</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for x in apu_general %}
+        <tr>
+            <td>{{ x.id }}</td>
+            <td>{{ x.nombre }}</td>
+            <td>
+                <a href="{% url 'actualizar_apu_general' x.id %}" class="btn btn-warning btn-sm"><i class="bi bi-arrow-clockwise"></i> Editar</a>
+            </td>
+            <td>
+                <a href="{% url 'eliminar_apu_general' x.id %}" class="btn btn-danger btn-sm"><i class="bi bi-trash3-fill"></i> Eliminar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

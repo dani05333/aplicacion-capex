@@ -1,0 +1,15 @@
+{% extends 'inicio.html' %}
+
+{% block content %}
+
+
+<h1>Crear Apu General</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">Guardar Apu General</button>
+    <a href="{% url 'tabla_apu_general' %}" class="btn btn-danger">Cancelar</a>
+</form>
+
+{% endblock %}

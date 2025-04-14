@@ -1,0 +1,535 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplicacion CAPEX</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="{% static 'proyectoApp/main.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    
+
+
+    
+</head>
+<body style="background-color: #f0f0f0;"> <!-- Cambia el color de fondo aquí -->
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Aplicacion CAPEX</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Instrucciones</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Perfil</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <!-- Main Content with Grid -->
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Menú Vertical -->
+            <div class="col-md-3">
+                <div class="list-group shadow p-3 mb-5 bg-white rounded">
+                    <a href="{% url 'inicio' %}" class="list-group-item list-group-item-action list-group-item-light hover-bg-primary"><i class="bi bi-house-fill"></i> Inicio</a>
+                    <a href="{% url 'tabla_proyecto_nuevo' %}" class="list-group-item list-group-item-action"><i class="bi bi-journal-medical"></i> Tabla Proyecto</a>
+                    <a href="{% url 'tabla_categoria_nuevo' %}" class="list-group-item list-group-item-action"><i class="bi bi-list-ol"></i> Tabla Categoria</a>
+                    <a href="{% url 'tabla_cantidades' %}" class="list-group-item list-group-item-action"><i class="bi bi-box-seam"></i> Tabla Cantidades</a>
+                    <a href="{% url 'tabla_mb' %}" class="list-group-item list-group-item-action"><i class="bi bi-currency-dollar"></i> MB</a>
+                    
+                    <!-- Dropdown para Costos Directos -->
+                    <div class="dropdown">
+                        <a class="list-group-item list-group-item-action dropdown-toggle" href="#" role="button" id="costosDirectosDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-cash-stack"></i> Costos Directos
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="costosDirectosDropdown">
+                            
+                            <li><a class="dropdown-item" href="{% url 'tabla_materiales_otros' %}"><i class="bi bi-minecart-loaded"></i> Tabla Materiales Otros</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tabla_equipos_construccion' %}"><i class="bi bi-tools"></i> Tabla Equipos Construccion</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tabla_mano_obra' %}"><i class="bi bi-person-arms-up"></i> Tabla Mano Obra</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tabla_cotizacion_materiales' %}"><i class="bi bi-calculator"></i> Cotizacion Materiales</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tabla_adquisiciones' %}"><i class="bi bi-currency-exchange"></i> Tabla Adquisiciones</a></li>
+                        </ul>
+                    </div>
+            
+                    <!-- Dropdown para Costos Indirectos -->
+                    <div class="dropdown">
+                        <a class="list-group-item list-group-item-action dropdown-toggle" href="#" role="button" id="costosIndirectosDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-diagram-3"></i> Costos Indirectos
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="costosIndirectosDropdown">
+                            <li><a class="dropdown-item" href="{% url 'tabla_especifico_categoria' %}"><i class="bi bi-building-fill-gear"></i> GG Constructor</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tabla_contrato_subcontrato' %}"><i class="bi bi-file-earmark-text-fill"></i> Contrato Subcontrato</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tabla_administracion_supervision' %}"><i class="bi bi-clipboard2-check"></i> Administracion Supervision</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tabla_personal_indirecto_contratista' %}"><i class="bi bi-people-fill"></i> Personal Indirecto Contratista</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tabla_servicios_apoyo' %}"><i class="bi bi-life-preserver"></i> Servicios Apoyo</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tabla_otros_adm' %}"><i class="bi bi-person-workspace"></i> Otros ADM</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tabla_datos_ep' %}"><i class="bi bi-graph-up"></i> Tabla Datos</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tabla_datos_otros_ep' %}"><i class="bi bi-graph-up"></i> Tabla Datos Otros</a></li>
+                        </ul>
+                    </div>
+            
+                    <!-- Dropdown para Costos Dueño -->
+                    <div class="dropdown">
+                        <a class="list-group-item list-group-item-action dropdown-toggle" href="#" role="button" id="costosDuenoDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-building-gear"></i> Costos Dueño
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="costosDuenoDropdown">
+                            <li><a class="dropdown-item" href="{% url 'tabla_staff_enami' %}"><i class="bi bi-people-fill"></i> Staff Enami</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tabla_dueno' %}"><i class="bi bi-person-circle"></i> Dueño</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tabla_gestion_permisos' %}"><i class="bi bi-shield-lock"></i> Gestion Permisos</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tabla_administrativo_financiero' %}"><i class="bi bi-cash-coin"></i> Administrativo Financiero</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tabla_ingenieria_detalles_contraparte' %}"><i class="bi bi-rulers"></i> Ingenieria Detalles Contraparte</a></li>
+                        </ul>
+                    </div>
+            
+                    <!-- Resto de los elementos del menú (que no están en los dropdowns) -->
+                    
+                    
+                    <a href="{% url 'subir_archivo' %}" class="list-group-item list-group-item-action"><i class="bi bi-filetype-xlsx"></i> Subir archivos</a>
+                </div>
+            </div>
+
+             <!-- Contenido Principal -->
+             <div class="col-md-9 " >
+                {% block content %}
+                <h1 class="mb-4">Aplicación CAPEX</h1>
+                <p>Selecciona una de las opciones del menú para navegar a otras secciones de la aplicación.</p>
+
+
+                
+
+
+                
+                <div class="container d-flex justify-content-center">
+                    <div class="col-10">
+                        <div class="card shadow p-4" style="background-color: #f6f6f6;">
+                            <div class="card-body">
+                                <h4 class="mb-4">Selecciona un Proyecto:</h4>
+                                
+                                <!-- Selector de proyecto -->
+                                <div class="row mb-4">
+                                    <div class="col-lg-8 col-xl-6 mx-auto">
+                                        
+                                        <select id="proyectoSelect" class="form-select">
+                                            {% for proyecto in proyectonuevo %}
+                                                <option value="{{ proyecto.id }}">{{ proyecto.nombre }}</option>
+                                            {% empty %}
+                                                <option value="">No hay proyectos disponibles</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                
+                                <!-- Contenedor para Gráfico de Torta -->
+                                <div class="card mb-4 border-0 shadow-sm">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex justify-content-center">
+                                            <div id="graficoTorta" style="width: 100%; max-width: 900px; height: 700px;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h4 class="mb-4">Comparacion entre Costo Estimado vs Costo Real:</h4>
+                
+                                <!-- Contenedor para Gráfico de Barras -->
+                                <div class="card mb-4 border-0 shadow-sm">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex justify-content-center">
+                                            <div id="graficoBarras" style="width: 100%; max-width: 800px; height: 500px;"></div>
+                                        </div>
+
+                                        <div class="row g-3 align-items-center">
+                                            <div class="col-md-7">
+                                                
+                                                <select id="nivelSelect" class="form-select">
+                                                    <option value="todos">Todos los niveles</option>
+                                                    <!-- Las opciones se cargarán dinámicamente -->
+                                                </select>
+                                            </div>
+                                            <div class="col-md-5">
+                                                <div class="d-flex flex-wrap gap-2 mt-md-0 mt-2">
+                                                    <button id="btnFiltrar" class="btn btn-primary flex-grow-1">
+                                                        <i class="bi bi-funnel me-2"></i>Filtrar
+                                                    </button>
+                                                    <button id="btnReset" class="btn btn-outline-secondary flex-grow-1">
+                                                        <i class="bi bi-arrow-counterclockwise me-2"></i>Restablecer
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+
+                                    </div>
+                                </div>
+                
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+
+                
+
+
+
+
+                
+                        </div>
+                    </div>
+                </div>
+
+
+                 
+
+
+
+
+
+                
+
+                <script>
+                    // Inicializar gráficos
+                    const chartTorta = echarts.init(document.getElementById('graficoTorta'));
+                    const chartBarras = echarts.init(document.getElementById('graficoBarras'));
+                    let proyectoActualId = null;
+                
+                    // Cargar gráfico de torta
+                    function cargarGraficoTorta(proyectoId) {
+                        fetch(`/api/categorias-raiz/${proyectoId}/`)
+                            .then(response => response.json())
+                            .then(data => {
+                                const option = {
+                                    title: { text: 'Distribución de Costos', left: 'center' },
+                                    tooltip: { 
+                                        trigger: 'item',
+                                        formatter: '{a} <br/>{b}: ${c} ({d}%)'
+                                    },
+                                    legend: { orient: 'vertical', left: 'left' },
+                                    series: [{
+                                        name: 'Costo Total',
+                                        type: 'pie',
+                                        radius: '50%',
+                                        data: data,
+                                        emphasis: {
+                                            itemStyle: {
+                                                shadowBlur: 10,
+                                                shadowOffsetX: 0,
+                                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                            }
+                                        }
+                                    }]
+                                };
+                                chartTorta.setOption(option);
+                            })
+                            .catch(error => console.error("Error cargando gráfico de torta:", error));
+                    }
+                
+                    // Función para cargar los niveles disponibles dinámicamente
+                    async function cargarNivelesDisponibles(proyectoId) {
+                        const nivelSelect = document.getElementById('nivelSelect');
+                        
+                        try {
+                            // Mostrar estado de carga
+                            const loadingOption = document.createElement('option');
+                            loadingOption.value = '';
+                            loadingOption.textContent = 'Cargando niveles...';
+                            loadingOption.disabled = true;
+                            
+                            // Limpiar opciones existentes (conservando "Todos los niveles")
+                            while (nivelSelect.options.length > 1) {
+                                nivelSelect.remove(1);
+                            }
+                            nivelSelect.appendChild(loadingOption);
+                            
+                            const response = await fetch(`/api/obtener-niveles-proyecto/${proyectoId}/`);
+                            
+                            if (!response.ok) {
+                                throw new Error('Error al obtener niveles');
+                            }
+                            
+                            const niveles = await response.json();
+                            
+                            // Eliminar opción de carga
+                            nivelSelect.remove(nivelSelect.options.length - 1);
+                            
+                            // Ordenar niveles y eliminar duplicados
+                            const nivelesUnicos = [...new Set(niveles)].sort((a, b) => a - b);
+                            
+                            // Agregar opciones dinámicas
+                            if (nivelesUnicos.length > 0) {
+                                nivelesUnicos.forEach(nivel => {
+                                    const option = new Option(`Nivel ${nivel}`, nivel);
+                                    nivelSelect.add(option);
+                                });
+                            } else {
+                                const option = new Option('No hay niveles disponibles', '');
+                                option.disabled = true;
+                                nivelSelect.add(option);
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                            nivelSelect.remove(nivelSelect.options.length - 1);
+                            const option = new Option('Error al cargar niveles', '');
+                            option.disabled = true;
+                            nivelSelect.add(option);
+                        }
+                    }
+                
+                    // Cargar gráfico de barras de comparación con filtrado por nivel
+                    function cargarGraficoBarras(proyectoId, nivel = null) {
+    let url = `/api/obtener-comparacion-costos/${proyectoId}/`;
+    if (nivel) {
+        url += `?nivel=${nivel}`;
+    }
+
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.error) {
+                console.error(data.error);
+                chartBarras.clear();
+                return;
+            }
+
+            const option = {
+                title: {
+                    text: `{proyecto1|${data.nombres.actual}}\n{vs|vs}\n{proyecto2|${data.nombres.comparar}}` + 
+                          (nivel ? `\n{nivel|(Nivel ${nivel})}` : ''),
+                    left: 'center',
+                    top: '2%',  // Mueve el título más cerca del borde superior
+                    textStyle: {
+                        rich: {
+                            proyecto1: {
+                                color: '#1f77b4',
+                                fontWeight: 'bold',
+                                fontSize: 14,
+                                padding: [0, 0, 5, 0]
+                            },
+                            vs: {
+                                color: '#666',
+                                fontSize: 12,
+                                padding: [5, 0]
+                            },
+                            proyecto2: {
+                                color: '#ff7f0e',
+                                fontWeight: 'bold',
+                                fontSize: 14,
+                                padding: [5, 0, 0, 0]
+                            },
+                            nivel: {
+                                color: '#666',
+                                fontSize: 12,
+                                fontStyle: 'italic',
+                                padding: [10, 0, 0, 0]
+                            }
+                        }
+                    }
+                },
+                grid: {
+                    top: '25%',  // Aumenta este valor para dar más espacio al título
+                    bottom: 150
+                },
+                tooltip: { 
+                    trigger: 'axis',
+                    formatter: function(params) {
+                        let result = params[0].name + '<br/>';
+                        params.forEach(param => {
+                            result += `${param.seriesName}: $${param.value.toLocaleString()}<br/>`;
+                        });
+                        if (data.niveles) {
+                            result += `Nivel: ${data.niveles[params[0].dataIndex]}`;
+                        }
+                        return result;
+                    }
+                },
+                legend: {
+                    data: [data.nombres.actual, data.nombres.comparar],
+                    top: '15%'  // Ajusta la posición de la leyenda
+                },
+                xAxis: {
+                    type: 'category',
+                    data: data.categorias,
+                    axisLabel: { 
+                        rotate: 45,
+                        formatter: function(value) {
+                            return value.length > 15 ? value.substring(0, 15) + '...' : value;
+                        }
+                    }
+                },
+                yAxis: { 
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '${value}'
+                    }
+                },
+                series: [
+                    {
+                        name: data.nombres.actual,
+                        type: 'bar',
+                        data: data.costos_proyecto_actual,
+                        color: '#1f77b4',
+                        itemStyle: {
+                            borderRadius: [5, 5, 0, 0]
+                        }
+                    },
+                    {
+                        name: data.nombres.comparar,
+                        type: 'bar',
+                        data: data.costos_proyecto_comparar,
+                        color: '#ff7f0e',
+                        itemStyle: {
+                            borderRadius: [5, 5, 0, 0]
+                        }
+                    }
+                ],
+                dataZoom: [{
+                    type: 'slider',
+                    show: true,
+                    xAxisIndex: [0],
+                    start: 0,
+                    end: 100,
+                    bottom: 30,
+                    height: 20,
+                    borderColor: 'transparent',
+                    backgroundColor: '#e6e6e6',
+                    fillerColor: 'rgba(0, 100, 255, 0.2)',
+                    handleStyle: {
+                        color: '#0050b3',
+                        borderColor: '#0050b3'
+                    },
+                    textStyle: {
+                        color: '#333'
+                    }
+                }]
+            };
+            chartBarras.setOption(option);
+        })
+        .catch(error => {
+            console.error('Error al cargar comparación:', error);
+            chartBarras.clear();
+        });
+}
+                
+                    // Función para manejar el cambio de proyecto
+                    function onProyectoChange(proyectoId) {
+                        if (!proyectoId) {
+                            chartTorta.clear();
+                            chartBarras.clear();
+                            return;
+                        }
+                
+                        proyectoActualId = proyectoId;
+                        
+                        // Cargar niveles disponibles para este proyecto
+                        cargarNivelesDisponibles(proyectoId);
+                        
+                        // Cargar gráficos
+                        cargarGraficoTorta(proyectoId);
+                        cargarGraficoBarras(proyectoId);
+                    }
+                
+                    // Inicialización al cargar la página
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const proyectoSelect = document.getElementById('proyectoSelect');
+                        const nivelSelect = document.getElementById('nivelSelect');
+                        const btnFiltrar = document.getElementById('btnFiltrar');
+                        const btnReset = document.getElementById('btnReset');
+                
+                        // Cargar gráfico para el primer proyecto si está seleccionado
+                        if (proyectoSelect && proyectoSelect.value) {
+                            onProyectoChange(proyectoSelect.value);
+                        }
+                
+                        // Agregar evento al selector de proyecto
+                        proyectoSelect.addEventListener('change', function () {
+                            onProyectoChange(this.value);
+                            // Resetear el filtro de nivel al cambiar de proyecto
+                            if (nivelSelect) nivelSelect.value = 'todos';
+                        });
+                
+                        // Agregar evento al botón de filtrar
+                        if (btnFiltrar) {
+                            btnFiltrar.addEventListener('click', function() {
+                                if (!proyectoActualId) return;
+                                
+                                const nivel = nivelSelect.value === 'todos' ? null : nivelSelect.value;
+                                cargarGraficoBarras(proyectoActualId, nivel);
+                            });
+                        }
+                
+                        // Agregar evento al botón de reset
+                        if (btnReset) {
+                            btnReset.addEventListener('click', function() {
+                                if (!proyectoActualId) return;
+                                
+                                if (nivelSelect) nivelSelect.value = 'todos';
+                                cargarGraficoBarras(proyectoActualId);
+                            });
+                        }
+                    });
+                
+                    // Función para redimensionar gráficos al cambiar el tamaño de la ventana
+                    window.addEventListener('resize', function() {
+                        chartTorta.resize();
+                        chartBarras.resize();
+                    });
+                </script>
+            
+                {% endblock %}
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+
+
+
+
+
+
+
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+
+   
+{% block extrajs %}
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="{% static 'proyectoApp/main.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock extrajs %}
+
+{% block extra_css %}
+    {% endblock extra_css %}
+
+</body>
+</html>

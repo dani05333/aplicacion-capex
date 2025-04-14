@@ -1,0 +1,24 @@
+{% extends 'inicio.html' %}
+
+{% block content %}
+
+<h3>Actualizar Archivos</h3>
+
+<form method="post" action="{% url 'actualizar_carpeta' carpeta='categoria' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-warning mb-3">Actualizar Categorías</button>
+</form>
+
+<form method="post" action="{% url 'actualizar_carpeta' carpeta='costo' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-warning mb-3">Actualizar Costos</button>
+</form>
+
+<form method="post" action="{% url 'actualizar_carpeta' carpeta='adquisiciones' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-warning mb-3">Actualizar Adquisiciones</button>
+</form>
+
+<!-- Agrega más formularios para otras carpetas -->
+
+{% endblock %}

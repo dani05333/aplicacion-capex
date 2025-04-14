@@ -1,0 +1,24 @@
+{% extends 'inicio.html' %}
+{% load static %}
+
+{% block content %}
+<h3 class="text-center">{{ titulo|default:"Crear Categoría" }}</h3>
+
+<div class="col-md-10 mx-auto">
+    <div class="card shadow p-4">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                {{ form.as_p }}
+                
+                <button type="submit" class="btn btn-success">
+                    {% if accion %}{{ accion }}{% else %}Crear{% endif %}
+                </button>
+                <a href="{% url 'tabla_categoria_nuevo' %}" class="btn btn-danger">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

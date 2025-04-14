@@ -1,0 +1,28 @@
+{% extends 'inicio.html' %}
+
+{% block content %}
+
+<h3>Listado de Carpetas y Archivos</h3>
+
+{% if carpetas_y_archivos %}
+    <ul>
+        {% for carpeta, archivos in carpetas_y_archivos.items %}
+            <li>
+                <strong>{{ carpeta }}</strong>
+                <ul>
+                    {% for archivo in archivos %}
+                        <li>{{ archivo }}</li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No se encontraron carpetas o archivos.</p>
+{% endif %}
+
+{% if error %}
+    <p>{{ error }}</p>
+{% endif %}
+
+{% endblock %}

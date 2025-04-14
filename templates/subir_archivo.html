@@ -1,0 +1,62 @@
+
+
+
+{% extends 'inicio.html' %}
+{% load static %}
+
+{% block content %}
+<h3 class="text-center">Subir Excel</h3>
+
+<div class="col-md-7 mx-auto">
+    <div class="card shadow p-4">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-success mb-3">Subir archivo</button>
+            </form>
+            
+            {% if archivos_subidos %}
+                <p>¡Los archivos han sido subidos correctamente!</p>
+            
+                <form action="{% url 'cargar_datos' %}" method="post">
+                    {% csrf_token %}
+                    <label for="archivo">Selecciona qué archivo cargar:</label>
+                    <select name="archivo" id="archivo">
+                        <option value="proyecto">Proyecto</option>
+                        <option value="categoria">Categoría</option>
+                        <option value="cantidades">Cantidad</option>
+                        <option value="costo">Costo</option>
+                        <option value="adquisiciones">Adquisiciones</option>
+                        <option value="materiales_otros">Materiales y Otros</option>
+                        <option value="mano_obra">Mano de Obra</option>
+                        <option value="equipos_construccion">Equipos de Construcción</option>
+                        <option value="apu_general">APU General</option>
+                        <option value="apu_especifico">APU Específico</option>
+                        <option value="especifico_categoria">Específico Categoría</option>
+                        <option value="staff_enami">Staff Enami</option>
+                        <option value="contrato_subcontrato">Contrato Subcontrato</option>
+                        <option value="ingenieria_detalles_contraparte">Ingenieria Detalles Contraparte</option>
+                        <option value="gestion_permisos">Gestion Permisos</option>
+                        <option value="cotizacion_materiales">Cotizacion Materiales</option>
+                        <option value="dueno">Dueño</option>
+                        <option value="mb">MB</option>
+                        <option value="administracion_supervision">Administracion Supervision</option>
+                        <option value="personal_indirecto_contratista">Personal Indirecto Contratista</option>
+                        <option value="servicios_apoyo">Servicios Apoyo</option>
+                        <option value="otros_adm">Otros ADM</option>
+                        <option value="administrativo_financiero">Administrativo Financiero</option>
+                        <option value="datos_ep">Datos EP</option>
+                        <option value="datos_otros_ep">Datos Otros EP</option>
+                    </select>
+            
+                    <button type="submit" class="btn btn-primary mb-3">Cargar datos</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}

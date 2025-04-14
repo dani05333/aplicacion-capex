@@ -1,0 +1,46 @@
+{% extends 'inicio.html' %}
+
+{% block content %}
+
+<h3>Tabla de APU Especifico</h3>
+
+<a href="{% url 'crear_apu_especifico' %}" class="btn btn-success mb-3">Crear APU Especifico <i class="bi bi-file-earmark-diff-fill"></i></a>
+<!-- Tabla de Detalle -->
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">ID Categoria</th>
+            <th scope="col">ID Apu General</th>
+            <th scope="col">ID Mano Obra</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Unidad Medida</th>
+            <th scope="col">Cantidad</th>
+            <th scope="col">Precio Unitario</th>
+            <th scope="col">Total USD</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for x in apu_especifico %}
+        <tr>
+            <td>{{ x.id }}</td>
+            <td>{{ x.id_categoria }}</td>
+            <td>{{ x.id_apu_general }}</td>
+            <td>{{ x.id_mano_obra }}</td>
+            <td>{{ x.nombre }}</td>
+            <td>{{ x.unidad_medida }}</td>
+            <td>{{ x.cantidad }}</td>
+            <td>{{ x.precio_unitario }}</td>
+            <td>{{ x.total_usd }}</td>
+            <td>
+                <a href="{% url 'actualizar_apu_especifico' x.id %}" class="btn btn-warning btn-sm"><i class="bi bi-arrow-clockwise"></i> Editar</a>
+            </td>
+            <td>
+                <a href="{% url 'eliminar_apu_especifico' x.id %}" class="btn btn-danger btn-sm"><i class="bi bi-trash3-fill"></i> Eliminar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

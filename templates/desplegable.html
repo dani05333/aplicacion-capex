@@ -1,0 +1,148 @@
+{% extends 'inicio.html' %} 
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center  mb-4">
+        Detalles del Proyecto: {{ proyecto.nombre }}
+    </h2>
+
+    <!-- Contenedor con borde alrededor de la tabla -->
+<div class="border rounded shadow-lg p-3">
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-primary">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Costo</th>
+                    <th>Más</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for categoria in categorias %}
+                <tr class="accordion" data-id="{{ categoria.id }}">
+                    <td><strong>{{ categoria.nombre }}</strong></td>
+                    <td>
+                        <span class="badge bg-secondary rounded-pill">
+                            ${{ categoria.total_costo|floatformat:2 }}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-primary btn-sm toggle-subcategorias" data-id="{{ categoria.id }}">
+                            <i class="bi bi-chevron-down"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr id="subcategorias-{{ categoria.id }}" class="subcategoria-container" style="display: none;">
+                    <td colspan="3">
+                        <div class="subcategorias-content ps-3"></div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</div>
+
+<!-- Agregar Bootstrap y Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".toggle-subcategorias").forEach(button => {
+        button.addEventListener("click", function () {
+            let categoriaId = this.dataset.id;
+            let subcategoriaContainer = document.getElementById(`subcategorias-${categoriaId}`);
+
+            if (subcategoriaContainer) {
+                if (subcategoriaContainer.style.display === "none") {
+                    fetch(`/api/subcategorias/${categoriaId}/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            let content = generateSubcategoriasHTML(data);
+                            subcategoriaContainer.querySelector('.subcategorias-content').innerHTML = content;
+                            subcategoriaContainer.style.display = "table-row";
+                            
+                            // Agregar eventos para desplegar sub-subcategorías
+                            addToggleEvents();
+                        });
+
+                    this.innerHTML = `<i class="bi bi-chevron-up"></i>`;
+                } else {
+                    subcategoriaContainer.style.display = "none";
+                    this.innerHTML = `<i class="bi bi-chevron-down"></i>`;
+                }
+            } else {
+                console.error(`El contenedor para las subcategorías con id ${categoriaId} no existe.`);
+            }
+        });
+    });
+});
+
+function generateSubcategoriasHTML(data, level = 1) {
+    // Colores de borde para diferentes niveles
+    const borderColors = [
+        'border-primary',    // Nivel 1
+        'border-success',    // Nivel 2
+        'border-info',       // Nivel 3
+        'border-warning',    // Nivel 4
+        'border-secondary'   // Nivel 5+
+    ];
+    
+    const borderClass = borderColors[Math.min(level-1, borderColors.length-1)];
+    const indentClass = `ms-${(level-1)*3}`; // Indentación progresiva
+    
+    let content = `<div class="${indentClass} mb-2">`;
+
+    data.forEach(item => {
+        content += `<div class="rounded border ${borderClass} bg-light p-2 mb-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>${item.nombre}</span>
+                            <div>
+                                <span class="badge bg-white text-dark rounded-pill me-2">$${item.costo}</span>
+                                <button class="btn btn-sm btn-outline-secondary toggle-subsubcategorias" data-id="${item.id}" data-level="${level}">
+                                    <i class="bi bi-chevron-down"></i>
+                                </button>
+                            </div>
+                        </div>`;
+
+        // Si el item tiene subcategorías, las mostramos
+        if (item.sub_subcategorias && item.sub_subcategorias.length > 0) {
+            content += `<div id="subsubcategorias-${item.id}" class="mt-2" style="display: none;">`;
+            // Llamada recursiva para generar sub-subcategorías
+            content += generateSubcategoriasHTML(item.sub_subcategorias, level + 1); 
+            content += `</div>`;
+        }
+
+        content += `</div>`;
+    });
+
+    content += `</div>`;
+    return content;
+}
+
+function addToggleEvents() {
+    document.querySelectorAll(".toggle-subsubcategorias").forEach(subButton => {
+        subButton.addEventListener("click", function () {
+            let subCategoriaId = this.dataset.id;
+            let level = parseInt(this.dataset.level);
+            let subSubcategoriaContainer = document.getElementById(`subsubcategorias-${subCategoriaId}`);
+
+            if (subSubcategoriaContainer) {
+                if (subSubcategoriaContainer.style.display === "none") {
+                    subSubcategoriaContainer.style.display = "block";
+                    this.innerHTML = `<i class="bi bi-chevron-up"></i>`;
+                } else {
+                    subSubcategoriaContainer.style.display = "none";
+                    this.innerHTML = `<i class="bi bi-chevron-down"></i>`;
+                }
+            } else {
+                console.error(`El contenedor para las sub-subcategorías con id ${subCategoriaId} no existe.`);
+            }
+        });
+    });
+}
+</script>
+{% endblock %}

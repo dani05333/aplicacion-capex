@@ -1,0 +1,178 @@
+{% extends 'inicio.html' %}
+
+{% block content %}
+<h3>Tabla de Proyectos</h3>
+
+<!-- Botón para crear un nuevo proyecto -->
+
+
+
+
+<div class="d-flex gap-2 mb-3">
+    <a href="{% url 'crear_proyecto_nuevo' %}" class="btn btn-success">Crear Proyecto <i class="bi bi-file-earmark-diff-fill"></i></a>
+    <a href="{% url 'exportar_excel' 'ProyectoNuevo' %}" class="btn btn-primary">Exportar a Excel</a>
+    <form method="POST" action="{% url 'cargar_datos' %}" >
+        {% csrf_token %}
+        
+        <div class="mb-1 d-flex">
+        
+            <select name="archivo" id="archivo" class="form-select w-auto" style="max-width: 300px;">
+                <option value="todos">Actualizar todos los archivos</option>
+                <option value="proyecto">Proyecto</option>
+                <option value="cantidades">Cantidades</option>
+                <option value="categoria">Categoría</option>
+                <option value="costo">Costo</option>
+                <option value="adquisiciones">Adquisiciones</option>
+                <option value="materiales_otros">Materiales Otros</option>
+                <option value="mano_obra">Mano Obra</option>
+                <option value="equipos_construccion">Equipos Construcción</option>
+                <option value="especifico_categoria">GG Constructor</option>
+                <option value="staff_enami">Staff ENAMI</option>
+                <option value="contrato_subcontrato">Contrato Subcontrato</option>
+                <option value="cotizacion_materiales">Cotizacion Materiales</option>
+                <option value="ingenieria_detalles_contraparte">Ingenieria Detalles Contraparte</option>
+                <option value="gestion_permisos">Gestion Permisos</option>
+                <option value="dueno">Dueño</option>
+                <option value="mb">MB</option>
+                <option value="administracion_supervision">Administracion Supervision</option>
+                <option value="personal_indirecto_contratista">Personal Indirecto Contratista</option>
+                <option value="servicios_apoyo">Servicios Apoyo</option>
+                <option value="otros_adm">Otros ADM</option>
+                <option value="administrativo_financiero">Administrativo Financiero</option>
+                <option value="apu_general">Apu General</option>
+                <option value="apu_especifico">Apu Específico</option>
+                <option value="datos_ep">Datos EP</option>
+                <option value="datos_otros_ep">Datos Otros EP</option>
+                
+            </select>
+    
+            <button type="submit" class="btn btn-warning ms-2"><i class="bi bi-arrow-clockwise"></i> Cargar</button>
+        </div>
+    </form><br>
+</div>
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Proyecto Relacionado</th>
+            <th scope="col">Costo Total</th>
+            <th scope="col">Detalles</th>
+            <th scope="col">Editar</th>
+            <th scope="col">Eliminar</th>
+            <th scope="col">Duplicado</th> <!-- Nueva columna -->
+        </tr>
+    </thead>
+    <tbody>
+        {% for x in proyectonuevo %}
+        <tr>
+            <td>{{ x.id }}</td>
+            <td>{{ x.nombre }}</td>
+            <td>{{ x.proyecto_relacionado }}</td>
+            <td>${{ x.costo_total|floatformat:2 }}</td>
+            <td>
+                <a href="{% url 'detalle_proyecto' x.id %}" class="btn btn-outline-primary">
+                    <i class="bi bi-eye"></i> Ver Detalles
+                </a>
+            </td>
+            <td>
+                <a href="{% url 'actualizar_proyecto_nuevo' x.id %}" class="btn btn-warning btn-sm">
+                    <i class="bi bi-arrow-clockwise"></i> Editar
+                </a>
+            </td>
+            <td>
+                <a href="{% url 'eliminar_proyecto_nuevo' x.id %}" class="btn btn-danger btn-sm">
+                    <i class="bi bi-trash3-fill"></i> Eliminar
+                </a>
+            </td>
+            <td>
+                <button class="btn btn-info btn-sm btn-duplicar" 
+                        data-proyecto-id="{{ x.id }}"
+                        data-proyecto-nombre="{{ x.nombre }}">
+                    <i class="bi bi-files"></i> Duplicar
+                </button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Manejar clic en botones de duplicar
+        document.querySelectorAll('.btn-duplicar').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const proyectoId = this.dataset.proyectoId;
+                const proyectoNombre = this.dataset.proyectoNombre;
+                
+                // Mostrar confirmación
+                if(confirm(`¿Deseas duplicar el proyecto "${proyectoNombre}"?`)) {
+                    // Cambiar el ícono a spinner
+                    this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Preparando...';
+                    
+                    // Llamar a la API de duplicación
+                    duplicarProyecto(proyectoId, proyectoNombre, this);
+                }
+            });
+        });
+    });
+    
+    function duplicarProyecto(proyectoId, proyectoNombre, boton) {
+        fetch(`/api/duplicar-proyecto/${proyectoId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Error en la respuesta del servidor');
+            return response.blob();
+        })
+        .then(blob => {
+            // Crear enlace de descarga
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `duplicado_${proyectoId}.zip`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al duplicar el proyecto: ' + error.message);
+        })
+        .finally(() => {
+            boton.innerHTML = '<i class="bi bi-files"></i> Duplicar';
+        });
+    }
+    
+    // Función para obtener el token CSRF
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    </script>
+
+
+
+
+
+{% endblock %}
+
