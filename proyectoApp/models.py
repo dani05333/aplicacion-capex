@@ -694,7 +694,10 @@ class EspecificoCategoria(models.Model):
 
     def save(self, *args, **kwargs):
         """Recalcula el total y actualiza el total de la categoría."""
-        self.total = self.cantidad * self.duracion * self.dedicacion * self.costo
+        if self.duracion > 0:
+            self.total = self.cantidad * self.duracion * self.dedicacion * self.costo
+        else:
+            self.total = self.cantidad * self.dedicacion * self.costo
         super().save(*args, **kwargs)
 
         # Actualizar el total_costo de la categoría

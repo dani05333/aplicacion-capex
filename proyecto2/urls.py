@@ -27,7 +27,7 @@ urlpatterns = [
     path('datawizard/', include('data_wizard.urls')),
     path('cargar_datos/', views.cargar_datos, name='cargar_datos'),
     
-    path('inicio/', views.Inicio, name='inicio'),
+    path('', views.Inicio, name='inicio'),
     path('tabla_proyecto_nuevo/',views.ListadoProyectoNuevo.as_view(), name='tabla_proyecto_nuevo'),
     path('crear_proyecto_nuevo/',views.CrearProyectoNuevo.as_view(), name='crear_proyecto_nuevo'),
     path('actualizar_proyecto_nuevo/<str:pk>/', views.ActualizarProyectoNuevo.as_view(), name='actualizar_proyecto_nuevo'),
