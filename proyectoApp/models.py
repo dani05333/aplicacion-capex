@@ -152,6 +152,34 @@ class CategoriaNuevo(models.Model):
             return costo_contingencia
         return Decimal('0.00')
 
+
+    def calcular_costo_utilidades(self):
+        """Calcula el costo de utilidades como el 11.11% del total de las categorías raíz."""
+        if self.nombre.strip().lower() == "utilidades":
+
+            # Obtener todas las categorías raíz (id_padre es null) en el mismo proyecto
+            categorias_raiz = CategoriaNuevo.objects.filter(id_padre__isnull=True, proyecto=self.proyecto)
+
+            # Sumar los total_costo de todas las categorías raíz (excepto la categoría "Utilidades")
+            total_base = sum(categoria.total_costo or Decimal('0.00') for categoria in categorias_raiz if categoria.id != self.id)
+
+            # Calcular el costo de utilidades (11.11% del total base)
+            costo_utilidades = total_base * Decimal('0.1111')  # Usamos 0.1111 para mejor precisión
+
+            # Asignar el costo de utilidades al campo total_costo y guardar
+            self.total_costo = costo_utilidades
+            self.save(update_fields=['total_costo'])
+
+            # Actualizar la categoría padre si existe
+            if self.id_padre:
+                self.id_padre.actualizar_total_costo()
+
+            return costo_utilidades
+
+        return Decimal('0.00')
+
+
+
     def actualizar_total_costo(self):
         """Calcula el total_costo sumando costos directos, específicos y los de las subcategorías."""
         
@@ -165,6 +193,9 @@ class CategoriaNuevo(models.Model):
 
         elif self.nombre.lower() == "contingencia":
             total_costo += self.calcular_costo_contingencia()
+
+        elif self.nombre.lower() == "utilidades":
+            total_costo += self.calcular_costo_utilidades()
 
         elif self.nombre.lower() == "asistencia tecnica del vendor":
             total_costo += self.calcular_costo_asistencia_vendor()
@@ -222,6 +253,14 @@ class CategoriaNuevo(models.Model):
         ).first()
         if categoria_contingencia:
             categoria_contingencia.calcular_costo_contingencia()
+
+        # 🔹 Recalcular categoría "Utilidades"
+        categoria_utilidades = CategoriaNuevo.objects.filter(
+            nombre__iexact="utilidades",
+            proyecto=self.proyecto
+        ).first()
+        if categoria_utilidades:
+            categoria_utilidades.calcular_costo_utilidades()
 
     def __str__(self):
         return f"{self.id}" 
