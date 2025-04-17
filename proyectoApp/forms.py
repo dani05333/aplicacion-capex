@@ -9,11 +9,13 @@ class ArchivoSubidoForm(forms.ModelForm):
 class ProyectoNuevoForm(forms.ModelForm):
     class Meta:
         model = ProyectoNuevo
-        fields = ['id','nombre','proyecto_relacionado']
+        fields = ['id','nombre','proyecto_relacionado','porcentaje_utilidades','porcentaje_contingencia']
         widgets = {
             "id": forms.TextInput(attrs={"class": "form-control", "placeholder": "ID"}),
             "nombre": forms.TextInput(attrs={"class": "form-control", "placeholder": "Nombre del Proyecto"}),
             "proyecto_relacionado": forms.TextInput(attrs={"class": "form-control", "placeholder": "Proyecto Relacionado"}),
+            "porcentaje_utilidades": forms.NumberInput(attrs={"class": "form-control", "min": 1}),
+            "porcentaje_contingencia": forms.NumberInput(attrs={"class": "form-control", "min": 1}),
         }
 
 class CategoriaNuevoForm(forms.ModelForm):

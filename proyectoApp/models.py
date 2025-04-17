@@ -13,6 +13,8 @@ class ProyectoNuevo(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
     nombre = models.CharField(max_length=255)
     proyecto_relacionado = models.IntegerField(null=True, blank=True)
+    porcentaje_utilidades = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal('0.00'))
+    porcentaje_contingencia = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal('0.00'))
     costo_total = models.DecimalField(max_digits=20, decimal_places=2, default=Decimal('0.00'), editable=False)
 
     def calcular_costo_total(self, save=False):
@@ -125,145 +127,133 @@ class CategoriaNuevo(models.Model):
             return total_gestion_compras
         return Decimal('0.00')
 
-    def calcular_costo_contingencia(self):
-        """Calcula el costo de contingencia como el 13% del total de las categorías raíz."""
+    def calcular_costo_contingencia(self, from_child=False):
         if self.nombre.strip().lower() == "contingencia":
-           
+            porcentaje = self.proyecto.porcentaje_contingencia
 
-            # Obtener todas las categorías raíz (id_padre es null) en el mismo proyecto
-            categorias_raiz = CategoriaNuevo.objects.filter(id_padre__isnull=True, proyecto=self.proyecto)
-            
+            if porcentaje is not None:
+                categorias_raiz = CategoriaNuevo.objects.filter(id_padre__isnull=True, proyecto=self.proyecto)
+                total_base = sum(c.total_costo or Decimal('0.00') for c in categorias_raiz if c.id != self.id)
 
-            # Sumar los total_costo de todas las categorías raíz (excepto la categoría "Contingencia")
-            total_base = sum(categoria.total_costo or Decimal('0.00') for categoria in categorias_raiz if categoria.id != self.id)
-            
+                costo_contingencia = total_base * (porcentaje / Decimal('100'))
+                self.total_costo = costo_contingencia
+                self.save(update_fields=['total_costo'])
 
-            # Calcular el costo de contingencia (13% del total base)
-            costo_contingencia = total_base * Decimal('0.13')
+                # ⚠️ Solo actualizar el padre si no venimos de un hijo (para evitar recursión infinita)
+                if self.id_padre and not from_child:
+                    self.id_padre.actualizar_total_costo(from_child=True)
 
-            # Asignar el costo de contingencia al campo total_costo y guardar
-            self.total_costo = costo_contingencia
-            self.save(update_fields=['total_costo'])
-
-            # Actualizar la categoría padre si existe
-            if self.id_padre:
-                self.id_padre.actualizar_total_costo()
-
-            return costo_contingencia
+                return costo_contingencia
         return Decimal('0.00')
 
 
-    def calcular_costo_utilidades(self):
-        """Calcula el costo de utilidades como el 11.11% del total de las categorías raíz."""
+
+    def calcular_costo_utilidades(self, from_child=False):
+        """Calcula el costo de utilidades solo si el proyecto tiene porcentaje_utilidades definido."""
         if self.nombre.strip().lower() == "utilidades":
+            porcentaje = self.proyecto.porcentaje_utilidades
 
-            # Obtener todas las categorías raíz (id_padre es null) en el mismo proyecto
-            categorias_raiz = CategoriaNuevo.objects.filter(id_padre__isnull=True, proyecto=self.proyecto)
+            if porcentaje is not None:
+                categorias_raiz = CategoriaNuevo.objects.filter(id_padre__isnull=True, proyecto=self.proyecto)
 
-            # Sumar los total_costo de todas las categorías raíz (excepto la categoría "Utilidades")
-            total_base = sum(categoria.total_costo or Decimal('0.00') for categoria in categorias_raiz if categoria.id != self.id)
+                total_base = sum(c.total_costo or Decimal('0.00') for c in categorias_raiz if c.id != self.id)
 
-            # Calcular el costo de utilidades (11.11% del total base)
-            costo_utilidades = total_base * Decimal('0.1111')  # Usamos 0.1111 para mejor precisión
+                costo_utilidades = total_base * (porcentaje / Decimal('100'))
 
-            # Asignar el costo de utilidades al campo total_costo y guardar
-            self.total_costo = costo_utilidades
-            self.save(update_fields=['total_costo'])
+                self.total_costo = costo_utilidades
+                self.save(update_fields=['total_costo'])
 
-            # Actualizar la categoría padre si existe
-            if self.id_padre:
-                self.id_padre.actualizar_total_costo()
+                # ⛔ Evitar llamada recursiva infinita
+                if self.id_padre and not from_child:
+                    self.id_padre.actualizar_total_costo(from_child=True)
 
-            return costo_utilidades
+                return costo_utilidades
 
         return Decimal('0.00')
 
 
 
-    def actualizar_total_costo(self):
-        """Calcula el total_costo sumando costos directos, específicos y los de las subcategorías."""
-        
+
+
+    def actualizar_total_costo(self, from_child=False):
         total_costo = Decimal('0.00')
 
-        if self.nombre.lower() == "ingenieria de detalles":
+        nombre = self.nombre.strip().lower()
+
+        if nombre == "ingenieria de detalles":
             total_costo += self.calcular_costo_ingenieria()
-        
-        elif self.nombre.lower() == "gestion de compras":
+
+        elif nombre == "gestion de compras":
             total_costo += self.calcular_costo_gestion_compras()
 
-        elif self.nombre.lower() == "contingencia":
-            total_costo += self.calcular_costo_contingencia()
+        elif nombre == "contingencia":
+            total_costo += self.calcular_costo_contingencia(from_child=from_child)
+            return  # 🔁 Evitamos seguir, ya está calculado
 
-        elif self.nombre.lower() == "utilidades":
-            total_costo += self.calcular_costo_utilidades()
+        elif nombre == "utilidades":
+            total_costo += self.calcular_costo_utilidades(from_child=from_child)
+            return  # 🔁 Evitamos seguir, ya está calculado
 
-        elif self.nombre.lower() == "asistencia tecnica del vendor":
+        elif nombre == "asistencia tecnica del vendor":
             total_costo += self.calcular_costo_asistencia_vendor()
-
+        
         else:
-            # 🔹 Sumar costos directos
+            # 🔹 Costos directos
             costos_directos = self.costos.aggregate(total=Sum('monto'))['total'] or Decimal('0.00')
             total_costo += costos_directos
 
-            # 🔹 Sumar costos de otras tablas relacionadas
-            adquisiciones_costo = Adquisiciones.objects.filter(id_categoria=self).aggregate(total=Sum('total_con_flete'))['total'] or Decimal('0.00')
-            materiales_costo = MaterialesOtros.objects.filter(id_categoria=self).aggregate(total=Sum('total_sitio'))['total'] or Decimal('0.00') 
-            equipos_costo = EquiposConstruccion.objects.filter(id_categoria=self).aggregate(total=Sum('total_usd'))['total'] or Decimal('0.00')
-            mano_obra_costo = ManoObra.objects.filter(id_categoria=self).aggregate(total=Sum('total_usd'))['total'] or Decimal('0.00')
-            especifico_costo = EspecificoCategoria.objects.filter(id_categoria=self).aggregate(total=Sum('total'))['total'] or Decimal('0.00')
-            staff_costo = StaffEnami.objects.filter(categoria=self).aggregate(total=Sum('costo_total'))['total'] or Decimal('0.00')
-            datos_costo = DatosEP.objects.filter(id_categoria=self).aggregate(total=Sum('precio_hh'))['total'] or Decimal('0.00')
-            subcontrato_costo = ContratoSubcontrato.objects.filter(id_categoria=self).aggregate(total=Sum('total_usd_indirectos_contratista'))['total'] or Decimal('0.00')
-            ingenieria_detalles_contraparte_costo= IngenieriaDetallesContraparte.objects.filter(id_categoria=self).aggregate(total=Sum('total_usd'))['total'] or Decimal('0.00')
-            gestion_permisos_costo= GestionPermisos.objects.filter(id_categoria=self).aggregate(total=Sum('total_usd'))['total'] or Decimal('0.00')
-            dueno_costo= Dueno.objects.filter(id_categoria=self).aggregate(total=Sum('costo_total'))['total'] or Decimal('0.00')
-            personal_indirecto_contratista_costo= PersonalIndirectoContratista.objects.filter(id_categoria=self).aggregate(total=Sum('costo_total_us'))['total'] or Decimal('0.00')
-            administracion_supervision_costo= AdministracionSupervision.objects.filter(id_categoria=self).aggregate(total=Sum('costo_total_us'))['total'] or Decimal('0.00')
-            servicios_apoyo_costo= ServiciosApoyo.objects.filter(id_categoria=self).aggregate(total=Sum('total_usd'))['total'] or Decimal('0.00')
-            otros_adm_costo= OtrosADM.objects.filter(id_categoria=self).aggregate(total=Sum('total_usd'))['total'] or Decimal('0.00')
-            administrativo_financiero_costo= AdministrativoFinanciero.objects.filter(id_categoria=self).aggregate(total=Sum('costo_total'))['total'] or Decimal('0.00')
+            # 🔹 Subcategorías
+            hijos = self.subcategorias.all()
+            total_hijos = sum(h.total_costo or Decimal('0.00') for h in hijos)
+            total_costo += total_hijos
 
- 
-            total_costo += (
-                adquisiciones_costo + materiales_costo + equipos_costo +
-                mano_obra_costo + especifico_costo + staff_costo + datos_costo + subcontrato_costo + ingenieria_detalles_contraparte_costo + gestion_permisos_costo + dueno_costo + 
-                personal_indirecto_contratista_costo + administracion_supervision_costo + servicios_apoyo_costo + otros_adm_costo + administrativo_financiero_costo
-            )
+        # 🔹 Costos de otras tablas (solo si no es categoría especial)
+        if nombre not in ["contingencia", "utilidades"]:
+            total_costo += sum([
+                Adquisiciones.objects.filter(id_categoria=self).aggregate(total=Sum('total_con_flete'))['total'] or Decimal('0.00'),
+                MaterialesOtros.objects.filter(id_categoria=self).aggregate(total=Sum('total_sitio'))['total'] or Decimal('0.00'),
+                EquiposConstruccion.objects.filter(id_categoria=self).aggregate(total=Sum('total_usd'))['total'] or Decimal('0.00'),
+                ManoObra.objects.filter(id_categoria=self).aggregate(total=Sum('total_usd'))['total'] or Decimal('0.00'),
+                EspecificoCategoria.objects.filter(id_categoria=self).aggregate(total=Sum('total'))['total'] or Decimal('0.00'),
+                StaffEnami.objects.filter(categoria=self).aggregate(total=Sum('costo_total'))['total'] or Decimal('0.00'),
+                DatosEP.objects.filter(id_categoria=self).aggregate(total=Sum('precio_hh'))['total'] or Decimal('0.00'),
+                ContratoSubcontrato.objects.filter(id_categoria=self).aggregate(total=Sum('total_usd_indirectos_contratista'))['total'] or Decimal('0.00'),
+                IngenieriaDetallesContraparte.objects.filter(id_categoria=self).aggregate(total=Sum('total_usd'))['total'] or Decimal('0.00'),
+                GestionPermisos.objects.filter(id_categoria=self).aggregate(total=Sum('total_usd'))['total'] or Decimal('0.00'),
+                Dueno.objects.filter(id_categoria=self).aggregate(total=Sum('costo_total'))['total'] or Decimal('0.00'),
+                PersonalIndirectoContratista.objects.filter(id_categoria=self).aggregate(total=Sum('costo_total_us'))['total'] or Decimal('0.00'),
+                AdministracionSupervision.objects.filter(id_categoria=self).aggregate(total=Sum('costo_total_us'))['total'] or Decimal('0.00'),
+                ServiciosApoyo.objects.filter(id_categoria=self).aggregate(total=Sum('total_usd'))['total'] or Decimal('0.00'),
+                OtrosADM.objects.filter(id_categoria=self).aggregate(total=Sum('total_usd'))['total'] or Decimal('0.00'),
+                AdministrativoFinanciero.objects.filter(id_categoria=self).aggregate(total=Sum('costo_total'))['total'] or Decimal('0.00'),
+            ])
 
-            # 🔹 Sumar costos de subcategorías
-            subcategorias_costo = self.subcategorias.filter(proyecto=self.proyecto).aggregate(total=Sum('total_costo'))['total'] or Decimal('0.00')
-            total_costo += subcategorias_costo
-
-        # 🔹 Guardar el nuevo total
+        # 🔹 Guardar resultado
         self.total_costo = total_costo
         self.save(update_fields=['total_costo'])
 
-        # 🔹 Si tiene una categoría padre, actualizarla también
-        if self.id_padre and self.id_padre.proyecto == self.proyecto:
-            self.id_padre.actualizar_total_costo()
+        # 🔁 Propagar hacia arriba solo si no venimos ya de un hijo
+        if self.id_padre and not from_child:
+            self.id_padre.actualizar_total_costo(from_child=True)
 
-         # 🔹 Si es categoría raíz (no tiene padre), actualizar el proyecto
+        # 🔹 Si es categoría raíz (no tiene padre), actualizar el proyecto
         if self.id_padre is None and self.proyecto:
             self.proyecto.calcular_costo_total(save=True)
 
+        # 🔁 Recalcular "contingencia" y "utilidades" si no estamos en ellas
+        if nombre not in ["contingencia", "utilidades"]:
+            categoria_contingencia = CategoriaNuevo.objects.filter(
+                nombre__iexact="contingencia", proyecto=self.proyecto
+            ).first()
+            if categoria_contingencia:
+                categoria_contingencia.calcular_costo_contingencia(from_child=True)
 
-        categoria_contingencia = CategoriaNuevo.objects.filter(
-            nombre__iexact="contingencia",
-            proyecto=self.proyecto
-        ).first()
-        if categoria_contingencia:
-            categoria_contingencia.calcular_costo_contingencia()
+            categoria_utilidades = CategoriaNuevo.objects.filter(
+                nombre__iexact="utilidades", proyecto=self.proyecto
+            ).first()
+            if categoria_utilidades:
+                categoria_utilidades.calcular_costo_utilidades(from_child=True)
 
-        # 🔹 Recalcular categoría "Utilidades"
-        categoria_utilidades = CategoriaNuevo.objects.filter(
-            nombre__iexact="utilidades",
-            proyecto=self.proyecto
-        ).first()
-        if categoria_utilidades:
-            categoria_utilidades.calcular_costo_utilidades()
-
-    def __str__(self):
-        return f"{self.id}" 
 
 
     
@@ -733,11 +723,15 @@ class EspecificoCategoria(models.Model):
 
     def save(self, *args, **kwargs):
         """Recalcula el total y actualiza el total de la categoría."""
+        dedicacion_decimal = self.dedicacion / 100  # convertir de entero a decimal
+        
         if self.duracion > 0:
-            self.total = self.cantidad * self.duracion * self.dedicacion * self.costo
+            self.total = self.cantidad * self.duracion * dedicacion_decimal * self.costo
         else:
-            self.total = self.cantidad * self.dedicacion * self.costo
+            self.total = self.cantidad * dedicacion_decimal * self.costo
+
         super().save(*args, **kwargs)
+
 
         # Actualizar el total_costo de la categoría
         if self.id_categoria:

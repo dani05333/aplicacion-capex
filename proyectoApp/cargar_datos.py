@@ -13,7 +13,7 @@ from .models import ProyectoNuevo, CategoriaNuevo, CostoNuevo, Adquisiciones, Ma
 
 def cargar_proyecto_nuevo():
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'ProyectoNuevo')
-    
+
     for archivo in os.listdir(directorio_archivos):
         if archivo.endswith('.xlsx'):
             ruta_archivo = os.path.join(directorio_archivos, archivo)
@@ -37,13 +37,34 @@ def cargar_proyecto_nuevo():
                         except (ValueError, TypeError):
                             relacionado = None
 
-                    # Usamos update_or_create para mayor eficiencia
+                    # Obtener porcentajes si están presentes
+                    porcentaje_utilidades = row.get('porcentaje_utilidades', None)
+                    porcentaje_contingencia = row.get('porcentaje_contingencia', None)
+
+                    # Convertir valores a Decimal si existen y no están vacíos
+                    try:
+                        if pd.notna(porcentaje_utilidades):
+                            porcentaje_utilidades = Decimal(str(porcentaje_utilidades))
+                        else:
+                            porcentaje_utilidades = Decimal('0.00')
+                    except:
+                        porcentaje_utilidades = Decimal('0.00')
+
+                    try:
+                        if pd.notna(porcentaje_contingencia):
+                            porcentaje_contingencia = Decimal(str(porcentaje_contingencia))
+                        else:
+                            porcentaje_contingencia = Decimal('0.00')
+                    except:
+                        porcentaje_contingencia = Decimal('0.00')
+
                     proyecto, created = ProyectoNuevo.objects.update_or_create(
                         id=proyecto_id,
                         defaults={
                             'nombre': nombre,
                             'proyecto_relacionado': relacionado,
-                            # No establecemos costo_total aquí, se calculará después
+                            'porcentaje_utilidades': porcentaje_utilidades,
+                            'porcentaje_contingencia': porcentaje_contingencia,
                         }
                     )
 
@@ -59,6 +80,7 @@ def cargar_proyecto_nuevo():
 
             except Exception as e:
                 print(f'Error al procesar el archivo {archivo}: {str(e)}')
+
 
 
                 
