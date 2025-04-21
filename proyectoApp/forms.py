@@ -14,8 +14,8 @@ class ProyectoNuevoForm(forms.ModelForm):
             "id": forms.TextInput(attrs={"class": "form-control", "placeholder": "ID"}),
             "nombre": forms.TextInput(attrs={"class": "form-control", "placeholder": "Nombre del Proyecto"}),
             "proyecto_relacionado": forms.TextInput(attrs={"class": "form-control", "placeholder": "Proyecto Relacionado"}),
-            "porcentaje_utilidades": forms.NumberInput(attrs={"class": "form-control", "min": 1}),
-            "porcentaje_contingencia": forms.NumberInput(attrs={"class": "form-control", "min": 1}),
+            "porcentaje_utilidades": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
+            "porcentaje_contingencia": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
         }
 
 class CategoriaNuevoForm(forms.ModelForm):
@@ -28,7 +28,7 @@ class CategoriaNuevoForm(forms.ModelForm):
             "nombre": forms.TextInput(attrs={"class": "form-control", "placeholder": "Nombre de la categoría"}),
             "proyecto": forms.Select(attrs={"class": "form-select"}),
             "id_padre": forms.Select(attrs={"class": "form-select"}),
-            "nivel": forms.NumberInput(attrs={"class": "form-control", "min": 1}),
+            "nivel": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
             "final": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
 
@@ -242,8 +242,9 @@ class GestionPermisosForm(forms.ModelForm):
             "dedicacion": forms.NumberInput(attrs={"class": "form-control","min": 0, "placeholder": "Dedicacion"}),
             "meses": forms.NumberInput(attrs={"class": "form-control","min": 0, "placeholder": "Meses"}),
             "cantidad": forms.NumberInput(attrs={"class": "form-control","min": 0, "placeholder": "Cantidad"}),
+            "HH": forms.NumberInput(attrs={"class": "form-control","min": 0, "placeholder": "HH"}),
             "turno": forms.TextInput(attrs={"class": "form-control","placeholder": "Turno"}),
-            "MB": forms.Select(attrs={"class": "form-control"}),
+            "MB": forms.NumberInput(attrs={"class": "form-control","min": 0, "placeholder": "Cantidad Dolar por Hora"}),
             
         }
         

@@ -909,7 +909,7 @@ function listadoCantidades() {
                     { data: "unidad_medida" },
                     { data: "cantidad",
                         render: function (data) {
-                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
                         }
                      },
                     { data: "fc",
@@ -919,7 +919,7 @@ function listadoCantidades() {
                      },
                     { data: "cantidad_final",
                         render: function (data) {
-                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
                         }
                      },
                     { 

@@ -1090,13 +1090,13 @@ class GestionPermisos(models.Model):
     meses = models.PositiveIntegerField()
     cantidad = models.PositiveIntegerField()
     turno = models.CharField(max_length=50)
-    MB = models.ForeignKey('MB', on_delete=models.SET_NULL, null=True, blank=True)  # Selección manual de MB
+    MB = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # Selección manual de MB
     HH = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # Se calculará antes de guardar
     total_usd = models.DecimalField(max_digits=15, decimal_places=2, default=0)  # Se calculará antes de guardar
 
     def save(self, *args, **kwargs):
         self.HH = (self.dedicacion / 100) * self.meses * self.cantidad * 180
-        self.total_usd = self.HH * self.MB.mb
+        self.total_usd = self.HH * self.MB
         super().save(*args, **kwargs)
 
          # ✅ Actualizar la categoría actual

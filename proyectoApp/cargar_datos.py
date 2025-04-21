@@ -1268,7 +1268,8 @@ def cargar_gestion_permisos():
 
                         # Convertir valores numéricos
                         dedicacion = to_decimal(row['dedicacion'])
-                        
+                        mb_valor = to_decimal(row['MB'])
+
                         # Convertir valores enteros
                         try:
                             meses = int(row['meses']) if pd.notna(row['meses']) else 0
@@ -1280,19 +1281,9 @@ def cargar_gestion_permisos():
                         # Validar campo turno
                         turno = row['turno'] if row['turno'] and str(row['turno']).strip() != 'nan' else 'No especificado'
 
-                        # Manejar campo MB
-                        mb_obj = None
-                        mb_id = row['MB']
-                        if mb_id and mb_id != 'nan' and mb_id != 'None':
-                            try:
-                                mb_obj = MB.objects.get(id=int(float(mb_id)))  # Conversión segura a int
-                            except (MB.DoesNotExist, ValueError):
-                                print(f"Fila {index+2}: MB con ID '{mb_id}' no encontrado - usando None")
-                                mb_obj = None
-
                         # Calcular HH y total_usd
                         HH = (dedicacion / 100) * meses * cantidad * 180
-                        total_usd = HH * mb_obj.mb if mb_obj else Decimal('0')
+                        total_usd = HH * mb_valor
 
                         # Crear nuevo registro
                         print(f"Creando nuevo permiso para categoría {id_categoria} - {nombre}")
@@ -1303,7 +1294,7 @@ def cargar_gestion_permisos():
                             meses=meses,
                             cantidad=cantidad,
                             turno=turno,
-                            MB=mb_obj,
+                            MB=mb_valor,
                             HH=HH,
                             total_usd=total_usd
                         )
@@ -1317,7 +1308,7 @@ def cargar_gestion_permisos():
                 print(f"\nResumen para {archivo}:")
                 print(f" - Total registros en archivo: {total_registros}")
                 print(f" - Nuevos registros creados: {nuevos_registros}")
-                print(f" - Registros omitidos (ya existían): {omitidos}")
+                print(f" - Registros omitidos (ya existían o con error): {omitidos}")
 
             except Exception as e:
                 print(f'\nError al procesar el archivo {archivo}: {str(e)}')
