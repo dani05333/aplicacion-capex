@@ -255,7 +255,8 @@ class CategoriaNuevo(models.Model):
                 categoria_utilidades.calcular_costo_utilidades(from_child=True)
 
 
-
+    def __str__(self):
+            return f"{self.id} - {self.nombre}"
     
 
 class CostoNuevo(models.Model):

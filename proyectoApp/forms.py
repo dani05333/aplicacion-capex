@@ -28,6 +28,7 @@ class CategoriaNuevoForm(forms.ModelForm):
             "nombre": forms.TextInput(attrs={"class": "form-control", "placeholder": "Nombre de la categoría"}),
             "proyecto": forms.Select(attrs={"class": "form-select"}),
             "id_padre": forms.Select(attrs={"class": "form-select"}),
+            "categoria_relacionada": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
             "nivel": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
             "final": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }

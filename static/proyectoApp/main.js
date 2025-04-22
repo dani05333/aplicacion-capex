@@ -62,6 +62,9 @@ function listadoCategoria() {
                 }
             });
 
+            // ✅ Agregar filtro por proyecto
+            agregarFiltroProyecto(table, response);
+
             // Manejar selección/deselección de todas las casillas
             $('#select-all').on('click', function() {
                 var isChecked = $(this).prop('checked');
@@ -73,6 +76,57 @@ function listadoCategoria() {
         }
     });
 }
+
+function agregarFiltroProyecto(table, data) {
+    // Obtener todos los proyectos únicos
+    var proyectos = [...new Set(data.map(item => item.proyecto))].sort();
+
+    // Crear el select
+    var select = $('<select>')
+        .attr('id', 'filtro-proyecto')
+        .addClass('form-control form-control-sm')
+        .css('width', '200px')
+        .append($('<option>').val('').text('Todos los proyectos'));
+
+    proyectos.forEach(function(proyecto) {
+        select.append($('<option>').val(proyecto).text(proyecto));
+    });
+
+    // Obtener contenedor del filtro y sus elementos
+    var filterContainer = $('#tabla_categorias_wrapper .dataTables_filter');
+    var searchLabel = filterContainer.find('label'); // contiene el input
+    var searchInput = searchLabel.find('input');
+
+    // Ajustes visuales (sin romper funcionalidad)
+    filterContainer.css({
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px' // espacio entre búsqueda y filtro
+    });
+
+    // Asegurar que label e input estén correctamente estilizados
+    searchLabel.css({ display: 'flex', alignItems: 'center', marginBottom: '0' });
+    searchInput.addClass('ml-2').css('width', '200px');
+
+    // Agregar el filtro de proyecto solo si aún no existe
+    if ($('#filtro-proyecto').length === 0) {
+        const filtroProyecto = $('<span>').addClass('d-flex align-items-center').append(
+            $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
+            select
+        );
+
+        filterContainer.append(filtroProyecto);
+    }
+
+    // Aplicar filtro de proyecto al cambiar
+    $('#filtro-proyecto').on('change', function() {
+        var proyecto = $(this).val();
+        table.column(3) // columna "proyecto"
+            .search(proyecto ? '^' + proyecto + '$' : '', true, false)
+            .draw();
+    });
+}
+
 
 $(document).ready(function () {
     listadoCategoria();
@@ -160,46 +214,52 @@ function listadoAdquisiciones() {
             }
             
             // ✅ Inicializar DataTable con los datos correctos
-            $('#tabla_adquisiciones').DataTable({
+            const table = $('#tabla_adquisiciones').DataTable({
                 data: response,
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
+                    { data: "proyecto" },
                     { data: "tipo_origen" },
                     { data: "tipo_categoria" },
-                    { data: "costo_unitario",
-                        render: function (data) {
-                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
-                        }
-                     },
-                    { data: "crecimiento",
-                        render: function (data) {
-                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
-                        }
-                     },
-                    { data: "flete",
-                        render: function (data) {
-                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
-                        }
-                     },
-                    { data: "total",
-                        render: function (data) {
-                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
-                        }
-                     },
-                    { data: "total_con_flete",
-                        render: function (data) {
-                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
-                        }
-                     },
                     { 
-                        data: null, 
+                        data: "costo_unitario",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                    },
+                    {
+                        data: "crecimiento",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                    },
+                    {
+                        data: "flete",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                    },
+                    {
+                        data: "total",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                    },
+                    {
+                        data: "total_con_flete",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                    },
+                    {
+                        data: null,
                         render: function(data, type, row) {
                             return `<a href="/editar-adquisicion/${row.id}/" class="btn btn-warning btn-sm">Editar</a>`;
                         }
                     },
-                    { 
-                        data: null, 
+                    {
+                        data: null,
                         render: function(data, type, row) {
                             return `<button class="btn-eliminar-adquisicion btn btn-danger btn-sm" data-id="${row.id}">Eliminar</button>`;
                         }
@@ -217,12 +277,71 @@ function listadoAdquisiciones() {
                     }
                 }
             });
+            
+            // ✅ Ahora sí puedes usar `table`
+            agregarFiltroProyectoAdquisiciones(table, response);
+            
+
+            
         },
         error: function(xhr, status, error) {
             console.error("Error en la petición AJAX:", error);
         }
+
+        
     });
 }
+
+function agregarFiltroProyectoAdquisiciones(table, data) {
+    // Obtener todos los proyectos únicos desde las adquisiciones (a través de id_categoria.proyecto)
+    const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
+
+
+    // Crear el <select>
+    const select = $('<select>')
+        .attr('id', 'filtro-proyecto-adquisiciones')
+        .addClass('form-control form-control-sm')
+        .css('width', '200px')
+        .append($('<option>').val('').text('Todos los proyectos'));
+
+    proyectos.forEach(function(proyecto) {
+        select.append($('<option>').val(proyecto).text(proyecto));
+    });
+
+    // Obtener el contenedor del filtro de búsqueda de DataTable
+    const filterContainer = $('#tabla_adquisiciones_wrapper .dataTables_filter');
+    const searchLabel = filterContainer.find('label');
+    const searchInput = searchLabel.find('input');
+
+    // Ajustes visuales
+    filterContainer.css({
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+    });
+
+    searchLabel.css({ display: 'flex', alignItems: 'center', marginBottom: '0' });
+    searchInput.addClass('ml-2').css('width', '200px');
+
+    // Agregar el filtro si no existe
+    if ($('#filtro-proyecto-adquisiciones').length === 0) {
+        const filtroProyecto = $('<span>').addClass('d-flex align-items-center').append(
+            $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
+            select
+        );
+
+        filterContainer.append(filtroProyecto);
+    }
+
+    // Aplicar filtro al cambiar el proyecto
+    $('#filtro-proyecto-adquisiciones').on('change', function () {
+        const valor = $(this).val();
+        // La columna de proyecto está anidada en id_categoria.proyecto, por lo tanto, usamos regex para coincidencia exacta
+        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();
+
+    });
+}
+
 
 // ✅ Cargar la tabla al iniciar la página
 $(document).ready(function () {
@@ -282,11 +401,12 @@ function listadoEquiposConstruccion() {
                 $('#tabla_equipos_construccion').DataTable().destroy();
             }
             
-            $('#tabla_equipos_construccion').DataTable({
+            const table =$('#tabla_equipos_construccion').DataTable({
                 data: response,
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
+                    { data: "proyecto" },
                     { data: "horas_maquina_unidad",
                         render: function (data) {
                             return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
@@ -332,12 +452,57 @@ function listadoEquiposConstruccion() {
                     }
                 }
             });
+
+            agregarFiltroProyectoEquipos(table, response);
+
         },
         error: function(xhr, status, error) {
             console.error("Error en la petición AJAX:", error);
         }
     });
 }
+
+function agregarFiltroProyectoEquipos(table, data) {
+    const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
+
+    const select = $('<select>')
+        .attr('id', 'filtro-proyecto-equipos')
+        .addClass('form-control form-control-sm')
+        .css('width', '200px')
+        .append($('<option>').val('').text('Todos los proyectos'));
+
+    proyectos.forEach(function(proyecto) {
+        select.append($('<option>').val(proyecto).text(proyecto));
+    });
+
+    const filterContainer = $('#tabla_equipos_construccion_wrapper .dataTables_filter');
+    const searchLabel = filterContainer.find('label');
+    const searchInput = searchLabel.find('input');
+
+    filterContainer.css({
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+    });
+
+    searchLabel.css({ display: 'flex', alignItems: 'center', marginBottom: '0' });
+    searchInput.addClass('ml-2').css('width', '200px');
+
+    if ($('#filtro-proyecto-equipos').length === 0) {
+        const filtroProyecto = $('<span>').addClass('d-flex align-items-center').append(
+            $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
+            select
+        );
+
+        filterContainer.append(filtroProyecto);
+    }
+
+    $('#filtro-proyecto-equipos').on('change', function () {
+        const valor = $(this).val();
+        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();
+    });
+}
+
 
 $(document).ready(function () {
     listadoEquiposConstruccion();
@@ -392,11 +557,12 @@ function listadoManoObra() {
                 $('#tabla_mano_obra').DataTable().destroy();
             }
             
-            $('#tabla_mano_obra').DataTable({
+            const table=$('#tabla_mano_obra').DataTable({
                 data: response,
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },  // ✅ Mostrar nombre en lugar de ID
+                    { data: "proyecto" },  
                     { data: "horas_hombre_unidad",
                         render: function (data) {
                             return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
@@ -483,12 +649,57 @@ function listadoManoObra() {
                     }
                 }
             });
+
+            agregarFiltroProyectoManoObra(table, response);
+
         },
         error: function(xhr, status, error) {
             console.error("Error en la petición AJAX:", error);
         }
     });
 }
+
+function agregarFiltroProyectoManoObra(table, data) {
+    const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
+
+    const select = $('<select>')
+        .attr('id', 'filtro-proyecto-mano')
+        .addClass('form-control form-control-sm')
+        .css('width', '200px')
+        .append($('<option>').val('').text('Todos los proyectos'));
+
+    proyectos.forEach(function(proyecto) {
+        select.append($('<option>').val(proyecto).text(proyecto));
+    });
+
+    const filterContainer = $('#tabla_mano_obra_wrapper .dataTables_filter');
+    const searchLabel = filterContainer.find('label');
+    const searchInput = searchLabel.find('input');
+
+    filterContainer.css({
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+    });
+
+    searchLabel.css({ display: 'flex', alignItems: 'center', marginBottom: '0' });
+    searchInput.addClass('ml-2').css('width', '200px');
+
+    if ($('#filtro-proyecto-mano').length === 0) {
+        const filtroProyecto = $('<span>').addClass('d-flex align-items-center').append(
+            $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
+            select
+        );
+
+        filterContainer.append(filtroProyecto);
+    }
+
+    $('#filtro-proyecto-mano').on('change', function () {
+        const valor = $(this).val();
+        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw(); // 👈 Asegúrate que sea la columna del campo "proyecto"
+    });
+}
+
 
 $(document).ready(function () {
     listadoManoObra();
@@ -545,11 +756,12 @@ function listadoMaterialesOtros() {
             }
             
             // ✅ Inicializar DataTable con los datos correctos
-            $('#tabla_materiales_otros').DataTable({
+            const table=$('#tabla_materiales_otros').DataTable({
                 data: response,
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
+                    { data: "proyecto" },
                     { data: "costo_unidad",
                         render: function (data) {
                             return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
@@ -603,12 +815,56 @@ function listadoMaterialesOtros() {
                     }
                 }
             });
+            agregarFiltroProyectoMaterialesOtros(table, response);
+
         },
         error: function(xhr, status, error) {
             console.error("Error en la petición AJAX:", error);
         }
     });
 }
+
+function agregarFiltroProyectoMaterialesOtros(table, data) {
+    const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
+
+    const select = $('<select>')
+        .attr('id', 'filtro-proyecto-materiales')
+        .addClass('form-control form-control-sm')
+        .css('width', '200px')
+        .append($('<option>').val('').text('Todos los proyectos'));
+
+    proyectos.forEach(function(proyecto) {
+        select.append($('<option>').val(proyecto).text(proyecto));
+    });
+
+    const filterContainer = $('#tabla_materiales_otros_wrapper .dataTables_filter');
+    const searchLabel = filterContainer.find('label');
+    const searchInput = searchLabel.find('input');
+
+    filterContainer.css({
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+    });
+
+    searchLabel.css({ display: 'flex', alignItems: 'center', marginBottom: '0' });
+    searchInput.addClass('ml-2').css('width', '200px');
+
+    if ($('#filtro-proyecto-materiales').length === 0) {
+        const filtroProyecto = $('<span>').addClass('d-flex align-items-center').append(
+            $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
+            select
+        );
+
+        filterContainer.append(filtroProyecto);
+    }
+
+    $('#filtro-proyecto-materiales').on('change', function () {
+        const valor = $(this).val();
+        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw(); // 👈 Usa el número de la columna "proyecto"
+    });
+}
+
 
 $(document).ready(function () {
     listadoMaterialesOtros();
@@ -665,11 +921,12 @@ function listadoEspecificoCategoria() {
             }
             
             // ✅ Inicializar DataTable con los datos correctos
-            $('#tabla_especifico_categoria').DataTable({
+            const table=$('#tabla_especifico_categoria').DataTable({
                 data: response,
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
+                    { data: "proyecto" },
                     { data: "unidad" },
                     { data: "cantidad",
                         render: function (data) {
@@ -721,12 +978,58 @@ function listadoEspecificoCategoria() {
                     }
                 }
             });
+
+            agregarFiltroProyectoEspecificoCategoria(table, response);
+
+
         },
         error: function(xhr, status, error) {
             console.error("Error en la petición AJAX:", error);
         }
     });
 }
+
+function agregarFiltroProyectoEspecificoCategoria(table, data) {
+    const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
+
+    const select = $('<select>')
+        .attr('id', 'filtro-proyecto-especifico')
+        .addClass('form-control form-control-sm')
+        .css('width', '200px')
+        .append($('<option>').val('').text('Todos los proyectos'));
+
+    proyectos.forEach(function(proyecto) {
+        select.append($('<option>').val(proyecto).text(proyecto));
+    });
+
+    const filterContainer = $('#tabla_especifico_categoria_wrapper .dataTables_filter');
+    const searchLabel = filterContainer.find('label');
+    const searchInput = searchLabel.find('input');
+
+    filterContainer.css({
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+    });
+
+    searchLabel.css({ display: 'flex', alignItems: 'center', marginBottom: '0' });
+    searchInput.addClass('ml-2').css('width', '200px');
+
+    if ($('#filtro-proyecto-especifico').length === 0) {
+        const filtroProyecto = $('<span>').addClass('d-flex align-items-center').append(
+            $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
+            select
+        );
+
+        filterContainer.append(filtroProyecto);
+    }
+
+    $('#filtro-proyecto-especifico').on('change', function () {
+        const valor = $(this).val();
+        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw(); // Asegúrate de que "2" es la posición de "proyecto"
+    });
+}
+
 
 // ✅ Llamar a la función al cargar la página
 $(document).ready(function () {
@@ -781,11 +1084,12 @@ function listadoStaffEnami() {
             }
             
             // ✅ Inicializar DataTable con los datos correctos
-            $('#tabla_staff_enami').DataTable({
+            const table=$('#tabla_staff_enami').DataTable({
                 data: response,
                 columns: [
                     { data: "id" },
                     { data: "categoria" },
+                    { data: "proyecto" },
                     { data: "nombre" },
                     { data: "valor",
                         render: function (data) {
@@ -843,12 +1147,56 @@ function listadoStaffEnami() {
                     }
                 }
             });
+
+            agregarFiltroProyectoStaffEnami(table, response);
         },
         error: function(xhr, status, error) {
             console.error("Error en la petición AJAX:", error);
         }
     });
 }
+
+function agregarFiltroProyectoStaffEnami(table, data) {
+    const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
+
+    const select = $('<select>')
+        .attr('id', 'filtro-proyecto-staff')
+        .addClass('form-control form-control-sm')
+        .css('width', '200px')
+        .append($('<option>').val('').text('Todos los proyectos'));
+
+    proyectos.forEach(function(proyecto) {
+        select.append($('<option>').val(proyecto).text(proyecto));
+    });
+
+    const filterContainer = $('#tabla_staff_enami_wrapper .dataTables_filter');
+    const searchLabel = filterContainer.find('label');
+    const searchInput = searchLabel.find('input');
+
+    filterContainer.css({
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+    });
+
+    searchLabel.css({ display: 'flex', alignItems: 'center', marginBottom: '0' });
+    searchInput.addClass('ml-2').css('width', '200px');
+
+    if ($('#filtro-proyecto-staff').length === 0) {
+        const filtroProyecto = $('<span>').addClass('d-flex align-items-center').append(
+            $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
+            select
+        );
+
+        filterContainer.append(filtroProyecto);
+    }
+
+    $('#filtro-proyecto-staff').on('change', function () {
+        const valor = $(this).val();
+        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();  // Columna "proyecto" está oculta (índice 9)
+    });
+}
+
 
 // ✅ Llamar a la función al cargar la página
 $(document).ready(function () {
@@ -886,7 +1234,7 @@ function getCSRFToken() {
         ?.split('=')[1];
 }
 
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function listadoCantidades() {
     $.ajax({
@@ -901,11 +1249,12 @@ function listadoCantidades() {
             }
             
             // ✅ Inicializar DataTable con los datos correctos
-            $('#tabla_cantidades').DataTable({
+            const table=$('#tabla_cantidades').DataTable({
                 data: response,
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
+                    { data: "proyecto" },
                     { data: "unidad_medida" },
                     { data: "cantidad",
                         render: function (data) {
@@ -947,12 +1296,59 @@ function listadoCantidades() {
                     }
                 }
             });
+
+            agregarFiltroProyectoCantidades(table, response);
         },
         error: function(xhr, status, error) {
             console.error("Error en la petición AJAX:", error);
         }
+        
+    });
+
+    
+}
+
+function agregarFiltroProyectoCantidades(table, data) {
+    const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
+
+    const select = $('<select>')
+        .attr('id', 'filtro-proyecto-cantidades')
+        .addClass('form-control form-control-sm')
+        .css('width', '200px')
+        .append($('<option>').val('').text('Todos los proyectos'));
+
+    proyectos.forEach(function(proyecto) {
+        select.append($('<option>').val(proyecto).text(proyecto));
+    });
+
+    const filterContainer = $('#tabla_cantidades_wrapper .dataTables_filter');
+    const searchLabel = filterContainer.find('label');
+    const searchInput = searchLabel.find('input');
+
+    filterContainer.css({
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+    });
+
+    searchLabel.css({ display: 'flex', alignItems: 'center', marginBottom: '0' });
+    searchInput.addClass('ml-2').css('width', '200px');
+
+    if ($('#filtro-proyecto-cantidades').length === 0) {
+        const filtroProyecto = $('<span>').addClass('d-flex align-items-center').append(
+            $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
+            select
+        );
+
+        filterContainer.append(filtroProyecto);
+    }
+
+    $('#filtro-proyecto-cantidades').on('change', function () {
+        const valor = $(this).val();
+        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();  // Columna "proyecto" está oculta (índice 2)
     });
 }
+
 
 // ✅ Cargar la tabla al iniciar la página
 $(document).ready(function () {
@@ -1010,11 +1406,12 @@ function listadoContratoSubcontrato() {
             }
             
             // ✅ Inicializar DataTable con los datos correctos
-            $('#tabla_contrato_subcontrato').DataTable({
+            const table=$('#tabla_contrato_subcontrato').DataTable({
                 data: response,
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
+                    { data: "proyecto" },
                     { data: "costo_laboral_indirecto_usd_hh",
                         render: function (data) {
                             return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
@@ -1075,6 +1472,7 @@ function listadoContratoSubcontrato() {
                     }
                 }
             });
+            agregarFiltroProyectoContratoSubcontrato(table, response);
         },
         error: function(xhr, status, error) {
             console.error("Error en la petición AJAX:", error);
@@ -1082,6 +1480,46 @@ function listadoContratoSubcontrato() {
     });
 }
 
+function agregarFiltroProyectoContratoSubcontrato(table, data) {
+    const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
+
+    const select = $('<select>')
+        .attr('id', 'filtro-proyecto-contrato-subcontrato')
+        .addClass('form-control form-control-sm')
+        .css('width', '200px')
+        .append($('<option>').val('').text('Todos los proyectos'));
+
+    proyectos.forEach(function(proyecto) {
+        select.append($('<option>').val(proyecto).text(proyecto));
+    });
+
+    const filterContainer = $('#tabla_contrato_subcontrato_wrapper .dataTables_filter');
+    const searchLabel = filterContainer.find('label');
+    const searchInput = searchLabel.find('input');
+
+    filterContainer.css({
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+    });
+
+    searchLabel.css({ display: 'flex', alignItems: 'center', marginBottom: '0' });
+    searchInput.addClass('ml-2').css('width', '200px');
+
+    if ($('#filtro-proyecto-contrato-subcontrato').length === 0) {
+        const filtroProyecto = $('<span>').addClass('d-flex align-items-center').append(
+            $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
+            select
+        );
+
+        filterContainer.append(filtroProyecto);
+    }
+
+    $('#filtro-proyecto-contrato-subcontrato').on('change', function () {
+        const valor = $(this).val();
+        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();
+    });
+}
 // ✅ Cargar la tabla al iniciar la página
 
 $(document).ready(function () {
@@ -1139,11 +1577,12 @@ function listadoCotizacionMateriales() {
             }
             
             // ✅ Inicializar DataTable con los datos correctos
-            $('#tabla_cotizacion_materiales').DataTable({
+            const table=$('#tabla_cotizacion_materiales').DataTable({
                 data: response,
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
+                    { data: "proyecto" },
                     { data: "tipo_suministro" },
                     { data: "tipo_moneda" },
                     { data: "pais_entrega" },
@@ -1206,10 +1645,52 @@ function listadoCotizacionMateriales() {
                     }
                 }
             });
+            agregarFiltroProyectoCotizacionMateriales(table, response);
         },
         error: function(xhr, status, error) {
             console.error("Error en la petición AJAX:", error);
         }
+    });
+}
+
+function agregarFiltroProyectoCotizacionMateriales(table, data) {
+    const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
+
+    const select = $('<select>')
+        .attr('id', 'filtro-proyecto-cotizacion-materiales')
+        .addClass('form-control form-control-sm')
+        .css('width', '200px')
+        .append($('<option>').val('').text('Todos los proyectos'));
+
+    proyectos.forEach(function(proyecto) {
+        select.append($('<option>').val(proyecto).text(proyecto));
+    });
+
+    const filterContainer = $('#tabla_cotizacion_materiales_wrapper .dataTables_filter');
+    const searchLabel = filterContainer.find('label');
+    const searchInput = searchLabel.find('input');
+
+    filterContainer.css({
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+    });
+
+    searchLabel.css({ display: 'flex', alignItems: 'center', marginBottom: '0' });
+    searchInput.addClass('ml-2').css('width', '200px');
+
+    if ($('#filtro-proyecto-cotizacion-materiales').length === 0) {
+        const filtroProyecto = $('<span>').addClass('d-flex align-items-center').append(
+            $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
+            select
+        );
+
+        filterContainer.append(filtroProyecto);
+    }
+
+    $('#filtro-proyecto-cotizacion-materiales').on('change', function () {
+        const valor = $(this).val();
+        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();
     });
 }
 

@@ -442,10 +442,23 @@ class ListadoAdquisiciones(ListView):
     context_object_name = 'adquisiciones'
 
     def get(self, request, *args, **kwargs):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  
-            data = list(self.get_queryset().values("id","id_categoria","tipo_origen","tipo_categoria","costo_unitario","crecimiento","flete","total","total_con_flete"))  # ✅ Convertimos a lista de diccionarios
-            return JsonResponse(data, safe=False)  
-
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            adquisiciones = Adquisiciones.objects.select_related('id_categoria__proyecto')
+            data = []
+            for a in adquisiciones:
+                data.append({
+                    "id": a.id,
+                    "id_categoria": str(a.id_categoria) if a.id_categoria else None,
+                    "proyecto": a.id_categoria.proyecto.id if a.id_categoria and a.id_categoria.proyecto else None,
+                    "tipo_origen": a.tipo_origen,
+                    "tipo_categoria": a.tipo_categoria,
+                    "costo_unitario": float(a.costo_unitario),
+                    "crecimiento": float(a.crecimiento),
+                    "flete": float(a.flete),
+                    "total": float(a.total),
+                    "total_con_flete": float(a.total_con_flete),
+                })
+            return JsonResponse(data, safe=False)
         return super().get(request, *args, **kwargs)
 
 class ActualizarAdquisiciones(UpdateView):
@@ -488,10 +501,24 @@ class ListadoMaterialesOtros(ListView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  
-            data = list(self.get_queryset().values("id", "id_categoria", "costo_unidad", "crecimiento","total_usd","fletes","total_sitio"))  # ✅ Convertimos a lista de diccionarios
-            return JsonResponse(data, safe=False)  
+            materiales = MaterialesOtros.objects.select_related('id_categoria__proyecto')
+            
+            data = []
+            for material in materiales:
+                data.append({
+                    "id": material.id,
+                    "id_categoria": str(material.id_categoria),  # Para mostrar nombre
+                    "proyecto": material.id_categoria.proyecto.id if material.id_categoria and material.id_categoria.proyecto else None,
+                    "costo_unidad": float(material.costo_unidad),
+                    "crecimiento": float(material.crecimiento),
+                    "total_usd": float(material.total_usd),
+                    "fletes": float(material.fletes),
+                    "total_sitio": float(material.total_sitio),
+                })
+            return JsonResponse(data, safe=False)
 
         return super().get(request, *args, **kwargs)
+
 
 class ActualizarMaterialesOtros(UpdateView):
     model = MaterialesOtros
@@ -531,11 +558,25 @@ class ListadoCantidades(ListView):
     context_object_name = "cantidades"
 
     def get(self, request, *args, **kwargs):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  
-            data = list(self.get_queryset().values("id", "id_categoria", "unidad_medida", "cantidad", "fc", "cantidad_final"))  # ✅ Convertimos a lista de diccionarios
-            return JsonResponse(data, safe=False)  
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            # Optimización: Usar select_related si hay relaciones que se deben traer en la misma consulta
+            cantidades = Cantidades.objects.select_related('id_categoria')  # Si 'id_categoria' tiene una relación con otro modelo
+            
+            data = []
+            for cantidad in cantidades:
+                data.append({
+                    "id": cantidad.id,
+                    "id_categoria": str(cantidad.id_categoria),  # Devuelve el ID de la categoría (puedes ajustarlo a un nombre si lo deseas)
+                    "proyecto": cantidad.id_categoria.proyecto.id if cantidad.id_categoria and cantidad.id_categoria.proyecto else None,
+                    "unidad_medida": cantidad.unidad_medida,
+                    "cantidad": float(cantidad.cantidad),  # Asegúrate de que sea un valor numérico
+                    "fc": float(cantidad.fc),  # Asegúrate de que sea un valor numérico
+                    "cantidad_final": float(cantidad.cantidad_final),  # Asegúrate de que sea un valor numérico
+                })
+            return JsonResponse(data, safe=False)
 
         return super().get(request, *args, **kwargs)
+
     
 class ActualizarCantidades(UpdateView):
     model = Cantidades
@@ -575,11 +616,22 @@ class ListadoEquiposConstruccion(ListView):
     context_object_name = 'equipos_construccion'
 
     def get(self, request, *args, **kwargs):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  
-            data = list(self.get_queryset().values("id", "id_categoria", "horas_maquina_unidad", "costo_maquina_hora", "total_horas_maquina", "total_usd"))  # ✅ Convertimos a lista de diccionarios
-            return JsonResponse(data, safe=False)  
-
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            equipos = EquiposConstruccion.objects.select_related('id_categoria__proyecto')
+            data = []
+            for equipo in equipos:
+                data.append({
+                    "id": equipo.id,
+                    "id_categoria": equipo.id_categoria.id if equipo.id_categoria else None,
+                    "proyecto": equipo.id_categoria.proyecto.id if equipo.id_categoria and equipo.id_categoria.proyecto else None,
+                    "horas_maquina_unidad": float(equipo.horas_maquina_unidad),
+                    "costo_maquina_hora": float(equipo.costo_maquina_hora),
+                    "total_horas_maquina": float(equipo.total_horas_maquina),
+                    "total_usd": float(equipo.total_usd),
+                })
+            return JsonResponse(data, safe=False)
         return super().get(request, *args, **kwargs)
+
     
 
 class ActualizarEquiposConstruccion(UpdateView):
@@ -622,27 +674,31 @@ class ListadoManoObra(ListView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  
-            data = list(self.get_queryset().values(
-                "id",
-                "id_categoria",  # ✅ Devuelve el nombre en lugar del ID
-                "horas_hombre_unidad",
-                "fp",
-                "rendimiento",  # ✅ Nuevo campo
-                "horas_hombre_final",
-                "cantidad_horas_hombre",
-                "costo_hombre_hora",
-                "tarifas_usd_hh_mod",  # ✅ Nuevo campo
-                "total_hh",
-                "total_usd_mod",
-                "tarifa_usd_hh_equipos",
-                "total_usd_equipos",
-                "total_usd",  # ✅ Nuevo cálculo agregado
-                
-                
-            ))
-            return JsonResponse(data, safe=False)  
+            mano_obra = ManoObra.objects.select_related('id_categoria__proyecto')
+
+            data = []
+            for mo in mano_obra:
+                data.append({
+                    "id": mo.id,
+                    "id_categoria": str(mo.id_categoria),
+                    "proyecto": mo.id_categoria.proyecto.id if mo.id_categoria and mo.id_categoria.proyecto else None,
+                    "horas_hombre_unidad": float(mo.horas_hombre_unidad),
+                    "fp": float(mo.fp),
+                    "rendimiento": float(mo.rendimiento),
+                    "horas_hombre_final": float(mo.horas_hombre_final),
+                    "cantidad_horas_hombre": float(mo.cantidad_horas_hombre),
+                    "costo_hombre_hora": float(mo.costo_hombre_hora),
+                    "tarifas_usd_hh_mod": float(mo.tarifas_usd_hh_mod),
+                    "tarifa_usd_hh_equipos": float(mo.tarifa_usd_hh_equipos),
+                    "total_hh": float(mo.total_hh),
+                    "total_usd_mod": float(mo.total_usd_mod),
+                    "total_usd_equipos": float(mo.total_usd_equipos),
+                    "total_usd": float(mo.total_usd),
+                })
+            return JsonResponse(data, safe=False)
 
         return super().get(request, *args, **kwargs)
+
 
 class ActualizarManoObra(UpdateView):
     model = ManoObra
@@ -736,10 +792,25 @@ class ListadoEspecificoCategoria(ListView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  
-            data = list(self.get_queryset().values('id', 'id_categoria', 'unidad', 'cantidad', 'dedicacion', 'duracion', 'costo', 'total'))  # ✅ Convertimos a lista de diccionarios
-            return JsonResponse(data, safe=False)  
+            especificos = EspecificoCategoria.objects.select_related('id_categoria__proyecto')
+
+            data = []
+            for item in especificos:
+                data.append({
+                    "id": item.id,
+                    "id_categoria": str(item.id_categoria),
+                    "proyecto": item.id_categoria.proyecto.id if item.id_categoria and item.id_categoria.proyecto else None,
+                    "unidad": item.unidad,
+                    "cantidad": float(item.cantidad),
+                    "dedicacion": float(item.dedicacion),
+                    "duracion": float(item.duracion),
+                    "costo": float(item.costo),
+                    "total": float(item.total),
+                })
+            return JsonResponse(data, safe=False)
 
         return super().get(request, *args, **kwargs)
+
 
 class ActualizarEspecificoCategoria(UpdateView):
     model = EspecificoCategoria
@@ -783,10 +854,26 @@ class ListadoStaffEnami(ListView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  
-            data = list(self.get_queryset().values('id', 'nombre', 'valor', 'dotacion', 'duracion', 'factor_utilizacion', 'total_horas_hombre', 'costo_total','categoria'))  # ✅ Convertimos a lista de diccionarios
-            return JsonResponse(data, safe=False)  
+            staff_enami_queryset = StaffEnami.objects.select_related('categoria__proyecto')  # Relacionamos la categoria y proyecto
+            
+            data = []
+            for item in staff_enami_queryset:
+                data.append({
+                    "id": item.id,
+                    "nombre": item.nombre,
+                    "valor": float(item.valor),
+                    "dotacion": float(item.dotacion),
+                    "duracion": float(item.duracion),
+                    "factor_utilizacion": float(item.factor_utilizacion),
+                    "total_horas_hombre": float(item.total_horas_hombre),
+                    "costo_total": float(item.costo_total),
+                    "categoria": str(item.categoria),
+                    "proyecto": item.categoria.proyecto.id if item.categoria and item.categoria.proyecto else None,  # Incluimos el proyecto relacionado
+                })
+            return JsonResponse(data, safe=False)
 
         return super().get(request, *args, **kwargs)
+
 
 class ActualizarStaffEnami(UpdateView):
     model = StaffEnami
@@ -950,10 +1037,30 @@ class ListadoCotizacionMateriales(ListView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  
-            data = list(self.get_queryset().values('id', 'id_categoria', 'tipo_suministro', 'tipo_moneda', 'pais_entrega', 'fecha_cotizacion_referencia', 'cotizacion_usd', 'cotizacion_clp','factor_correccion','moneda_aplicada','flete_unitario','origen_precio','cotizacion','moneda_origen','tasa_cambio'))  # ✅ Convertimos a lista de diccionarios
-            return JsonResponse(data, safe=False)  
-
+            cotizaciones = CotizacionMateriales.objects.select_related('id_categoria__proyecto')
+            data = []
+            for cotizacion in cotizaciones:
+                data.append({
+                    "id": cotizacion.id,
+                    "id_categoria": cotizacion.id_categoria.id if cotizacion.id_categoria else None,
+                    "proyecto": cotizacion.id_categoria.proyecto.id if cotizacion.id_categoria and cotizacion.id_categoria.proyecto else None,
+                    "tipo_suministro": cotizacion.tipo_suministro,
+                    "tipo_moneda": cotizacion.tipo_moneda,
+                    "pais_entrega": cotizacion.pais_entrega,
+                    "fecha_cotizacion_referencia": cotizacion.fecha_cotizacion_referencia,
+                    "cotizacion_usd": float(cotizacion.cotizacion_usd),
+                    "cotizacion_clp": float(cotizacion.cotizacion_clp),
+                    "factor_correccion": float(cotizacion.factor_correccion),
+                    "moneda_aplicada": cotizacion.moneda_aplicada,
+                    "flete_unitario": float(cotizacion.flete_unitario),
+                    "origen_precio": cotizacion.origen_precio,
+                    "cotizacion": cotizacion.cotizacion,
+                    "moneda_origen": cotizacion.moneda_origen,
+                    "tasa_cambio": float(cotizacion.tasa_cambio),
+                })
+            return JsonResponse(data, safe=False)
         return super().get(request, *args, **kwargs)
+
     
 class ActualizarCotizacionMateriales(UpdateView):
     model = CotizacionMateriales
@@ -992,10 +1099,24 @@ class ListadoContratoSubcontrato(ListView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  
-            data = list(self.get_queryset().values('id', 'id_categoria', 'costo_laboral_indirecto_usd_hh', 'total_usd_indirectos_contratista', 'usd_por_unidad', 'fc_subcontrato', 'usd_total_subcontrato', 'costo_contrato_total','costo_contrato_unitario'))  # ✅ Convertimos a lista de diccionarios
-            return JsonResponse(data, safe=False)  
-
+            contratos = ContratoSubcontrato.objects.select_related('id_categoria__proyecto')
+            data = []
+            for contrato in contratos:
+                data.append({
+                    "id": contrato.id,
+                    "id_categoria": contrato.id_categoria.id if contrato.id_categoria else None,
+                    "proyecto": contrato.id_categoria.proyecto.id if contrato.id_categoria and contrato.id_categoria.proyecto else None,
+                    "costo_laboral_indirecto_usd_hh": float(contrato.costo_laboral_indirecto_usd_hh),
+                    "total_usd_indirectos_contratista": float(contrato.total_usd_indirectos_contratista),
+                    "usd_por_unidad": float(contrato.usd_por_unidad),
+                    "fc_subcontrato": float(contrato.fc_subcontrato),
+                    "usd_total_subcontrato": float(contrato.usd_total_subcontrato),
+                    "costo_contrato_total": float(contrato.costo_contrato_total),
+                    "costo_contrato_unitario": float(contrato.costo_contrato_unitario),
+                })
+            return JsonResponse(data, safe=False)
         return super().get(request, *args, **kwargs)
+
     
 class ActualizarContratoSubcontrato(UpdateView):
     model = ContratoSubcontrato
