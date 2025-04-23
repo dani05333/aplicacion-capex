@@ -25,7 +25,7 @@ function listadoCategoria() {
                     },
                     { data: "id" },
                     { data: "nombre" },
-                    { data: "proyecto" },
+                    { data: "proyecto__nombre" },
                     { data: "id_padre" },
                     { data: "categoria_relacionada"
                      },
@@ -79,7 +79,8 @@ function listadoCategoria() {
 
 function agregarFiltroProyecto(table, data) {
     // Obtener todos los proyectos únicos
-    var proyectos = [...new Set(data.map(item => item.proyecto))].sort();
+    var proyectos = [...new Set(data.map(item => item.proyecto__nombre))].filter(Boolean).sort();
+
 
     // Crear el select
     var select = $('<select>')
@@ -215,11 +216,12 @@ function listadoAdquisiciones() {
             
             // ✅ Inicializar DataTable con los datos correctos
             const table = $('#tabla_adquisiciones').DataTable({
+                deferRender: true,
                 data: response,
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
-                    { data: "proyecto" },
+                    { data: "proyecto", visible: false },
                     { data: "tipo_origen" },
                     { data: "tipo_categoria" },
                     { 
@@ -558,11 +560,12 @@ function listadoManoObra() {
             }
             
             const table=$('#tabla_mano_obra').DataTable({
+                deferRender: true,
                 data: response,
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },  // ✅ Mostrar nombre en lugar de ID
-                    { data: "proyecto" },  
+                    { data: "proyecto", visible: false },  // ✅ Ocultar columna de proyecto
                     { data: "horas_hombre_unidad",
                         render: function (data) {
                             return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
@@ -1254,7 +1257,7 @@ function listadoCantidades() {
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
-                    { data: "proyecto" },
+                    { data: "proyecto" },  // ✅ Ocultar columna de proyecto
                     { data: "unidad_medida" },
                     { data: "cantidad",
                         render: function (data) {

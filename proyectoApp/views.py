@@ -373,7 +373,7 @@ class ListadoCategoriaNuevo(ListView):
     
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  
-            data = list(self.get_queryset().values("id", "nombre", "proyecto", "id_padre", "categoria_relacionada","nivel", "final", "total_costo"))  # ✅ Convertimos a lista de diccionarios
+            data = list(self.get_queryset().values("id", "nombre", "proyecto__nombre", "id_padre", "categoria_relacionada","nivel", "final", "total_costo"))  # ✅ Convertimos a lista de diccionarios
             return JsonResponse(data, safe=False)  
 
         return super().get(request, *args, **kwargs)
@@ -449,7 +449,7 @@ class ListadoAdquisiciones(ListView):
                 data.append({
                     "id": a.id,
                     "id_categoria": str(a.id_categoria) if a.id_categoria else None,
-                    "proyecto": a.id_categoria.proyecto.id if a.id_categoria and a.id_categoria.proyecto else None,
+                    "proyecto": str(a.id_categoria.proyecto) if a.id_categoria and a.id_categoria.proyecto else None,
                     "tipo_origen": a.tipo_origen,
                     "tipo_categoria": a.tipo_categoria,
                     "costo_unitario": float(a.costo_unitario),
@@ -567,7 +567,7 @@ class ListadoCantidades(ListView):
                 data.append({
                     "id": cantidad.id,
                     "id_categoria": str(cantidad.id_categoria),  # Devuelve el ID de la categoría (puedes ajustarlo a un nombre si lo deseas)
-                    "proyecto": cantidad.id_categoria.proyecto.id if cantidad.id_categoria and cantidad.id_categoria.proyecto else None,
+                    "proyecto": str(cantidad.id_categoria.proyecto) if cantidad.id_categoria and cantidad.id_categoria.proyecto else None,
                     "unidad_medida": cantidad.unidad_medida,
                     "cantidad": float(cantidad.cantidad),  # Asegúrate de que sea un valor numérico
                     "fc": float(cantidad.fc),  # Asegúrate de que sea un valor numérico
@@ -681,7 +681,7 @@ class ListadoManoObra(ListView):
                 data.append({
                     "id": mo.id,
                     "id_categoria": str(mo.id_categoria),
-                    "proyecto": mo.id_categoria.proyecto.id if mo.id_categoria and mo.id_categoria.proyecto else None,
+                    "proyecto": str(mo.id_categoria.proyecto) if mo.id_categoria and mo.id_categoria.proyecto else None,
                     "horas_hombre_unidad": float(mo.horas_hombre_unidad),
                     "fp": float(mo.fp),
                     "rendimiento": float(mo.rendimiento),
@@ -799,7 +799,7 @@ class ListadoEspecificoCategoria(ListView):
                 data.append({
                     "id": item.id,
                     "id_categoria": str(item.id_categoria),
-                    "proyecto": item.id_categoria.proyecto.id if item.id_categoria and item.id_categoria.proyecto else None,
+                    "proyecto": str(item.id_categoria.proyecto) if item.id_categoria and item.id_categoria.proyecto else None,
                     "unidad": item.unidad,
                     "cantidad": float(item.cantidad),
                     "dedicacion": float(item.dedicacion),
