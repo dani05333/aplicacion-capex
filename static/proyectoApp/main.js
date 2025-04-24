@@ -221,7 +221,7 @@ function listadoAdquisiciones() {
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
-                    { data: "proyecto", visible: false },
+                    { data: "proyecto" },
                     { data: "tipo_origen" },
                     { data: "tipo_categoria" },
                     { 
@@ -295,27 +295,22 @@ function listadoAdquisiciones() {
 }
 
 function agregarFiltroProyectoAdquisiciones(table, data) {
-    // Obtener todos los proyectos únicos desde las adquisiciones (a través de id_categoria.proyecto)
     const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
 
-
-    // Crear el <select>
     const select = $('<select>')
         .attr('id', 'filtro-proyecto-adquisiciones')
         .addClass('form-control form-control-sm')
         .css('width', '200px')
         .append($('<option>').val('').text('Todos los proyectos'));
 
-    proyectos.forEach(function(proyecto) {
+    proyectos.forEach(proyecto => {
         select.append($('<option>').val(proyecto).text(proyecto));
     });
 
-    // Obtener el contenedor del filtro de búsqueda de DataTable
     const filterContainer = $('#tabla_adquisiciones_wrapper .dataTables_filter');
     const searchLabel = filterContainer.find('label');
     const searchInput = searchLabel.find('input');
 
-    // Ajustes visuales
     filterContainer.css({
         display: 'flex',
         alignItems: 'center',
@@ -325,24 +320,39 @@ function agregarFiltroProyectoAdquisiciones(table, data) {
     searchLabel.css({ display: 'flex', alignItems: 'center', marginBottom: '0' });
     searchInput.addClass('ml-2').css('width', '200px');
 
-    // Agregar el filtro si no existe
     if ($('#filtro-proyecto-adquisiciones').length === 0) {
         const filtroProyecto = $('<span>').addClass('d-flex align-items-center').append(
             $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
             select
         );
-
         filterContainer.append(filtroProyecto);
     }
 
-    // Aplicar filtro al cambiar el proyecto
+    // Función para recalcular la suma del total_con_flete de las filas visibles
+    function actualizarSuma() {
+        let total = 0;
+        table.rows({ search: 'applied' }).every(function () {
+            const rowData = this.data();
+            total += parseFloat(rowData.total_con_flete);
+        });
+
+        const totalFormateado = `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(total)}`;
+        $('#suma-total-con-flete strong').text(totalFormateado);
+    }
+
+    // Filtro y actualización de suma
     $('#filtro-proyecto-adquisiciones').on('change', function () {
         const valor = $(this).val();
-        // La columna de proyecto está anidada en id_categoria.proyecto, por lo tanto, usamos regex para coincidencia exacta
         table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();
-
+        actualizarSuma();
     });
+
+    // También actualiza la suma al iniciar
+    table.on('draw', actualizarSuma);
+    actualizarSuma();
+
 }
+
 
 
 // ✅ Cargar la tabla al iniciar la página
@@ -495,15 +505,32 @@ function agregarFiltroProyectoEquipos(table, data) {
             $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
             select
         );
-
         filterContainer.append(filtroProyecto);
     }
 
+    // ✅ Nueva función para actualizar la suma del total_usd
+    function actualizarSumaUSD() {
+        let total = 0;
+        table.rows({ search: 'applied' }).every(function () {
+            const rowData = this.data();
+            total += parseFloat(rowData.total_usd || 0);
+        });
+
+        const totalFormateado = `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(total)}`;
+        $('#suma-total-usd-equipos strong').text(totalFormateado);
+    }
+
+    // ✅ Aplicar filtro y actualizar suma
     $('#filtro-proyecto-equipos').on('change', function () {
         const valor = $(this).val();
         table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();
+        actualizarSumaUSD();
     });
+
+    table.on('draw', actualizarSumaUSD);
+    actualizarSumaUSD();
 }
+
 
 
 $(document).ready(function () {
@@ -560,6 +587,7 @@ function listadoManoObra() {
             }
             
             const table=$('#tabla_mano_obra').DataTable({
+                scrollX: true,
                 deferRender: true,
                 data: response,
                 columns: [
@@ -693,15 +721,32 @@ function agregarFiltroProyectoManoObra(table, data) {
             $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
             select
         );
-
         filterContainer.append(filtroProyecto);
     }
 
+    // ✅ Nueva función para actualizar la suma del total_usd
+    function actualizarSumaUSDMano() {
+        let total = 0;
+        table.rows({ search: 'applied' }).every(function () {
+            const rowData = this.data();
+            total += parseFloat(rowData.total_usd || 0);
+        });
+
+        const totalFormateado = `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(total)}`;
+        $('#suma-total-usd-mano strong').text(totalFormateado);
+    }
+
+    // ✅ Aplicar filtro y actualizar suma
     $('#filtro-proyecto-mano').on('change', function () {
         const valor = $(this).val();
-        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw(); // 👈 Asegúrate que sea la columna del campo "proyecto"
+        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();
+        actualizarSumaUSDMano();
     });
+
+    table.on('draw', actualizarSumaUSDMano);
+    actualizarSumaUSDMano();
 }
+
 
 
 $(document).ready(function () {
@@ -858,15 +903,32 @@ function agregarFiltroProyectoMaterialesOtros(table, data) {
             $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
             select
         );
-
         filterContainer.append(filtroProyecto);
     }
 
+    // ✅ Nueva función para actualizar la suma del total_usd
+    function actualizarSumaUSD() {
+        let total = 0;
+        table.rows({ search: 'applied' }).every(function () {
+            const rowData = this.data();
+            total += parseFloat(rowData.total_usd || 0);
+        });
+
+        const totalFormateado = `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(total)}`;
+        $('#suma-total-usd-materiales strong').text(totalFormateado);
+    }
+
+    // ✅ Aplicar filtro y actualizar suma
     $('#filtro-proyecto-materiales').on('change', function () {
         const valor = $(this).val();
-        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw(); // 👈 Usa el número de la columna "proyecto"
+        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();
+        actualizarSumaUSD();
     });
+
+    table.on('draw', actualizarSumaUSD);
+    actualizarSumaUSD();
 }
+
 
 
 $(document).ready(function () {
@@ -1023,15 +1085,32 @@ function agregarFiltroProyectoEspecificoCategoria(table, data) {
             $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
             select
         );
-
         filterContainer.append(filtroProyecto);
     }
 
+    // ✅ Nueva función para actualizar la suma del total
+    function actualizarSumaTotal() {
+        let total = 0;
+        table.rows({ search: 'applied' }).every(function () {
+            const rowData = this.data();
+            total += parseFloat(rowData.total || 0);
+        });
+
+        const totalFormateado = `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(total)}`;
+        $('#suma-total-especifico-categoria strong').text(totalFormateado);
+    }
+
+    // ✅ Aplicar filtro y actualizar suma
     $('#filtro-proyecto-especifico').on('change', function () {
         const valor = $(this).val();
-        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw(); // Asegúrate de que "2" es la posición de "proyecto"
+        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();
+        actualizarSumaTotal();
     });
+
+    table.on('draw', actualizarSumaTotal);
+    actualizarSumaTotal();
 }
+
 
 
 // ✅ Llamar a la función al cargar la página
@@ -1072,7 +1151,7 @@ function getCSRFToken() {
 }
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////7
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function listadoStaffEnami() {
     $.ajax({
@@ -1190,15 +1269,32 @@ function agregarFiltroProyectoStaffEnami(table, data) {
             $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
             select
         );
-
         filterContainer.append(filtroProyecto);
     }
 
+    // ✅ Nueva función para actualizar la suma del total
+    function actualizarSumaTotal() {
+        let total = 0;
+        table.rows({ search: 'applied' }).every(function () {
+            const rowData = this.data();
+            total += parseFloat(rowData.costo_total || 0);
+        });
+
+        const totalFormateado = `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(total)}`;
+        $('#suma-total-staff-enami strong').text(totalFormateado);
+    }
+
+    // ✅ Aplicar filtro y actualizar suma
     $('#filtro-proyecto-staff').on('change', function () {
         const valor = $(this).val();
-        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();  // Columna "proyecto" está oculta (índice 9)
+        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();
+        actualizarSumaTotal();
     });
+
+    table.on('draw', actualizarSumaTotal);
+    actualizarSumaTotal();
 }
+
 
 
 // ✅ Llamar a la función al cargar la página
@@ -1410,6 +1506,7 @@ function listadoContratoSubcontrato() {
             
             // ✅ Inicializar DataTable con los datos correctos
             const table=$('#tabla_contrato_subcontrato').DataTable({
+                
                 data: response,
                 columns: [
                     { data: "id" },
@@ -1440,16 +1537,17 @@ function listadoContratoSubcontrato() {
                             return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
                         }
                      },
+                     { data: "costo_contrato_unitario",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
                     { data: "costo_contrato_total",
                         render: function (data) {
                             return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
                         }
                      },
-                    { data: "costo_contrato_unitario",
-                        render: function (data) {
-                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
-                        }
-                     },
+                    
                     { 
                         data: null, 
                         render: function(data, type, row) {
@@ -1514,15 +1612,32 @@ function agregarFiltroProyectoContratoSubcontrato(table, data) {
             $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
             select
         );
-
         filterContainer.append(filtroProyecto);
     }
 
+    // ✅ Función para actualizar la suma del total
+    function actualizarSumaTotal() {
+        let total = 0;
+        table.rows({ search: 'applied' }).every(function () {
+            const rowData = this.data();
+            total += parseFloat(rowData.costo_contrato_total || 0);
+        });
+
+        const totalFormateado = `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(total)}`;
+        $('#suma-total-contrato-subcontrato strong').text(totalFormateado);
+    }
+
+    // ✅ Aplicar filtro y actualizar suma
     $('#filtro-proyecto-contrato-subcontrato').on('change', function () {
         const valor = $(this).val();
         table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();
+        actualizarSumaTotal();
     });
+
+    table.on('draw', actualizarSumaTotal);
+    actualizarSumaTotal();
 }
+
 // ✅ Cargar la tabla al iniciar la página
 
 $(document).ready(function () {
@@ -1581,6 +1696,7 @@ function listadoCotizacionMateriales() {
             
             // ✅ Inicializar DataTable con los datos correctos
             const table=$('#tabla_cotizacion_materiales').DataTable({
+                scrollX: true,
                 data: response,
                 columns: [
                     { data: "id" },
@@ -1752,11 +1868,12 @@ function listadoIngenieriaDetallesContraparte() {
             }
             
             // ✅ Inicializar DataTable con los datos correctos
-            $('#tabla_ingenieria_detalles_contraparte').DataTable({
+            const table=$('#tabla_ingenieria_detalles_contraparte').DataTable({
                 data: response,
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
+                    { data: "proyecto" },
                     { data: "nombre" },
                     { data: "UF",
                         render: function (data) {
@@ -1794,12 +1911,79 @@ function listadoIngenieriaDetallesContraparte() {
                     }
                 }
             });
+
+            agregarFiltroProyectoIngenieriaContraparte(table, response);
+            
         },
+        
         error: function(xhr, status, error) {
             console.error("Error en la petición AJAX:", error);
         }
     });
 }
+
+function agregarFiltroProyectoIngenieriaContraparte(table, data) {
+    const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
+
+    const select = $('<select>')
+        .attr('id', 'filtro-proyecto-ingenieria')
+        .addClass('form-control form-control-sm')
+        .css('width', '200px')
+        .append($('<option>').val('').text('Todos los proyectos'));
+
+    proyectos.forEach(function(proyecto) {
+        select.append($('<option>').val(proyecto).text(proyecto));
+    });
+
+    const filterContainer = $('#tabla_ingenieria_detalles_contraparte_wrapper .dataTables_filter');
+    const searchLabel = filterContainer.find('label');
+    const searchInput = searchLabel.find('input');
+
+    filterContainer.css({
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+    });
+
+    searchLabel.css({ display: 'flex', alignItems: 'center', marginBottom: '0' });
+    searchInput.addClass('ml-2').css('width', '200px');
+
+    if ($('#filtro-proyecto-ingenieria').length === 0) {
+        const filtroProyecto = $('<span>').addClass('d-flex align-items-center').append(
+            $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
+            select
+        );
+
+        filterContainer.append(filtroProyecto);
+    }
+
+    // ✅ Función para actualizar la suma total de total_usd
+    function actualizarSumaTotalIngenieria() {
+        let total = 0;
+        table.rows({ search: 'applied' }).every(function () {
+            const rowData = this.data();
+            total += parseFloat(rowData.total_usd || 0);
+        });
+
+        const totalFormateado = `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(total)}`;
+        $('#suma-total-ingenieria-detalles-contraparte strong').text(totalFormateado);
+    }
+
+    // ✅ Filtro y recalcular suma al cambiar el proyecto
+    $('#filtro-proyecto-ingenieria').on('change', function () {
+        const valor = $(this).val();
+        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();
+        actualizarSumaTotalIngenieria();
+    });
+
+    // ✅ Recalcular cada vez que se redibuje la tabla
+    table.on('draw', actualizarSumaTotalIngenieria);
+
+    // ✅ Ejecutar al iniciar
+    actualizarSumaTotalIngenieria();
+}
+
+
 
 // ✅ Cargar la tabla al iniciar la página
 $(document).ready(function () {
@@ -1841,6 +2025,8 @@ function getCSRFToken() {
 }
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 function listadoGestionPermisos() {
     $.ajax({
         url: "/tabla_gestion_permisos/",
@@ -1854,11 +2040,12 @@ function listadoGestionPermisos() {
             }
             
             // ✅ Inicializar DataTable con los datos correctos
-            $('#tabla_gestion_permisos').DataTable({
+            const table=$('#tabla_gestion_permisos').DataTable({
                 data: response,
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
+                    { data: "proyecto" },
                     { data: "nombre" },
                     { data: "dedicacion",
                         render: function (data) {
@@ -1912,12 +2099,82 @@ function listadoGestionPermisos() {
                     }
                 }
             });
+
+            agregarFiltroGestionPermisos(table, response);
         },
         error: function(xhr, status, error) {
             console.error("Error en la petición AJAX:", error);
         }
     });
 }
+
+function agregarFiltroGestionPermisos(table, data) {
+    // Obtenemos los proyectos únicos
+    const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
+
+    // Creamos el select para proyectos
+    const selectProyectos = $('<select>')
+        .attr('id', 'filtro-proyecto-gestion-permisos')
+        .addClass('form-control form-control-sm')
+        .css('width', '200px')
+        .append($('<option>').val('').text('Todos los proyectos'));
+
+    proyectos.forEach(function(proyecto) {
+        selectProyectos.append($('<option>').val(proyecto).text(proyecto));
+    });
+
+    // Añadimos el select al contenedor
+    const filterContainer = $('#tabla_gestion_permisos_wrapper .dataTables_filter');
+    const searchLabel = filterContainer.find('label');
+    const searchInput = searchLabel.find('input');
+
+    filterContainer.css({
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+    });
+
+    searchLabel.css({ display: 'flex', alignItems: 'center', marginBottom: '0' });
+    searchInput.addClass('ml-2').css('width', '200px');
+
+    if ($('#filtro-proyecto-gestion-permisos').length === 0) {
+        const filtroProyecto = $('<span>').addClass('d-flex align-items-center').append(
+            $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
+            selectProyectos
+        );
+
+        filterContainer.append(filtroProyecto);
+    }
+
+    // ✅ Función para actualizar la suma de total_usd
+    function actualizarSumaTotalGestionPermisos() {
+        let total = 0;
+        table.rows({ search: 'applied' }).every(function () {
+            const rowData = this.data();
+            total += parseFloat(rowData.total_usd || 0);
+        });
+
+        const totalFormateado = `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(total)}`;
+        $('#suma-total-gestion-permisos strong').text(totalFormateado);
+    }
+
+    // ✅ Filtro + actualización
+    $('#filtro-proyecto-gestion-permisos').on('change', function () {
+        const valor = $(this).val();
+        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();
+        actualizarSumaTotalGestionPermisos();
+    });
+
+    // ✅ Recalcular cada vez que se redibuja la tabla
+    table.on('draw', actualizarSumaTotalGestionPermisos);
+
+    // ✅ Calcular al iniciar
+    actualizarSumaTotalGestionPermisos();
+}
+
+
+
+
 
 // ✅ Cargar la tabla al iniciar la página
 $(document).ready(function () {
@@ -1958,6 +2215,7 @@ function getCSRFToken() {
         ?.split('=')[1];
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function listadoDueno() {
     $.ajax({
@@ -1972,11 +2230,12 @@ function listadoDueno() {
             }
             
             // ✅ Inicializar DataTable con los datos correctos
-            $('#tabla_dueno').DataTable({
+            const table=$('#tabla_dueno').DataTable({
                 data: response,
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
+                    { data: "proyecto" },
                     { data: "nombre" },
                     { data: "total_hh",
                         render: function (data) {
@@ -2018,12 +2277,78 @@ function listadoDueno() {
                     }
                 }
             });
+            agregarFiltroProyectoDueno(table, response);
         },
         error: function(xhr, status, error) {
             console.error("Error en la petición AJAX:", error);
         }
     });
 }
+
+function agregarFiltroProyectoDueno(table, data) {
+    // Obtenemos los proyectos únicos
+    const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
+
+    // Creamos el select para proyectos
+    const select = $('<select>')
+        .attr('id', 'filtro-proyecto-dueno')
+        .addClass('form-control form-control-sm')
+        .css('width', '200px')
+        .append($('<option>').val('').text('Todos los proyectos'));
+
+    proyectos.forEach(function(proyecto) {
+        select.append($('<option>').val(proyecto).text(proyecto));
+    });
+
+    // Añadimos el select al contenedor
+    const filterContainer = $('#tabla_dueno_wrapper .dataTables_filter');
+    const searchLabel = filterContainer.find('label');
+    const searchInput = searchLabel.find('input');
+
+    filterContainer.css({
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+    });
+
+    searchLabel.css({ display: 'flex', alignItems: 'center', marginBottom: '0' });
+    searchInput.addClass('ml-2').css('width', '200px');
+
+    if ($('#filtro-proyecto-dueno').length === 0) {
+        const filtroProyecto = $('<span>').addClass('d-flex align-items-center').append(
+            $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
+            select
+        );
+        filterContainer.append(filtroProyecto);
+    }
+
+    // ✅ Función para actualizar la suma de costo_total
+    function actualizarSumaTotalDueno() {
+        let total = 0;
+        table.rows({ search: 'applied' }).every(function () {
+            const rowData = this.data();
+            total += parseFloat(rowData.costo_total || 0);
+        });
+
+        const totalFormateado = `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(total)}`;
+        $('#suma-total-dueno strong').text(totalFormateado);
+    }
+
+    // ✅ Filtro + actualización
+    $('#filtro-proyecto-dueno').on('change', function () {
+        const valor = $(this).val();
+        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();
+        actualizarSumaTotalDueno();
+    });
+
+    // ✅ Recalcular cada vez que se redibuja la tabla
+    table.on('draw', actualizarSumaTotalDueno);
+
+    // ✅ Calcular al iniciar
+    actualizarSumaTotalDueno();
+}
+
+
 
 // ✅ Cargar la tabla al iniciar la página
 $(document).ready(function () {
@@ -2064,6 +2389,7 @@ function getCSRFToken() {
         ?.split('=')[1];
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function listadoMB() {
     $.ajax({
@@ -2125,6 +2451,7 @@ function listadoMB() {
     });
 }
 
+
 // ✅ Cargar la tabla al iniciar la página
 $(document).ready(function () {
     listadoMB();
@@ -2164,6 +2491,7 @@ function getCSRFToken() {
         ?.split('=')[1];
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function listadoAdministracionSupervision() {
     $.ajax({
@@ -2178,11 +2506,13 @@ function listadoAdministracionSupervision() {
             }
             
             // ✅ Inicializar DataTable con los datos correctos
-            $('#tabla_administracion_supervision').DataTable({
+            const table=$('#tabla_administracion_supervision').DataTable({
+                scrollX: true,
                 data: response,
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
+                    { data: "proyecto" },
                     { data: "unidad" },
                     { data: "precio_unitario_clp",
                         render: function (data) {
@@ -2249,12 +2579,80 @@ function listadoAdministracionSupervision() {
                     }
                 }
             });
+            agregarFiltroProyectoAdministracionSupervision(table, response);
         },
         error: function(xhr, status, error) {
             console.error("Error en la petición AJAX:", error);
         }
     });
 }
+
+function agregarFiltroProyectoAdministracionSupervision(table, data) {
+    // Obtener los proyectos únicos y ordenarlos
+    const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
+
+    // Crear el select para el filtro
+    const select = $('<select>')
+        .attr('id', 'filtro-proyecto-administracion-supervision')
+        .addClass('form-control form-control-sm')
+        .css('width', '200px')
+        .append($('<option>').val('').text('Todos los proyectos'));
+
+    // Agregar las opciones de proyectos al select
+    proyectos.forEach(function(proyecto) {
+        select.append($('<option>').val(proyecto).text(proyecto));
+    });
+
+    // Seleccionar el contenedor del filtro de la tabla
+    const filterContainer = $('#tabla_administracion_supervision_wrapper .dataTables_filter');
+    const searchLabel = filterContainer.find('label');
+    const searchInput = searchLabel.find('input');
+
+    // Establecer estilos
+    filterContainer.css({
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+    });
+
+    searchLabel.css({ display: 'flex', alignItems: 'center', marginBottom: '0' });
+    searchInput.addClass('ml-2').css('width', '200px');
+
+    // Agregar el filtro solo si no existe
+    if ($('#filtro-proyecto-administracion-supervision').length === 0) {
+        const filtroProyecto = $('<span>').addClass('d-flex align-items-center').append(
+            $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
+            select
+        );
+        filterContainer.append(filtroProyecto);
+    }
+
+    // ✅ Función para actualizar la suma de costo_total_us
+    function actualizarSumaAdministracionSupervision() {
+        let total = 0;
+        table.rows({ search: 'applied' }).every(function () {
+            const rowData = this.data();
+            total += parseFloat(rowData.costo_total_mb || 0);
+        });
+
+        const totalFormateado = `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(total)}`;
+        $('#suma-total-administracion-supervision strong').text(totalFormateado);
+    }
+
+    // ✅ Filtro y actualización
+    $('#filtro-proyecto-administracion-supervision').on('change', function () {
+        const valor = $(this).val();
+        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();
+        actualizarSumaAdministracionSupervision();
+    });
+
+    // ✅ Recalcular al redibujar y al cargar
+    table.on('draw', actualizarSumaAdministracionSupervision);
+    actualizarSumaAdministracionSupervision();
+}
+
+
+
 
 // ✅ Cargar la tabla al iniciar la página
 $(document).ready(function () {
@@ -2295,7 +2693,7 @@ function getCSRFToken() {
         ?.split('=')[1];
 }
 
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function listadoPersonalIndirectoContratista() {
     $.ajax({
@@ -2310,11 +2708,13 @@ function listadoPersonalIndirectoContratista() {
             }
             
             // ✅ Inicializar DataTable con los datos correctos
-            $('#tabla_personal_indirecto_contratista').DataTable({
+            const table=$('#tabla_personal_indirecto_contratista').DataTable({
+                scrollX: true,
                 data: response,
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
+                    { data: "proyecto" },
                     { data: "mb_seleccionado" },
                     { data: "turno" },
                     { data: "unidad" },
@@ -2383,12 +2783,79 @@ function listadoPersonalIndirectoContratista() {
                     }
                 }
             });
+
+            agregarFiltroProyectoPersonalIndirectoContratista(table, response);
         },
         error: function(xhr, status, error) {
             console.error("Error en la petición AJAX:", error);
         }
     });
 }
+
+function agregarFiltroProyectoPersonalIndirectoContratista(table, data) {
+    // Obtener los proyectos únicos y ordenarlos
+    const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
+
+    // Crear el select para el filtro
+    const select = $('<select>')
+        .attr('id', 'filtro-proyecto-personal-indirecto-contratista')
+        .addClass('form-control form-control-sm')
+        .css('width', '200px')
+        .append($('<option>').val('').text('Todos los proyectos'));
+
+    // Agregar las opciones de proyectos al select
+    proyectos.forEach(function(proyecto) {
+        select.append($('<option>').val(proyecto).text(proyecto));
+    });
+
+    // Seleccionar el contenedor del filtro de la tabla
+    const filterContainer = $('#tabla_personal_indirecto_contratista_wrapper .dataTables_filter');
+    const searchLabel = filterContainer.find('label');
+    const searchInput = searchLabel.find('input');
+
+    // Estilos para el filtro y el buscador
+    filterContainer.css({
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+    });
+
+    searchLabel.css({ display: 'flex', alignItems: 'center', marginBottom: '0' });
+    searchInput.addClass('ml-2').css('width', '200px');
+
+    // Agregar el filtro solo si no existe
+    if ($('#filtro-proyecto-personal-indirecto-contratista').length === 0) {
+        const filtroProyecto = $('<span>').addClass('d-flex align-items-center').append(
+            $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
+            select
+        );
+        filterContainer.append(filtroProyecto);
+    }
+
+    // ✅ Función para actualizar la suma de costo_total_mb
+    function actualizarSumaPersonalIndirectoContratista() {
+        let total = 0;
+        table.rows({ search: 'applied' }).every(function () {
+            const rowData = this.data();
+            total += parseFloat(rowData.costo_total_mb || 0);
+        });
+
+        const totalFormateado = `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(total)}`;
+        $('#suma-total-personal-indirecto-contratista strong').text(totalFormateado);
+    }
+
+    // ✅ Filtro y actualización
+    $('#filtro-proyecto-personal-indirecto-contratista').on('change', function () {
+        const valor = $(this).val();
+        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();
+        actualizarSumaPersonalIndirectoContratista();
+    });
+
+    // ✅ Recalcular al redibujar y al cargar
+    table.on('draw', actualizarSumaPersonalIndirectoContratista);
+    actualizarSumaPersonalIndirectoContratista();
+}
+
 
 // ✅ Cargar la tabla al iniciar la página
 $(document).ready(function () {
@@ -2429,7 +2896,7 @@ function getCSRFToken() {
         ?.split('=')[1];
 }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function listadoServiciosApoyo() {
     $.ajax({
@@ -2542,6 +3009,7 @@ function getCSRFToken() {
         ?.split('=')[1];
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function listadoOtrosADM() {
     $.ajax({
@@ -2675,11 +3143,12 @@ function listadoAdministrativoFinanciero() {
             }
             
             // ✅ Inicializar DataTable con los datos correctos
-            $('#tabla_administrativo_financiero').DataTable({
+            const table=$('#tabla_administrativo_financiero').DataTable({
                 data: response,
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
+                    { data: "proyecto" },
                     { data: "unidad" },
                     { data: "valor",
                         render: function (data) {
@@ -2726,12 +3195,81 @@ function listadoAdministrativoFinanciero() {
                     }
                 }
             });
+
+            agregarFiltroProyectoAdministrativoFinanciero(table, response);
+
         },
         error: function(xhr, status, error) {
             console.error("Error en la petición AJAX:", error);
         }
     });
 }
+
+function agregarFiltroProyectoAdministrativoFinanciero(table, data) {
+    // Obtener proyectos únicos y ordenarlos
+    const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
+
+    // Crear el select del filtro
+    const select = $('<select>')
+        .attr('id', 'filtro-proyecto-administrativo-financiero')
+        .addClass('form-control form-control-sm')
+        .css('width', '200px')
+        .append($('<option>').val('').text('Todos los proyectos'));
+
+    // Agregar opciones
+    proyectos.forEach(function(proyecto) {
+        select.append($('<option>').val(proyecto).text(proyecto));
+    });
+
+    // Obtener el contenedor del filtro
+    const filterContainer = $('#tabla_administrativo_financiero_wrapper .dataTables_filter');
+    const searchLabel = filterContainer.find('label');
+    const searchInput = searchLabel.find('input');
+
+    // Aplicar estilos
+    filterContainer.css({
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+    });
+
+    searchLabel.css({ display: 'flex', alignItems: 'center', marginBottom: '0' });
+    searchInput.addClass('ml-2').css('width', '200px');
+
+    // Agregar filtro si no existe
+    if ($('#filtro-proyecto-administrativo-financiero').length === 0) {
+        const filtroProyecto = $('<span>').addClass('d-flex align-items-center').append(
+            $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
+            select
+        );
+        filterContainer.append(filtroProyecto);
+    }
+
+    // ✅ Función para actualizar la suma
+    function actualizarSumaAdministrativoFinanciero() {
+        let total = 0;
+        table.rows({ search: 'applied' }).every(function () {
+            const rowData = this.data();
+            total += parseFloat(rowData.costo_total || 0);
+        });
+
+        const totalFormateado = `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(total)}`;
+        $('#suma-total-administrativo-financiero strong').text(totalFormateado);
+    }
+
+    // ✅ Filtro y actualización
+    $('#filtro-proyecto-administrativo-financiero').on('change', function () {
+        const valor = $(this).val();
+        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();
+        actualizarSumaAdministrativoFinanciero();
+    });
+
+    // ✅ Recalcular suma al redibujar
+    table.on('draw', actualizarSumaAdministrativoFinanciero);
+    actualizarSumaAdministrativoFinanciero();
+}
+
+
 
 // ✅ Cargar la tabla al iniciar la página
 $(document).ready(function () {

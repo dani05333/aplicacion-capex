@@ -8,8 +8,11 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 
 {% endblock extra_css %}
-
+<br>
 <h3>Tabla Gestion Permisos</h3>
+<div id="suma-total-gestion-permisos" class="alert alert-info mt-3">
+    Total USD del proyecto: <strong>$0,00</strong>
+</div>
 
 <div class="d-flex gap-2 mb-3">
     <a href="{% url 'crear_gestion_permisos' %}" class="btn btn-success">Crear Gestion Permisos <i class="bi bi-file-earmark-diff-fill"></i></a>
@@ -22,6 +25,7 @@
         <tr>
             <th scope="col">#</th>
             <th scope="col">Id Categoria</th>
+            <th scope="col">Proyecto</th>
             <th scope="col">Nombre</th>
             <th scope="col">Dedicacion</th>
             <th scope="col">Meses</th>

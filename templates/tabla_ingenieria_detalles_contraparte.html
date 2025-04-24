@@ -8,8 +8,12 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 
 {% endblock extra_css %}
-
+<br>
 <h3>Tabla de Ingenieria de Detalles Contraparte</h3>
+<div id="suma-total-ingenieria-detalles-contraparte" >
+    Total USD del proyecto: <strong>$0,00</strong>
+</div>
+
 
 <div class="d-flex gap-2 mb-3">
     <a href="{% url 'crear_ingenieria_detalles_contraparte' %}" class="btn btn-success">Crear Ingenieria Detalles Contraparte <i class="bi bi-file-earmark-diff-fill"></i></a>
@@ -22,12 +26,11 @@
         <tr>
             <th scope="col">#</th>
             <th scope="col">Id Categoria</th>
+            <th scope="col">Proyecto</th>
             <th scope="col">Nombre</th>
             <th scope="col">UF</th>
             <th scope="col">MB</th>
             <th scope="col">Total USD</th>
-            
-            
             <th scope="col">Editar</th>
             <th scope="col">Eliminar</th>
             

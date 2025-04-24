@@ -8,8 +8,11 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 
 {% endblock extra_css %}
-
+<br>
 <h3>Tabla Contrato Subcontrato</h3>
+<div id="suma-total-contrato-subcontrato" class="alert alert-info mt-3">
+    Total Costo Contrato Total:<strong>$0.00</strong>
+</div>
 
 <div class="d-flex gap-2 mb-3">
     <a href="{% url 'crear_contrato_subcontrato' %}" class="btn btn-success">Crear Contrato Subcontrato <i class="bi bi-file-earmark-diff-fill"></i></a>
@@ -28,8 +31,9 @@
             <th scope="col">USD por Unidad</th> 
             <th scope="col">FC Sub</th>
             <th scope="col">USD Total Subcontrato</th>
-            <th scope="col">Costo Contrato Total</th>
             <th scope="col">Costo Contrato Unitario</th>
+            <th scope="col">Costo Contrato Total</th>
+            
             <th scope="col">Editar</th>
             <th scope="col">Eliminar</th>
            

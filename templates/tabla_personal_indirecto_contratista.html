@@ -8,9 +8,12 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 
 {% endblock extra_css %}
-
+<br>
 <h3>Tabla Personal Indirecto Contratista</h3>
-
+<div id="suma-total-personal-indirecto-contratista" class="alert alert-info mt-3">
+    Total USD del proyecto: <strong>$0</strong>
+  </div>
+  
 <div class="d-flex gap-2 mb-3">
     <a href="{% url 'crear_personal_indirecto_contratista' %}" class="btn btn-success">Crear Personal Indirecto Contratista <i class="bi bi-file-earmark-diff-fill"></i></a>
     <a href="{% url 'exportar_excel' 'PersonalIndirectoContratista' %}" class="btn btn-primary">Exportar a Excel</a>
@@ -21,10 +24,11 @@
     <thead>
         <tr>
             <th scope="col">#</th>
-            <th scope="col">ID Categ</th>
+            <th scope="col">ID Categoria</th>
+            <th scope="col">Proyecto</th>
             <th scope="col">MB</th>
             <th scope="col">Turno</th>
-            <th scope="col">Uni</th>
+            <th scope="col">Unidad</th>
             <th scope="col">HH Mes</th>
             <th scope="col">Plazo Mes</th>
             <th scope="col">Total HH</th>

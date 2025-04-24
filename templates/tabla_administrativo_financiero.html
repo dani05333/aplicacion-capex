@@ -8,8 +8,11 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 
 {% endblock extra_css %}
-
+<br>
 <h3>Administrativo Financiero</h3>
+<div id="suma-total-administrativo-financiero" class="alert alert-info mt-3">
+    Total USD del proyecto: <strong>$0.00</strong>
+</div>
 
 <div class="d-flex gap-2 mb-3">
     <a href="{% url 'crear_administrativo_financiero' %}" class="btn btn-success">Crear Administrativo Financiero <i class="bi bi-file-earmark-diff-fill"></i></a>
@@ -22,6 +25,7 @@
         <tr>
             <th scope="col">#</th>
             <th scope="col">ID Categoria</th>
+            <th scope="col">Proyecto</th>
             <th scope="col">Unidad</th>
             <th scope="col">Valor</th>
             <th scope="col">Meses</th>

@@ -8,9 +8,12 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 
 {% endblock extra_css %}
-
+<br>
 <h3>Tabla Administracion Supervision
 </h3>
+<div id="suma-total-administracion-supervision" class="alert alert-info mt-3">
+    Total Administración y Supervisión: <strong>$0.00</strong>
+</div>
 
 <div class="d-flex gap-2 mb-3">
     <a href="{% url 'crear_administracion_supervision' %}" class="btn btn-success">Crear Administracion Supervision <i class="bi bi-file-earmark-diff-fill"></i></a>
@@ -23,6 +26,7 @@
         <tr>
             <th scope="col">#</th>
             <th scope="col">ID Categoria</th>
+            <th scope="col">Proyecto</th>
             <th scope="col">Unidad</th>
             <th scope="col">Precio Unitario CLP</th>
             <th scope="col">Total Unitario</th>

@@ -8,8 +8,11 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 
 {% endblock extra_css %}
-
+<br>
 <h3>Tabla de GG Constructor</h3>
+<div id="suma-total-especifico-categoria" class="alert alert-info mt-3">
+    Total USD: <strong>$0</strong> <!-- Se actualizará con la suma -->
+</div>
 
 <div class="d-flex gap-2 mb-3">
     <a href="{% url 'crear_especifico_categoria' %}" class="btn btn-success">Crear GG Constructor <i class="bi bi-file-earmark-diff-fill"></i></a>

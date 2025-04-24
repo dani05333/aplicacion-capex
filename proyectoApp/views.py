@@ -508,7 +508,7 @@ class ListadoMaterialesOtros(ListView):
                 data.append({
                     "id": material.id,
                     "id_categoria": str(material.id_categoria),  # Para mostrar nombre
-                    "proyecto": material.id_categoria.proyecto.id if material.id_categoria and material.id_categoria.proyecto else None,
+                    "proyecto": str(material.id_categoria.proyecto) if material.id_categoria and material.id_categoria.proyecto else None,
                     "costo_unidad": float(material.costo_unidad),
                     "crecimiento": float(material.crecimiento),
                     "total_usd": float(material.total_usd),
@@ -622,8 +622,8 @@ class ListadoEquiposConstruccion(ListView):
             for equipo in equipos:
                 data.append({
                     "id": equipo.id,
-                    "id_categoria": equipo.id_categoria.id if equipo.id_categoria else None,
-                    "proyecto": equipo.id_categoria.proyecto.id if equipo.id_categoria and equipo.id_categoria.proyecto else None,
+                    "id_categoria": str(equipo.id_categoria) if equipo.id_categoria else None,
+                    "proyecto": str(equipo.id_categoria.proyecto) if equipo.id_categoria and equipo.id_categoria.proyecto else None,
                     "horas_maquina_unidad": float(equipo.horas_maquina_unidad),
                     "costo_maquina_hora": float(equipo.costo_maquina_hora),
                     "total_horas_maquina": float(equipo.total_horas_maquina),
@@ -868,7 +868,7 @@ class ListadoStaffEnami(ListView):
                     "total_horas_hombre": float(item.total_horas_hombre),
                     "costo_total": float(item.costo_total),
                     "categoria": str(item.categoria),
-                    "proyecto": item.categoria.proyecto.id if item.categoria and item.categoria.proyecto else None,  # Incluimos el proyecto relacionado
+                    "proyecto": str(item.categoria.proyecto) if item.categoria and item.categoria.proyecto else None,  # Incluimos el proyecto relacionado
                 })
             return JsonResponse(data, safe=False)
 
@@ -1042,8 +1042,8 @@ class ListadoCotizacionMateriales(ListView):
             for cotizacion in cotizaciones:
                 data.append({
                     "id": cotizacion.id,
-                    "id_categoria": cotizacion.id_categoria.id if cotizacion.id_categoria else None,
-                    "proyecto": cotizacion.id_categoria.proyecto.id if cotizacion.id_categoria and cotizacion.id_categoria.proyecto else None,
+                    "id_categoria": str(cotizacion.id_categoria) if cotizacion.id_categoria else None,
+                    "proyecto": str(cotizacion.id_categoria.proyecto) if cotizacion.id_categoria and cotizacion.id_categoria.proyecto else None,
                     "tipo_suministro": cotizacion.tipo_suministro,
                     "tipo_moneda": cotizacion.tipo_moneda,
                     "pais_entrega": cotizacion.pais_entrega,
@@ -1104,15 +1104,16 @@ class ListadoContratoSubcontrato(ListView):
             for contrato in contratos:
                 data.append({
                     "id": contrato.id,
-                    "id_categoria": contrato.id_categoria.id if contrato.id_categoria else None,
-                    "proyecto": contrato.id_categoria.proyecto.id if contrato.id_categoria and contrato.id_categoria.proyecto else None,
+                    "id_categoria": str(contrato.id_categoria) if contrato.id_categoria else None,
+                    "proyecto": str(contrato.id_categoria.proyecto) if contrato.id_categoria and contrato.id_categoria.proyecto else None,
                     "costo_laboral_indirecto_usd_hh": float(contrato.costo_laboral_indirecto_usd_hh),
                     "total_usd_indirectos_contratista": float(contrato.total_usd_indirectos_contratista),
                     "usd_por_unidad": float(contrato.usd_por_unidad),
                     "fc_subcontrato": float(contrato.fc_subcontrato),
                     "usd_total_subcontrato": float(contrato.usd_total_subcontrato),
-                    "costo_contrato_total": float(contrato.costo_contrato_total),
                     "costo_contrato_unitario": float(contrato.costo_contrato_unitario),
+                    "costo_contrato_total": float(contrato.costo_contrato_total),
+                    
                 })
             return JsonResponse(data, safe=False)
         return super().get(request, *args, **kwargs)
@@ -1155,11 +1156,23 @@ class ListadoIngenieriaDetallesContraparte(ListView):
     context_object_name = 'ingenieria_detalles_contraparte'
 
     def get(self, request, *args, **kwargs):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  
-            data = list(self.get_queryset().values('id', 'id_categoria', 'nombre', 'UF', 'MB','total_usd'))  # ✅ Convertimos a lista de diccionarios
-            return JsonResponse(data, safe=False)  
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            detalles = IngenieriaDetallesContraparte.objects.select_related('id_categoria__proyecto')
+            data = []
+            for d in detalles:
+                data.append({
+                    "id": d.id,
+                    "id_categoria": str(d.id_categoria) if d.id_categoria else None,
+                    "proyecto": str(d.id_categoria.proyecto) if d.id_categoria and d.id_categoria.proyecto else None,
+                    "nombre": d.nombre,
+                    "UF": float(d.UF) if d.UF is not None else 0.0,
+                    "MB": float(d.MB.mb) if d.MB and d.MB.mb is not None else 0.0,
+                    "total_usd": float(d.total_usd) if d.total_usd is not None else 0.0,
+                })
+            return JsonResponse(data, safe=False)
 
         return super().get(request, *args, **kwargs)
+
     
 class ActualizarIngenieriaDetallesContraparte(UpdateView):
     model = IngenieriaDetallesContraparte
@@ -1197,9 +1210,25 @@ class ListadoGestionPermisos(ListView):
     context_object_name = 'gestion_permisos'
 
     def get(self, request, *args, **kwargs):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  
-            data = list(self.get_queryset().values('id', 'id_categoria', 'nombre', 'dedicacion', 'meses','cantidad','turno','MB','HH','total_usd'))  # ✅ Convertimos a lista de diccionarios
-            return JsonResponse(data, safe=False)  
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            # Obtenemos los detalles de los permisos gestionados
+            permisos = GestionPermisos.objects.select_related('id_categoria__proyecto')
+            data = []
+            for permiso in permisos:
+                data.append({
+                    "id": permiso.id,
+                    "id_categoria": str(permiso.id_categoria) if permiso.id_categoria else None,
+                    "proyecto": str(permiso.id_categoria.proyecto) if permiso.id_categoria and permiso.id_categoria.proyecto else None,
+                    "nombre": permiso.nombre,
+                    "dedicacion": permiso.dedicacion,
+                    "meses": permiso.meses,
+                    "cantidad": permiso.cantidad,
+                    "turno": permiso.turno,
+                    "MB": float(permiso.MB) if permiso.MB is not None else 0.0,
+                    "HH": float(permiso.HH) if permiso.HH is not None else 0.0,
+                    "total_usd": float(permiso.total_usd) if permiso.total_usd is not None else 0.0,
+                })
+            return JsonResponse(data, safe=False)
 
         return super().get(request, *args, **kwargs)
     
@@ -1239,11 +1268,23 @@ class ListadoDueno(ListView):
     context_object_name = 'dueno'
 
     def get(self, request, *args, **kwargs):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  
-            data = list(self.get_queryset().values('id', 'id_categoria', 'nombre', 'total_hh', 'costo_hh_us','costo_total'))  # ✅ Convertimos a lista de diccionarios
-            return JsonResponse(data, safe=False)  
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            duenos = Dueno.objects.select_related('id_categoria__proyecto')
+            data = []
+            for d in duenos:
+                data.append({
+                    "id": d.id,
+                    "id_categoria": str(d.id_categoria) if d.id_categoria else None,
+                    "proyecto": str(d.id_categoria.proyecto) if d.id_categoria and d.id_categoria.proyecto else None,
+                    "nombre": d.nombre,
+                    "total_hh": float(d.total_hh),
+                    "costo_hh_us": float(d.costo_hh_us),
+                    "costo_total": float(d.costo_total),
+                })
+            return JsonResponse(data, safe=False)
 
         return super().get(request, *args, **kwargs)
+
     
 class ActualizarDueno(UpdateView):
     model = Dueno
@@ -1319,15 +1360,32 @@ def eliminar_mb(request):
 
 class ListadoAdministracionSupervision(ListView):
     model = AdministracionSupervision
-    template_name = "tabla_administracion_supervision.html"
-    context_object_name = "administracion_supervision"
+    template_name = 'tabla_administracion_supervision.html'
+    context_object_name = 'administracion_supervision'
 
     def get(self, request, *args, **kwargs):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  
-            data = list(self.get_queryset().values('id', 'id_categoria', 'unidad', 'precio_unitario_clp', 'total_unitario','factor_uso','cantidad_u_persona','mb_seleccionado','costo_total_clp','costo_total_us','costo_total_mb'))  # ✅ Convertimos a lista de diccionarios
-            return JsonResponse(data, safe=False)  
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            administracion_supervision = AdministracionSupervision.objects.select_related('id_categoria', 'mb_seleccionado')
+            data = []
+            for item in administracion_supervision:
+                data.append({
+                    "id": item.id,
+                    "id_categoria": str(item.id_categoria) if item.id_categoria else None,
+                    "proyecto": str(item.id_categoria.proyecto) if item.id_categoria and item.id_categoria.proyecto else None,
+                    "unidad": item.unidad,
+                    "precio_unitario_clp": float(item.precio_unitario_clp),
+                    "total_unitario": float(item.total_unitario),
+                    "factor_uso": float(item.factor_uso),
+                    "cantidad_u_persona": float(item.cantidad_u_persona),
+                    "mb_seleccionado": float(item.mb_seleccionado.mb) if item.mb_seleccionado and item.mb_seleccionado.mb is not None else 0.0,
+                    "costo_total_clp": float(item.costo_total_clp),
+                    "costo_total_us": float(item.costo_total_us),
+                    "costo_total_mb": float(item.costo_total_mb),
+                })
+            return JsonResponse(data, safe=False)
 
         return super().get(request, *args, **kwargs)
+
     
 class ActualizarAdministracionSupervision(UpdateView):
     model = AdministracionSupervision
@@ -1365,13 +1423,39 @@ def eliminar_administracion_supervision(request):
 
 class ListadoPersonalIndirectoContratista(ListView):
     model = PersonalIndirectoContratista
-    template_name = "tabla_personal_indirecto_contratista.html"
-    context_object_name = "personal_indirecto_contratista"
+    template_name = 'tabla_personal_indirecto_contratista.html'
+    context_object_name = 'personal_indirecto_contratista'
 
     def get(self, request, *args, **kwargs):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  
-            data = list(self.get_queryset().values('id', 'id_categoria', 'mb_seleccionado', 'turno', 'unidad','hh_mes','plazo_mes','total_hh','precio_unitario_clp_hh','tarifa_usd_hh','costo_total_clp','costo_total_us','costo_total_mb'))  # ✅ Convertimos a lista de diccionarios
-            return JsonResponse(data, safe=False)  
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            # Filtrar por proyecto si se pasa un valor de proyecto
+            proyecto_filtro = request.GET.get('proyecto', None)
+            if proyecto_filtro:
+                personal_indirecto_contratista = PersonalIndirectoContratista.objects.filter(proyecto__nombre=proyecto_filtro)
+            else:
+                personal_indirecto_contratista = PersonalIndirectoContratista.objects.all()
+            
+            # Obtener los datos de la consulta
+            data = []
+            for item in personal_indirecto_contratista:
+                data.append({
+                    "id": item.id,
+                    "proyecto": str(item.id_categoria.proyecto) if item.id_categoria and item.id_categoria.proyecto else None,
+                    "id_categoria": str(item.id_categoria) if item.id_categoria else None,
+                    "mb_seleccionado": float(item.mb_seleccionado.mb) if item.mb_seleccionado and item.mb_seleccionado.mb is not None else 0.0,
+                    "turno": item.turno,
+                    "unidad": item.unidad,
+                    "hh_mes": float(item.hh_mes),
+                    "plazo_mes": float(item.plazo_mes),
+                    "total_hh": float(item.total_hh),
+                    "precio_unitario_clp_hh": float(item.precio_unitario_clp_hh),
+                    "tarifa_usd_hh": float(item.tarifa_usd_hh),
+                    "costo_total_clp": float(item.costo_total_clp),
+                    "costo_total_us": float(item.costo_total_us),
+                    "costo_total_mb": float(item.costo_total_mb),
+                })
+            
+            return JsonResponse(data, safe=False)
 
         return super().get(request, *args, **kwargs)
     
@@ -1519,11 +1603,31 @@ class ListadoAdministrativoFinanciero(ListView):
     context_object_name = "administrativo_financiero"
 
     def get(self, request, *args, **kwargs):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  
-            data = list(self.get_queryset().values('id', 'id_categoria', 'unidad', 'valor', 'meses','sobre_contrato_base','costo_total'))  # ✅ Convertimos a lista de diccionarios
-            return JsonResponse(data, safe=False)  
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            proyecto_filtro = request.GET.get('proyecto', None)
+
+            if proyecto_filtro:
+                datos = AdministrativoFinanciero.objects.filter(id_categoria__proyecto__nombre=proyecto_filtro)
+            else:
+                datos = AdministrativoFinanciero.objects.all()
+
+            data = []
+            for item in datos:
+                data.append({
+                    "id": item.id,
+                    "proyecto": str(item.id_categoria.proyecto) if item.id_categoria and item.id_categoria.proyecto else None,
+                    "id_categoria": str(item.id_categoria) if item.id_categoria else None,
+                    "unidad": item.unidad,
+                    "valor": float(item.valor) if item.valor else 0.0,
+                    "meses": float(item.meses) if item.meses else 0.0,
+                    "sobre_contrato_base": float(item.sobre_contrato_base) if item.sobre_contrato_base else 0.0,
+                    "costo_total": float(item.costo_total) if item.costo_total else 0.0,
+                })
+
+            return JsonResponse(data, safe=False)
 
         return super().get(request, *args, **kwargs)
+
     
 class ActualizarAdministrativoFinanciero(UpdateView):
     model = AdministrativoFinanciero
