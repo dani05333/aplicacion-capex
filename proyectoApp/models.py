@@ -519,9 +519,6 @@ class MaterialesOtros(models.Model):
         """Retorna el nombre de la categoría asociada"""
         return self.id_categoria.nombre
 
-    
-    
-
 
 class EquiposConstruccion(models.Model):
     id = models.AutoField(primary_key=True)
@@ -769,11 +766,6 @@ class EspecificoCategoria(models.Model):
     def __str__(self):
         return f"{self.id_categoria.nombre} - ${self.total}"
 
-    
-
-    
-     
-    
 
 class StaffEnami(models.Model):
     id = models.AutoField(primary_key=True)

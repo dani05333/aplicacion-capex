@@ -7,7 +7,9 @@
 {% endblock extra_css %}
 <br>
 <h3>Tabla de Categorías</h3>
-
+<div id="suma-total-categorias" class="alert alert-info mt-3">
+    Total USD del proyecto: <strong>$0.00</strong>
+</div>
 <div class="d-flex gap-2 mb-3 flex-wrap">
     <a href="{% url 'crear_categoria_nuevo' %}" class="btn btn-success">Crear Categoría <i class="bi bi-file-earmark-diff-fill"></i></a>
     <a href="{% url 'exportar_excel' 'CategoriaNuevo' %}" class="btn btn-primary">Exportar a Excel</a>

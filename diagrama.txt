@@ -1,0 +1,270 @@
+Para ingresarlo en dbdiagram.io
+
+
+Table ProyectoNuevo {
+  id varchar(50) [primary key]
+  nombre varchar(255)
+  proyecto_relacionado integer [null]
+  porcentaje_utilidades decimal(5,2) [default: 0.00]
+  porcentaje_contingencia decimal(5,2) [default: 0.00]
+  costo_total decimal(20,2) [default: 0.00]
+}
+
+Table CategoriaNuevo {
+  id varchar(50) [primary key]
+  nombre varchar(255)
+  proyecto_id varchar(50) [ref: > ProyectoNuevo.id]
+  id_padre varchar(50) [null, ref: > CategoriaNuevo.id]
+  categoria_relacionada varchar(50) [null]
+  nivel integer [default: 1]
+  final boolean [default: false]
+  total_costo decimal(15,2) [null]
+}
+
+Table Materiales {
+  id integer [primary key]
+  id_categoria varchar(50) [null, ref: > CategoriaNuevo.id]
+  tipo_origen varchar(50)
+  tipo_categoria varchar(50)
+  costo_unitario decimal(10,2)
+  crecimiento decimal(5,2) [default: 0]
+  flete decimal(5,2) [default: 0]
+  total decimal(10,2)
+  total_con_flete decimal(10,2) [default: 0]
+}
+
+Table Cantidades {
+  id integer [primary key]
+  id_categoria varchar(50) [ref: > CategoriaNuevo.id]
+  unidad_medida varchar(50)
+  cantidad decimal(15,2)
+  fc decimal(15,2)
+  cantidad_final decimal(15,2)
+}
+
+Table Equipos {
+  id integer [primary key]
+  id_categoria varchar(50) [null, ref: > CategoriaNuevo.id]
+  costo_unidad decimal(10,2)
+  crecimiento decimal(5,2) [default: 0]
+  total_usd decimal(12,2) [default: 0]
+  fletes decimal(12,2) [default: 0]
+  total_sitio decimal(12,2) [default: 0]
+}
+
+Table Maquinaria {
+  id integer [primary key]
+  id_categoria varchar(50) [null, ref: > CategoriaNuevo.id]
+  horas_maquina_unidad decimal(10,2)
+  costo_maquina_hora decimal(10,2)
+  total_horas_maquina decimal(10,2)
+  total_usd decimal(10,2)
+}
+
+Table ManoObra {
+  id integer [primary key]
+  id_categoria varchar(50) [null, ref: > CategoriaNuevo.id]
+  horas_hombre_unidad decimal(10,2)
+  fp decimal(10,2)
+  rendimiento decimal(10,2) [default: 1.00]
+  horas_hombre_final decimal(10,2)
+  cantidad_horas_hombre decimal(10,2)
+  tarifas_usd_hh_mod decimal(10,2) [default: 0.00]
+  costo_hombre_hora decimal(10,2) [default: 0.00]
+  total_hh decimal(10,2) [default: 0.00]
+  total_usd_mod decimal(10,2) [default: 0.00]
+  tarifa_usd_hh_equipos decimal(10,2) [default: 0.00]
+  total_usd_equipos decimal(10,2) [default: 0.88]
+  total_usd decimal(10,2)
+}
+
+Table ApuGeneral {
+  id integer [primary key]
+  nombre varchar(255)
+}
+
+Table ApuEspecifico {
+  id integer [primary key]
+  id_categoria varchar(50) [null, ref: > CategoriaNuevo.id]
+  id_apu_general integer [ref: > ApuGeneral.id]
+  id_mano_obra integer [ref: > ManoObra.id]
+  nombre varchar(255)
+  unidad_medida varchar(50)
+  cantidad decimal(10,2)
+  precio_unitario decimal(10,2)
+  total_usd decimal(10,2)
+}
+
+Table EspecificoCategoria {
+  id integer [primary key]
+  id_categoria varchar(50) [ref: > CategoriaNuevo.id]
+  unidad varchar(50)
+  cantidad decimal(10,2)
+  dedicacion decimal(5,2)
+  duracion decimal(5,2)
+  costo decimal(10,2)
+  total decimal(15,2) [default: 0.00]
+}
+
+Table StaffEnami {
+  id integer [primary key]
+  nombre varchar(255)
+  valor decimal(10,2)
+  dotacion integer
+  duracion integer
+  factor_utilizacion decimal(5,2)
+  total_horas_hombre decimal(10,2)
+  costo_total decimal(15,2)
+  categoria_id varchar(50) [ref: > CategoriaNuevo.id]
+}
+
+Table DatosEP {
+  id varchar(50) [primary key]
+  hh_profesionales decimal(10,2)
+  precio_hh decimal(10,2)
+  id_categoria varchar(50) [ref: > CategoriaNuevo.id]
+}
+
+Table DatosOtrosEP {
+  id integer [primary key]
+  comprador integer
+  dedicacion decimal(10,2)
+  plazo decimal(10,2)
+  sueldo_pax decimal(10,2)
+  gestiones decimal(10,2)
+  viajes decimal(10,2)
+  id_categoria varchar(50) [null, ref: > CategoriaNuevo.id]
+}
+
+Table CotizacionMateriales {
+  id integer [primary key]
+  id_categoria varchar(50) [ref: > CategoriaNuevo.id]
+  tipo_suministro varchar(100)
+  tipo_moneda varchar(3)
+  pais_entrega varchar(100)
+  fecha_cotizacion_referencia date
+  cotizacion_usd decimal(12,2)
+  cotizacion_clp decimal(12,2)
+  factor_correccion decimal(5,2)
+  moneda_aplicada decimal(5,2)
+  flete_unitario decimal(5,2) [default: 0]
+  origen_precio varchar(100)
+  cotizacion varchar(100)
+  moneda_origen varchar(10)
+  tasa_cambio decimal(10,4)
+}
+
+Table ContratoSubcontrato {
+  id integer [primary key]
+  id_categoria varchar(50) [ref: > CategoriaNuevo.id]
+  costo_laboral_indirecto_usd_hh decimal(12,2)
+  total_usd_indirectos_contratista decimal(12,2) [null]
+  usd_por_unidad decimal(12,2) [null]
+  fc_subcontrato decimal(5,2)
+  usd_total_subcontrato decimal(12,2) [null]
+  costo_contrato_total decimal(12,2) [null]
+  costo_contrato_unitario decimal(12,2) [null]
+}
+
+Table MB {
+  id varchar(50) [primary key]
+  mb decimal(15,6)
+  fc decimal(15,6)
+  anio date [unique]
+}
+
+Table IngenieriaDetallesContraparte {
+  id integer [primary key]
+  id_categoria varchar(50) [ref: > CategoriaNuevo.id]
+  nombre varchar(255)
+  UF decimal(10,2)
+  MB_id varchar(50) [null, ref: > MB.id]
+  total_usd decimal(10,2) [default: 0]
+}
+
+Table GestionPermisos {
+  id integer [primary key]
+  id_categoria varchar(50) [ref: > CategoriaNuevo.id]
+  nombre varchar(255)
+  dedicacion decimal(5,2)
+  meses integer
+  cantidad integer
+  turno varchar(50)
+  MB decimal(10,2) [default: 0]
+  HH decimal(10,2) [default: 0]
+  total_usd decimal(15,2) [default: 0]
+}
+
+Table Dueno {
+  id integer [primary key]
+  id_categoria varchar(50) [ref: > CategoriaNuevo.id]
+  nombre varchar(255)
+  total_hh decimal(10,2)
+  costo_hh_us decimal(10,2)
+  costo_total decimal(15,2)
+}
+
+Table AdministracionSupervision {
+  id integer [primary key]
+  id_categoria varchar(50) [ref: > CategoriaNuevo.id]
+  unidad varchar(255)
+  precio_unitario_clp decimal(15,2)
+  total_unitario decimal(10,2)
+  factor_uso decimal(10,2)
+  cantidad_u_persona decimal(10,2)
+  mb_seleccionado_id varchar(50) [null, ref: > MB.id]
+  costo_total_clp decimal(15,2)
+  costo_total_us decimal(15,2)
+  costo_total_mb decimal(15,2)
+}
+
+Table PersonalIndirectoContratista {
+  id integer [primary key]
+  id_categoria varchar(50) [ref: > CategoriaNuevo.id]
+  mb_seleccionado_id varchar(50) [null, ref: > MB.id]
+  turno varchar(50)
+  unidad varchar(255)
+  hh_mes decimal(10,2)
+  plazo_mes decimal(10,2)
+  total_hh decimal(15,2)
+  precio_unitario_clp_hh decimal(15,2)
+  tarifa_usd_hh decimal(15,6)
+  costo_total_clp decimal(15,2)
+  costo_total_us decimal(15,2)
+  costo_total_mb decimal(15,2)
+}
+
+Table ServiciosApoyo {
+  id integer [primary key]
+  id_categoria varchar(50) [ref: > CategoriaNuevo.id]
+  unidad varchar(50)
+  cantidad decimal(10,2)
+  hh_totales decimal(10,2)
+  tarifas_clp decimal(15,2)
+  mb_id varchar(50) [null, ref: > MB.id]
+  total_usd decimal(15,2)
+}
+
+Table OtrosADM {
+  id integer [primary key]
+  id_categoria varchar(50) [null, ref: > CategoriaNuevo.id]
+  HH decimal(10,2) [null]
+  MB_id varchar(50) [null, ref: > MB.id]
+  total_usd decimal(15,2) [null]
+  dedicacion decimal(5,2) [null]
+  meses integer
+  cantidad integer
+  turno varchar(50)
+}
+
+Table AdministrativoFinanciero {
+  id integer [primary key]
+  id_categoria varchar(50) [ref: > CategoriaNuevo.id]
+  unidad varchar(255)
+  valor decimal(12,2)
+  meses integer
+  sobre_contrato_base decimal(5,2)
+  costo_total decimal(15,2)
+}
+
+Ref: "ApuEspecifico"."id" < "ApuEspecifico"."id_categoria"

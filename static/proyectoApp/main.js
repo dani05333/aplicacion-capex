@@ -11,7 +11,7 @@ function listadoCategoria() {
             }
             
             // ✅ Inicializar DataTable con los datos correctos
-            var table = $('#tabla_categorias').DataTable({
+            const table = $('#tabla_categorias').DataTable({
                 data: response,
                 columns: [
                     { 
@@ -81,8 +81,7 @@ function agregarFiltroProyecto(table, data) {
     // Obtener todos los proyectos únicos
     var proyectos = [...new Set(data.map(item => item.proyecto__nombre))].filter(Boolean).sort();
 
-
-    // Crear el select
+    // Crear el select del filtro
     var select = $('<select>')
         .attr('id', 'filtro-proyecto')
         .addClass('form-control form-control-sm')
@@ -93,40 +92,60 @@ function agregarFiltroProyecto(table, data) {
         select.append($('<option>').val(proyecto).text(proyecto));
     });
 
-    // Obtener contenedor del filtro y sus elementos
+    // Contenedor del filtro y campo de búsqueda
     var filterContainer = $('#tabla_categorias_wrapper .dataTables_filter');
-    var searchLabel = filterContainer.find('label'); // contiene el input
+    var searchLabel = filterContainer.find('label');
     var searchInput = searchLabel.find('input');
 
-    // Ajustes visuales (sin romper funcionalidad)
-    filterContainer.css({
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px' // espacio entre búsqueda y filtro
-    });
-
-    // Asegurar que label e input estén correctamente estilizados
+    filterContainer.css({ display: 'flex', alignItems: 'center', gap: '10px' });
     searchLabel.css({ display: 'flex', alignItems: 'center', marginBottom: '0' });
     searchInput.addClass('ml-2').css('width', '200px');
 
-    // Agregar el filtro de proyecto solo si aún no existe
     if ($('#filtro-proyecto').length === 0) {
         const filtroProyecto = $('<span>').addClass('d-flex align-items-center').append(
             $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
             select
         );
-
         filterContainer.append(filtroProyecto);
     }
 
-    // Aplicar filtro de proyecto al cambiar
-    $('#filtro-proyecto').on('change', function() {
+    // Función para recalcular la suma del total_costo
+    function actualizarSumaCategorias() {
+        let total = 0;
+        table.rows({ search: 'applied' }).every(function () {
+            const rowData = this.data();
+            // Solo sumar si id_padre es null o vacío
+            if (!rowData.id_padre) {
+                total += parseFloat(rowData.total_costo || 0);
+            }
+        });
+    
+        const totalFormateado = `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(total)}`;
+    
+        if ($('#suma-total-categorias').length === 0) {
+            $('#tabla_categorias_wrapper').append(
+                `<div id="suma-total-categorias" class="mt-3 text-right font-weight-bold">
+                    Total visible (categorías raíz): <strong>${totalFormateado}</strong>
+                </div>`
+            );
+        } else {
+            $('#suma-total-categorias strong').text(totalFormateado);
+        }
+    }
+    
+
+    // Aplicar filtro por proyecto
+    $('#filtro-proyecto').on('change', function () {
         var proyecto = $(this).val();
-        table.column(3) // columna "proyecto"
-            .search(proyecto ? '^' + proyecto + '$' : '', true, false)
-            .draw();
+        table.column(3).search(proyecto ? `^${proyecto}$` : '', true, false).draw();
+        actualizarSumaCategorias();
     });
+
+    // Actualizar suma al redibujar la tabla
+    table.on('draw', actualizarSumaCategorias);
+    actualizarSumaCategorias();
 }
+
 
 
 $(document).ready(function () {
