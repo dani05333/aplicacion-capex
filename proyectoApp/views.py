@@ -1,14 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.files.storage import FileSystemStorage
-from .models import ProyectoNuevo, CategoriaNuevo, CostoNuevo, Adquisiciones, MaterialesOtros, EquiposConstruccion, ManoObra, ApuGeneral, ApuEspecifico, ArchivoSubido, EspecificoCategoria, StaffEnami, DatosOtrosEP, DatosEP, Cantidades, ContratoSubcontrato, CotizacionMateriales, IngenieriaDetallesContraparte, GestionPermisos, Dueno, MB, AdministracionSupervision, PersonalIndirectoContratista, ServiciosApoyo, OtrosADM, AdministrativoFinanciero
+from .models import ProyectoNuevo, CategoriaNuevo, Adquisiciones, MaterialesOtros, EquiposConstruccion, ManoObra, ApuGeneral, ApuEspecifico, ArchivoSubido, EspecificoCategoria, StaffEnami, DatosOtrosEP, DatosEP, Cantidades, ContratoSubcontrato, CotizacionMateriales, IngenieriaDetallesContraparte, GestionPermisos, Dueno, MB, AdministracionSupervision, PersonalIndirectoContratista, ServiciosApoyo, OtrosADM, AdministrativoFinanciero
 import os
 from django.conf import settings
-from .forms import ArchivoSubidoForm, ProyectoNuevoForm, CategoriaNuevoForm, CostoNuevoForm, AdquisicionesForm, MaterialesOtrosForm, EquiposConstruccionForm, ManoObraForm, APUGeneralForm, APUEspecificoForm, EspecificoCategoriaForm, StaffEnamiForm, DatosOtrosEPForm, DatosEPForm, CantidadesForm, ContratoSubcontratoForm, CotizacionMaterialesForm, IngenieriaDetallesContraparteForm, GestionPermisosForm, DuenoForm, MBForm, AdministracionSupervisionForm, PersonalIndirectoContratistaForm, ServiciosApoyoForm, OtrosADMForm, AdministrativoFinancieroForm
+from .forms import ArchivoSubidoForm, ProyectoNuevoForm, CategoriaNuevoForm, AdquisicionesForm, MaterialesOtrosForm, EquiposConstruccionForm, ManoObraForm, APUGeneralForm, APUEspecificoForm, EspecificoCategoriaForm, StaffEnamiForm, DatosOtrosEPForm, DatosEPForm, CantidadesForm, ContratoSubcontratoForm, CotizacionMaterialesForm, IngenieriaDetallesContraparteForm, GestionPermisosForm, DuenoForm, MBForm, AdministracionSupervisionForm, PersonalIndirectoContratistaForm, ServiciosApoyoForm, OtrosADMForm, AdministrativoFinancieroForm
 import pandas as pd
 from django.contrib import messages
 from django.http import HttpResponse
 from django.views.generic import ListView, TemplateView, CreateView, UpdateView, DeleteView
-from .cargar_datos import cargar_proyecto_nuevo, cargar_categoria_nueva, cargar_costo_nuevo, cargar_adquisiciones, cargar_equipos_construccion, cargar_mano_obra, cargar_materiales_otros, cargar_apu_especifico, cargar_apu_general, cargar_especifico_categoria, cargar_staff_enami, cargar_datos_ep, cargar_datos_otros_ep, cargar_cantidades, cargar_contrato_subcontrato, cargar_cotizacion_materiales, cargar_ingenieria_detalles_contraparte, cargar_gestion_permisos, cargar_dueno, cargar_mb, cargar_administracion_supervision, cargar_personal_indirecto_contratista, cargar_servicios_apoyo, cargar_otros_adm, cargar_administrativo_financiero
+from .cargar_datos import cargar_proyecto_nuevo, cargar_categoria_nueva, cargar_adquisiciones, cargar_equipos_construccion, cargar_mano_obra, cargar_materiales_otros, cargar_apu_especifico, cargar_apu_general, cargar_especifico_categoria, cargar_staff_enami, cargar_datos_ep, cargar_datos_otros_ep, cargar_cantidades, cargar_contrato_subcontrato, cargar_cotizacion_materiales, cargar_ingenieria_detalles_contraparte, cargar_gestion_permisos, cargar_dueno, cargar_mb, cargar_administracion_supervision, cargar_personal_indirecto_contratista, cargar_servicios_apoyo, cargar_otros_adm, cargar_administrativo_financiero
 from django.db.models import Sum, Q, F, Subquery, OuterRef
 from django.http import JsonResponse
 from django.db import transaction
@@ -213,8 +213,6 @@ def cargar_datos(request):
             cargar_proyecto_nuevo()
         elif archivo == "categoria":
             cargar_categoria_nueva()
-        elif archivo == "costo":
-            cargar_costo_nuevo()
         elif archivo == "adquisiciones":
             cargar_adquisiciones()
         elif archivo == "materiales_otros":
@@ -263,7 +261,6 @@ def cargar_datos(request):
             # Si se selecciona "todos", se cargan todos los archivos
             cargar_proyecto_nuevo()
             cargar_categoria_nueva()
-            cargar_costo_nuevo()
             cargar_adquisiciones()
             cargar_materiales_otros()
             cargar_mano_obra()
@@ -410,31 +407,7 @@ class CrearCategoriaNuevo(CreateView):
     template_name = 'crear_categoria_nuevo.html'
     success_url = reverse_lazy('tabla_categoria_nuevo')
 
-class ListadoCostoNuevo(ListView):
-    model = CostoNuevo
-    template_name = 'tabla_costo_nuevo.html'
-    context_object_name = 'costonuevo'
 
-class ActualizarCostoNuevo(UpdateView):
-    model = CostoNuevo
-    form_class = CostoNuevoForm
-    template_name = 'crear_costo_nuevo.html'
-    success_url = reverse_lazy('tabla_costo_nuevo')
-
-    def get_object(self, queryset=None):
-        # Asegúrate de que se está obteniendo el objeto correcto
-        return CostoNuevo.objects.get(pk=self.kwargs['pk'])
-
-class EliminarCostoNuevo(DeleteView):
-    model = CostoNuevo
-    template_name = 'costonuevo_confirm_delete.html'
-    success_url = reverse_lazy('tabla_costo_nuevo')
-
-class CrearCostoNuevo(CreateView):
-    model = CostoNuevo
-    form_class = CostoNuevoForm
-    template_name = 'crear_costo_nuevo.html'
-    success_url = reverse_lazy('tabla_costo_nuevo')
 
 class ListadoAdquisiciones(ListView):
     model = Adquisiciones
@@ -917,9 +890,28 @@ class ListadoDatosOtrosEP(ListView):
     context_object_name = 'datos_otros_ep'
 
     def get(self, request, *args, **kwargs):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  
-            data = list(self.get_queryset().values('id', 'comprador', 'dedicacion', 'plazo','sueldo_pax','gestiones','viajes','id_categoria'))  # ✅ Convertimos a lista de diccionarios
-            return JsonResponse(data, safe=False)  
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            proyecto_filtro = request.GET.get('proyecto', None)
+            
+            if proyecto_filtro:
+                datos = DatosOtrosEP.objects.filter(id_categoria__proyecto__nombre=proyecto_filtro)
+            else:
+                datos = DatosOtrosEP.objects.all()
+
+            data = []
+            for item in datos:
+                data.append({
+                    "id": item.id,
+                    "id_categoria": str(item.id_categoria) if item.id_categoria else None,
+                    "proyecto": str(item.id_categoria.proyecto) if item.id_categoria and item.id_categoria.proyecto else None,
+                    "comprador": float(item.comprador) if item.comprador is not None else 0.0,
+                    "dedicacion": float(item.dedicacion) if item.dedicacion is not None else 0.0,
+                    "plazo": float(item.plazo) if item.plazo is not None else 0.0,
+                    "sueldo_pax": float(item.sueldo_pax) if item.sueldo_pax is not None else 0.0,
+                    "gestiones": float(item.gestiones) if item.gestiones is not None else 0.0,
+                    "viajes": float(item.viajes) if item.viajes is not None else 0.0,
+                })
+            return JsonResponse(data, safe=False)
 
         return super().get(request, *args, **kwargs)
 
@@ -976,9 +968,24 @@ class ListadoDatosEP(ListView):
     context_object_name = 'datos_ep'
 
     def get(self, request, *args, **kwargs):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  
-            data = list(self.get_queryset().values('id', 'hh_profesionales', 'precio_hh', 'id_categoria'))  # ✅ Convertimos a lista de diccionarios
-            return JsonResponse(data, safe=False)  
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            proyecto_filtro = request.GET.get('proyecto', None)
+            
+            if proyecto_filtro:
+                datos = DatosEP.objects.filter(id_categoria__proyecto__nombre=proyecto_filtro)
+            else:
+                datos = DatosEP.objects.all()
+
+            data = []
+            for item in datos:
+                data.append({
+                    "id": item.id,
+                    "id_categoria": str(item.id_categoria) if item.id_categoria else None,
+                    "proyecto": str(item.id_categoria.proyecto) if item.id_categoria and item.id_categoria.proyecto else None,
+                    "hh_profesionales": float(item.hh_profesionales) if item.hh_profesionales is not None else 0.0,
+                    "precio_hh": float(item.precio_hh) if item.precio_hh is not None else 0.0,
+                })
+            return JsonResponse(data, safe=False)
 
         return super().get(request, *args, **kwargs)
 
@@ -1211,8 +1218,8 @@ class ListadoGestionPermisos(ListView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            # Obtenemos los detalles de los permisos gestionados
-            permisos = GestionPermisos.objects.select_related('id_categoria__proyecto')
+            # Traemos permisos con su categoría y proyecto relacionado
+            permisos = GestionPermisos.objects.select_related('id_categoria__proyecto', 'MB')
             data = []
             for permiso in permisos:
                 data.append({
@@ -1224,13 +1231,15 @@ class ListadoGestionPermisos(ListView):
                     "meses": permiso.meses,
                     "cantidad": permiso.cantidad,
                     "turno": permiso.turno,
-                    "MB": float(permiso.MB) if permiso.MB is not None else 0.0,
+                    "MB": float(permiso.MB.mb) if permiso.MB else 0.0,  # Accedemos al valor de MB
                     "HH": float(permiso.HH) if permiso.HH is not None else 0.0,
+                    "total_clp": float(permiso.total_clp) if permiso.total_clp is not None else 0.0,  # Nuevo campo agregado
                     "total_usd": float(permiso.total_usd) if permiso.total_usd is not None else 0.0,
                 })
             return JsonResponse(data, safe=False)
 
         return super().get(request, *args, **kwargs)
+
     
 class ActualizarGestionPermisos(UpdateView):
     model = GestionPermisos
@@ -1512,11 +1521,30 @@ class ListadoServiciosApoyo(ListView):
     context_object_name = "servicios_apoyo"
 
     def get(self, request, *args, **kwargs):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  
-            data = list(self.get_queryset().values('id', 'id_categoria', 'unidad', 'cantidad', 'hh_totales','tarifas_clp','mb','total_usd'))  # ✅ Convertimos a lista de diccionarios
-            return JsonResponse(data, safe=False)  
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            proyecto_filtro = request.GET.get('proyecto', None)
+            if proyecto_filtro:
+                servicios_apoyo = ServiciosApoyo.objects.filter(id_categoria__proyecto__nombre=proyecto_filtro)
+            else:
+                servicios_apoyo = ServiciosApoyo.objects.all()
+
+            data = []
+            for item in servicios_apoyo:
+                data.append({
+                    "id": item.id,
+                    "id_categoria": str(item.id_categoria) if item.id_categoria else None,
+                    "proyecto": str(item.id_categoria.proyecto) if item.id_categoria and item.id_categoria.proyecto else None,
+                    "unidad": item.unidad,
+                    "cantidad": float(item.cantidad) if item.cantidad is not None else 0.0,
+                    "hh_totales": float(item.hh_totales) if item.hh_totales is not None else 0.0,
+                    "tarifas_clp": float(item.tarifas_clp) if item.tarifas_clp is not None else 0.0,
+                    "mb": float(item.mb.mb) if item.mb and item.mb.mb is not None else 0.0,
+                    "total_usd": float(item.total_usd) if item.total_usd is not None else 0.0,
+                })
+            return JsonResponse(data, safe=False)
 
         return super().get(request, *args, **kwargs)
+
     
 class ActualizarServiciosApoyo(UpdateView):
     model = ServiciosApoyo
@@ -1557,9 +1585,29 @@ class ListadoOtrosADM(ListView):
     context_object_name = "otros_adm"
 
     def get(self, request, *args, **kwargs):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  
-            data = list(self.get_queryset().values('id', 'id_categoria', 'HH', 'MB', 'total_usd','dedicacion','meses','cantidad','turno'))  # ✅ Convertimos a lista de diccionarios
-            return JsonResponse(data, safe=False)  
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            proyecto_filtro = request.GET.get('proyecto', None)
+            if proyecto_filtro:
+                otros_adm = OtrosADM.objects.filter(id_categoria__proyecto__nombre=proyecto_filtro)
+            else:
+                otros_adm = OtrosADM.objects.all()
+
+            data = []
+            for item in otros_adm:
+                data.append({
+                    "id": item.id,
+                    "id_categoria": str(item.id_categoria) if item.id_categoria else None,
+                    "proyecto": str(item.id_categoria.proyecto) if item.id_categoria and item.id_categoria.proyecto else None,
+                    "HH": float(item.HH) if item.HH is not None else 0.0,
+                    "MB": float(item.MB.mb) if item.MB and item.MB.mb is not None else 0.0,
+                    "total_clp": float(item.total_clp) if item.total_clp is not None else 0.0,
+                    "total_usd": float(item.total_usd) if item.total_usd is not None else 0.0,
+                    "dedicacion": float(item.dedicacion) if item.dedicacion is not None else 0.0,
+                    "meses": int(item.meses) if item.meses is not None else 0,
+                    "cantidad": float(item.cantidad) if item.cantidad is not None else 0.0,
+                    "turno": item.turno
+                })
+            return JsonResponse(data, safe=False)
 
         return super().get(request, *args, **kwargs)
     
@@ -1803,8 +1851,7 @@ def duplicar_proyecto(request, proyecto_id):
         # 1. Configuración de modelos y campos permitidos
         MODELOS = [
             'ProyectoNuevo',
-            'CategoriaNuevo',
-            'CostoNuevo',
+            'CategoriaNuevo'
             'Adquisiciones',
             'MaterialesOtros',
             'ManoObra',
@@ -1832,7 +1879,6 @@ def duplicar_proyecto(request, proyecto_id):
         CAMPOS_PERMITIDOS = {
             'ProyectoNuevo': ['id', 'nombre', 'proyecto_relacionado'],
             'CategoriaNuevo': ['id', 'nombre', 'proyecto', 'id_padre', 'categoria_relacionada', 'final', 'nivel'],
-            'CostoNuevo': ['id', 'monto', 'categoria'],
             'Adquisiciones': ['id_categoria', 'tipo_origen', 'tipo_categoria', 'costo_unitario', 'crecimiento'],
             'MaterialesOtros': ['id_categoria', 'costo_unidad', 'crecimiento'],
             'ManoObra': ['id_categoria', 'horas_hombre_unidad', 'fp', 'costo_hombre_hora', 'rendimiento', 'tarifas_usd_hh_mod', 'tarifa_usd_hh_equipos'],

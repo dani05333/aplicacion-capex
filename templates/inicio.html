@@ -26,91 +26,93 @@
         <button class="btn btn-outline-light me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu">
             <i class="bi bi-list"></i>
         </button>
+       
         <a class="navbar-brand" href="#">Aplicacion CAPEX</a>
     </div>
 </nav>
 
 <!-- Offcanvas Menú Lateral -->
-<div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
+<div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel" style="width: 300px;">
     <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasMenuLabel">Menú</h5>
+        <h5 class="offcanvas-title" id="offcanvasMenuLabel" style="font-size: 18px; color: #d1d1d1;">Menú</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
     </div>
     <div class="offcanvas-body">
         <!-- Menú Vertical -->
         <div class="list-group">
-            
-            <a href="{% url 'inicio' %}" class="list-group-item list-group-item-action list-group-item-light hover-bg-primary"><i class="bi bi-house-fill"></i> Inicio</a>
-                    <a href="{% url 'tabla_proyecto_nuevo' %}" class="list-group-item list-group-item-action"><i class="bi bi-journal-medical"></i> Tabla Proyecto</a>
-                    <a href="{% url 'tabla_categoria_nuevo' %}" class="list-group-item list-group-item-action"><i class="bi bi-list-ol"></i> Tabla Categoria</a>
-                    <a href="{% url 'tabla_cantidades' %}" class="list-group-item list-group-item-action"><i class="bi bi-box-seam"></i> Tabla Cantidades</a>
-                    <a href="{% url 'tabla_mb' %}" class="list-group-item list-group-item-action"><i class="bi bi-currency-dollar"></i> MB</a>
-                    <a href="{% url 'tabla_cotizacion_materiales' %}" class="list-group-item list-group-item-action"><i class="bi bi-calculator"></i> Cotizacion Materiales</a>
-                    
-                    <!-- Dropdown para Costos Directos -->
-                    <div class="dropdown">
-                        <a class="list-group-item list-group-item-action dropdown-toggle" href="#" role="button" id="costosDirectosDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-cash-stack"></i> Costos Directos
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="costosDirectosDropdown">
-                            
-                            <li><a class="dropdown-item" href="{% url 'tabla_materiales_otros' %}"><i class="bi bi-minecart-loaded"></i> Tabla Materiales Otros</a></li>
-                            <li><a class="dropdown-item" href="{% url 'tabla_equipos_construccion' %}"><i class="bi bi-tools"></i> Tabla Equipos Construccion</a></li>
-                            <li><a class="dropdown-item" href="{% url 'tabla_mano_obra' %}"><i class="bi bi-person-arms-up"></i> Tabla Mano Obra</a></li>
-                           
-                            <li><a class="dropdown-item" href="{% url 'tabla_adquisiciones' %}"><i class="bi bi-currency-exchange"></i> Tabla Adquisiciones</a></li>
-                        </ul>
-                    </div>
-            
-                    <!-- Dropdown para Costos Indirectos -->
-                    <div class="dropdown">
-                        <a class="list-group-item list-group-item-action dropdown-toggle" href="#" role="button" id="costosIndirectosDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-diagram-3"></i> Costos Indirectos
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="costosIndirectosDropdown">
-                            <li><a class="dropdown-item" href="{% url 'tabla_especifico_categoria' %}"><i class="bi bi-building-fill-gear"></i> GG Constructor</a></li>
-                            <li><a class="dropdown-item" href="{% url 'tabla_contrato_subcontrato' %}"><i class="bi bi-file-earmark-text-fill"></i> Contrato Subcontrato</a></li>
-                            <li><a class="dropdown-item" href="{% url 'tabla_administracion_supervision' %}"><i class="bi bi-clipboard2-check"></i> Administracion Supervision</a></li>
-                            <li><a class="dropdown-item" href="{% url 'tabla_personal_indirecto_contratista' %}"><i class="bi bi-people-fill"></i> Personal Indirecto Contratista</a></li>
-                            <li><a class="dropdown-item" href="{% url 'tabla_servicios_apoyo' %}"><i class="bi bi-life-preserver"></i> Servicios Apoyo</a></li>
-                            <li><a class="dropdown-item" href="{% url 'tabla_otros_adm' %}"><i class="bi bi-person-workspace"></i> Otros ADM</a></li>
-                            <li><a class="dropdown-item" href="{% url 'tabla_datos_ep' %}"><i class="bi bi-graph-up"></i> Tabla Datos</a></li>
-                            <li><a class="dropdown-item" href="{% url 'tabla_datos_otros_ep' %}"><i class="bi bi-graph-up"></i> Tabla Datos Otros</a></li>
-                        </ul>
-                    </div>
-            
-                    <!-- Dropdown para Costos Dueño -->
-                    <div class="dropdown">
-                        <a class="list-group-item list-group-item-action dropdown-toggle" href="#" role="button" id="costosDuenoDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-building-gear"></i> Costos Dueño
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="costosDuenoDropdown">
-                            <li><a class="dropdown-item" href="{% url 'tabla_staff_enami' %}"><i class="bi bi-people-fill"></i> Staff Enami</a></li>
-                            <li><a class="dropdown-item" href="{% url 'tabla_dueno' %}"><i class="bi bi-person-circle"></i> Dueño</a></li>
-                            <li><a class="dropdown-item" href="{% url 'tabla_gestion_permisos' %}"><i class="bi bi-shield-lock"></i> Gestion Permisos</a></li>
-                            <li><a class="dropdown-item" href="{% url 'tabla_administrativo_financiero' %}"><i class="bi bi-cash-coin"></i> Administrativo Financiero</a></li>
-                            <li><a class="dropdown-item" href="{% url 'tabla_ingenieria_detalles_contraparte' %}"><i class="bi bi-rulers"></i> Ingenieria Detalles Contraparte</a></li>
-                        </ul>
-                    </div>
-            
-                    <!-- Resto de los elementos del menú (que no están en los dropdowns) -->
-                    
-                    
-                    <a href="{% url 'subir_archivo' %}" class="list-group-item list-group-item-action"><i class="bi bi-filetype-xlsx"></i> Subir archivos</a>
-            <!-- Agrega aquí todo el resto de tu menú igual que antes... -->
+            <a href="{% url 'inicio' %}" class="list-group-item list-group-item-action bg-dark" style="font-size: 16px; color: #d1d1d1;"><i class="bi bi-house-fill"></i> Inicio</a>
+            <a href="{% url 'tabla_proyecto_nuevo' %}" class="list-group-item list-group-item-action bg-dark" style="font-size: 16px; color: #d1d1d1;"><i class="bi bi-journal-medical"></i> Tabla Proyecto</a>
+            <a href="{% url 'tabla_categoria_nuevo' %}" class="list-group-item list-group-item-action bg-dark" style="font-size: 16px; color: #d1d1d1;"><i class="bi bi-list-ol"></i> Tabla Categoria</a>
+            <a href="{% url 'tabla_cantidades' %}" class="list-group-item list-group-item-action bg-dark" style="font-size: 16px; color: #d1d1d1;"><i class="bi bi-box-seam"></i> Tabla Cantidades</a>
+            <a href="{% url 'tabla_mb' %}" class="list-group-item list-group-item-action bg-dark" style="font-size: 16px; color: #d1d1d1;"><i class="bi bi-currency-dollar"></i> MB</a>
+            <a href="{% url 'tabla_cotizacion_materiales' %}" class="list-group-item list-group-item-action bg-dark" style="font-size: 16px; color: #d1d1d1;"><i class="bi bi-calculator"></i> Cotizacion Materiales</a>
+
+            <!-- Dropdown para Costos Directos -->
+            <div class="dropdown">
+                <a class="list-group-item list-group-item-action dropdown-toggle bg-dark" href="#" role="button" id="costosDirectosDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 16px; color: #d1d1d1;">
+                    <i class="bi bi-cash-stack"></i> Costos Directos
+                </a>
+                <ul class="dropdown-menu bg-dark" aria-labelledby="costosDirectosDropdown">
+                    <li><a class="dropdown-item" href="{% url 'tabla_materiales_otros' %}" style="font-size: 15px; color: #d1d1d1;"><i class="bi bi-minecart-loaded"></i> Tabla Materiales Otros</a></li>
+                    <li><a class="dropdown-item" href="{% url 'tabla_equipos_construccion' %}" style="font-size: 15px; color: #d1d1d1;"><i class="bi bi-tools"></i> Tabla Equipos Construccion</a></li>
+                    <li><a class="dropdown-item" href="{% url 'tabla_mano_obra' %}" style="font-size: 15px; color: #d1d1d1;"><i class="bi bi-person-arms-up"></i> Tabla Mano Obra</a></li>
+                    <li><a class="dropdown-item" href="{% url 'tabla_adquisiciones' %}" style="font-size: 15px; color: #d1d1d1;"><i class="bi bi-currency-exchange"></i> Tabla Adquisiciones</a></li>
+                </ul>
+            </div>
+
+            <!-- Dropdown para Costos Indirectos -->
+            <div class="dropdown">
+                <a class="list-group-item list-group-item-action dropdown-toggle bg-dark" href="#" role="button" id="costosIndirectosDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 16px; color: #d1d1d1;">
+                    <i class="bi bi-diagram-3"></i> Costos Indirectos
+                </a>
+                <ul class="dropdown-menu bg-dark" aria-labelledby="costosIndirectosDropdown">
+                    <li><a class="dropdown-item" href="{% url 'tabla_especifico_categoria' %}" style="font-size: 15px; color: #d1d1d1;"><i class="bi bi-building-fill-gear"></i> GG Constructor</a></li>
+                    <li><a class="dropdown-item" href="{% url 'tabla_contrato_subcontrato' %}" style="font-size: 15px; color: #d1d1d1;"><i class="bi bi-file-earmark-text-fill"></i> Contrato Subcontrato</a></li>
+                    <li><a class="dropdown-item" href="{% url 'tabla_administracion_supervision' %}" style="font-size: 15px; color: #d1d1d1;"><i class="bi bi-clipboard2-check"></i> Administracion Supervision</a></li>
+                    <li><a class="dropdown-item" href="{% url 'tabla_personal_indirecto_contratista' %}" style="font-size: 15px; color: #d1d1d1;"><i class="bi bi-people-fill"></i> Personal Indirecto Contratista</a></li>
+                    <li><a class="dropdown-item" href="{% url 'tabla_servicios_apoyo' %}" style="font-size: 15px; color: #d1d1d1;"><i class="bi bi-life-preserver"></i> Servicios Apoyo</a></li>
+                    <li><a class="dropdown-item" href="{% url 'tabla_otros_adm' %}" style="font-size: 15px; color: #d1d1d1;"><i class="bi bi-person-workspace"></i> Otros ADM</a></li>
+                    <li><a class="dropdown-item" href="{% url 'tabla_datos_ep' %}" style="font-size: 15px; color: #d1d1d1;"><i class="bi bi-graph-up"></i> Tabla Datos</a></li>
+                    <li><a class="dropdown-item" href="{% url 'tabla_datos_otros_ep' %}" style="font-size: 15px; color: #d1d1d1;"><i class="bi bi-graph-up"></i> Tabla Datos Otros</a></li>
+                </ul>
+            </div>
+
+            <!-- Dropdown para Costos Dueño -->
+            <div class="dropdown">
+                <a class="list-group-item list-group-item-action dropdown-toggle bg-dark" href="#" role="button" id="costosDuenoDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 16px; color: #d1d1d1;">
+                    <i class="bi bi-building-gear"></i> Costos Dueño
+                </a>
+                <ul class="dropdown-menu bg-dark" aria-labelledby="costosDuenoDropdown">
+                    <li><a class="dropdown-item" href="{% url 'tabla_staff_enami' %}" style="font-size: 15px; color: #d1d1d1;"><i class="bi bi-people-fill"></i> Staff Enami</a></li>
+                    <li><a class="dropdown-item" href="{% url 'tabla_dueno' %}" style="font-size: 15px; color: #d1d1d1;"><i class="bi bi-person-circle"></i> Dueño</a></li>
+                    <li><a class="dropdown-item" href="{% url 'tabla_gestion_permisos' %}" style="font-size: 15px; color: #d1d1d1;"><i class="bi bi-shield-lock"></i> Gestion Permisos</a></li>
+                    <li><a class="dropdown-item" href="{% url 'tabla_administrativo_financiero' %}" style="font-size: 15px; color: #d1d1d1;"><i class="bi bi-cash-coin"></i> Administrativo Financiero</a></li>
+                    <li><a class="dropdown-item" href="{% url 'tabla_ingenieria_detalles_contraparte' %}" style="font-size: 15px; color: #d1d1d1;"><i class="bi bi-rulers"></i> Ingenieria Detalles Contraparte</a></li>
+                </ul>
+            </div>
+
+            <!-- Otros elementos -->
+            <a href="{% url 'subir_archivo' %}" class="list-group-item list-group-item-action bg-dark" style="font-size: 16px; color: #d1d1d1;"><i class="bi bi-filetype-xlsx"></i> Subir archivos</a>
         </div>
     </div>
 </div>
 
 
+
+
+
              <!-- Contenido Principal -->
-             <div class="col-12" >
-                <div class="container">
-                    <div class="row justify-content-center">
-                        <div class="col-12 col-md-11 col-lg-12">
-                {% block content %}
-                <h1 class="mb-4">Aplicación CAPEX</h1>
-                <p>Selecciona una de las opciones del menú para navegar a otras secciones de la aplicación.</p>
+             <div class="col-12">
+                <!-- 
+                  AJUSTA ESTE VALOR (w-XX) PARA MODIFICAR EL ANCHO:
+                  Opciones de Bootstrap: w-50, w-75, w-100 o personalizado como style="width: 85%"
+                  También puedes usar medidas fijas como style="width: 1200px"
+                -->
+                <div class="mx-auto" style="width: 90%">  <!-- ← Cambia este porcentaje -->
+                    {% block content %}
+                    <br>
+                    <h1 class="mb-4">Aplicación CAPEX</h1>
+                    <p>Selecciona una de las opciones del menú para navegar a otras secciones de la aplicación.</p>
 
 
                 

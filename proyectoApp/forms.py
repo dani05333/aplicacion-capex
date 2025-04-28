@@ -1,5 +1,5 @@
 from django import forms
-from .models import ArchivoSubido, ProyectoNuevo, CategoriaNuevo, CostoNuevo, Adquisiciones, MaterialesOtros, EquiposConstruccion, ManoObra, ApuGeneral, ApuEspecifico, EspecificoCategoria, StaffEnami, DatosOtrosEP, DatosEP, Cantidades, ContratoSubcontrato, CotizacionMateriales, IngenieriaDetallesContraparte, GestionPermisos, Dueno, MB, AdministracionSupervision, PersonalIndirectoContratista, ServiciosApoyo, OtrosADM, AdministrativoFinanciero
+from .models import ArchivoSubido, ProyectoNuevo, CategoriaNuevo, Adquisiciones, MaterialesOtros, EquiposConstruccion, ManoObra, ApuGeneral, ApuEspecifico, EspecificoCategoria, StaffEnami, DatosOtrosEP, DatosEP, Cantidades, ContratoSubcontrato, CotizacionMateriales, IngenieriaDetallesContraparte, GestionPermisos, Dueno, MB, AdministracionSupervision, PersonalIndirectoContratista, ServiciosApoyo, OtrosADM, AdministrativoFinanciero
 
 class ArchivoSubidoForm(forms.ModelForm):
     class Meta:
@@ -33,15 +33,6 @@ class CategoriaNuevoForm(forms.ModelForm):
             "final": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
 
-class CostoNuevoForm(forms.ModelForm):
-    class Meta:
-        model = CostoNuevo
-        fields = "__all__"
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['categoria'].queryset = CategoriaNuevo.objects.all()
-        self.fields['categoria'].label_from_instance = lambda obj: obj.get_full_name()
 
 class AdquisicionesForm(forms.ModelForm):
     class Meta:
@@ -245,7 +236,8 @@ class GestionPermisosForm(forms.ModelForm):
             "cantidad": forms.NumberInput(attrs={"class": "form-control","min": 0, "placeholder": "Cantidad"}),
             "HH": forms.NumberInput(attrs={"class": "form-control","min": 0, "placeholder": "HH"}),
             "turno": forms.TextInput(attrs={"class": "form-control","placeholder": "Turno"}),
-            "MB": forms.NumberInput(attrs={"class": "form-control","min": 0, "placeholder": "Cantidad Dolar por Hora"}),
+            "MB": forms.Select(attrs={"class": "form-control"}),
+            "total_clp": forms.NumberInput(attrs={"class": "form-control","min": 0, "placeholder": "Total CLP"}),
             
         }
         
@@ -330,6 +322,7 @@ class OtrosADMForm(forms.ModelForm):
         exclude = ["HH","total_usd"]
         widgets = {
             "id_categoria": forms.Select(attrs={"class": "form-control"}),
+            "total_clp": forms.NumberInput(attrs={"class": "form-control","min": 0, "placeholder": "Total CLP"}),
             "dedicacion": forms.NumberInput(attrs={"class": "form-control","min": 0, "placeholder": "Dedicacion"}),
             "meses": forms.NumberInput(attrs={"class": "form-control","min": 0, "placeholder": "Meses"}),
             "cantidad": forms.NumberInput(attrs={"class": "form-control","min": 0, "placeholder": "Cantidad"}),

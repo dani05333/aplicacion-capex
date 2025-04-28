@@ -8,8 +8,9 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 
 {% endblock extra_css %}
-
+<br>
 <h3>Tabla Servicios Apoyo</h3>
+<div id="suma-total-servicios-apoyo" class="alert alert-info mt-3"><strong>$0</strong></div>
 
 <div class="d-flex gap-2 mb-3">
     <a href="{% url 'crear_servicios_apoyo' %}" class="btn btn-success">Crear Servicios Apoyo <i class="bi bi-file-earmark-diff-fill"></i></a>
@@ -17,18 +18,18 @@
 </div>
 
 <!-- Tabla de Detalle -->
-<table id="tabla_servicios_apoyo" class="table table-striped table-bordered">
+<table id="tabla_servicios_apoyo" class="table table-striped table-bordered" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
     <thead>
         <tr>
             <th scope="col">#</th>
             <th scope="col">ID Categoria</th>
+            <th scope="col">Proyecto</th>
             <th scope="col">Unidad</th>
             <th scope="col">Cantidad</th>
             <th scope="col">HH Totales</th>
             <th scope="col">Tarifas CLP</th>
             <th scope="col">MB</th>
             <th scope="col">Total USD</th>
-            
             <th scope="col">Editar</th>
             <th scope="col">Eliminar</th>
            

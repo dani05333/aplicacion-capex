@@ -2,6 +2,7 @@
 {% load custom_filters %}
 
 {% block content %}
+<br>
 <h3>Tabla de Proyectos</h3>
 
 <!-- Botón para crear un nuevo proyecto -->
@@ -22,7 +23,6 @@
                 <option value="proyecto">Proyecto</option>
                 <option value="cantidades">Cantidades</option>
                 <option value="categoria">Categoría</option>
-                <option value="costo">Costo</option>
                 <option value="adquisiciones">Adquisiciones</option>
                 <option value="materiales_otros">Materiales Otros</option>
                 <option value="mano_obra">Mano Obra</option>
@@ -52,7 +52,7 @@
     </form><br>
 </div>
 
-<table class="table table-striped table-bordered">
+<table class="table table-striped table-bordered" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
     <thead>
         <tr>
             <th scope="col">ID</th>

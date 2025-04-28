@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 
 {% endblock extra_css %}
-
+<br>
 <h3>Datos EP</h3>
 <div class="d-flex gap-2 mb-3">
     <a href="{% url 'crear_datos_ep' %}" class="btn btn-success">Crear Datos EP <i class="bi bi-file-earmark-diff-fill"></i></a>
@@ -16,11 +16,12 @@
 </div>
 
 <!-- Tabla de Detalle -->
-<table id="tabla_datos_ep" class="table table-striped table-bordered">
+<table id="tabla_datos_ep" class="table table-striped table-bordered" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
     <thead>
         <tr>
             <th scope="col">#</th>
             <th scope="col">ID Categoria</th>
+            <th scope="col">Proyecto</th>
             <th scope="col">HH Profesionales</th>
             <th scope="col">Precio HH</th>
             <th scope="col">Editar</th>

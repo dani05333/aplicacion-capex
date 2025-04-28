@@ -6,7 +6,7 @@ from django.db import transaction
 from datetime import datetime
 import traceback
 import numpy as np 
-from .models import ProyectoNuevo, CategoriaNuevo, CostoNuevo, Adquisiciones, MaterialesOtros, EquiposConstruccion, ManoObra, ApuGeneral, ApuEspecifico, EspecificoCategoria, StaffEnami, DatosEP, DatosOtrosEP, Cantidades, ContratoSubcontrato, CotizacionMateriales, IngenieriaDetallesContraparte, GestionPermisos, Dueno, MB, AdministracionSupervision, PersonalIndirectoContratista, ServiciosApoyo, OtrosADM, AdministrativoFinanciero
+from .models import ProyectoNuevo, CategoriaNuevo, Adquisiciones, MaterialesOtros, EquiposConstruccion, ManoObra, ApuGeneral, ApuEspecifico, EspecificoCategoria, StaffEnami, DatosEP, DatosOtrosEP, Cantidades, ContratoSubcontrato, CotizacionMateriales, IngenieriaDetallesContraparte, GestionPermisos, Dueno, MB, AdministracionSupervision, PersonalIndirectoContratista, ServiciosApoyo, OtrosADM, AdministrativoFinanciero
 
 
 
@@ -173,40 +173,6 @@ def cargar_categoria_nueva():
                 print(f"Error al procesar el archivo {archivo}: {e}")
 
 
-
-def cargar_costo_nuevo():
-    directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'CostoNuevo')
-    
-    for archivo in os.listdir(directorio_archivos):
-        if archivo.endswith('.xlsx'):
-            ruta_archivo = os.path.join(directorio_archivos, archivo)
-
-            try:
-                df = pd.read_excel(ruta_archivo)
-
-                # Validar que las columnas esperadas existen
-                if not all(col in df.columns for col in ['categoria']):
-                    raise ValueError('El archivo debe contener la columna "categoria".')
-
-                # Empezamos una transacción para asegurar la atomicidad de la operación
-                with transaction.atomic():
-                    for _, row in df.iterrows():
-                        try:
-                            categoria = CategoriaNuevo.objects.get(id=row['categoria'])
-
-                            # Verificar si el CostoNuevo ya existe para esta categoría
-                            if not CostoNuevo.objects.filter(categoria=categoria).exists():
-                                # Crear el objeto CostoNuevo
-                                costo_nuevo = CostoNuevo(categoria=categoria)
-                                costo_nuevo.save()  # Guarda el objeto, lo que activará el cálculo de 'monto'
-
-                        except CategoriaNuevo.DoesNotExist:
-                            print(f'Error: La categoría con ID {row["categoria"]} no existe.')
-
-                print(f'Archivo {archivo} cargado exitosamente.')
-
-            except Exception as e:
-                print(f'Error al procesar el archivo {archivo}: {e}')
 
 
 
@@ -1208,13 +1174,17 @@ def cargar_gestion_permisos():
                 # Leer archivo forzando tipos de datos adecuados
                 df = pd.read_excel(ruta_archivo, dtype={
                     'id_categoria': str,
-                    'MB': str,
                     'nombre': str,
-                    'turno': str
+                    'dedicacion': object,
+                    'meses': object,
+                    'cantidad': object,
+                    'turno': str,
+                    'MB': str,
+                    'total_clp': object
                 })
-                
+
                 # Validar columnas requeridas
-                columnas_requeridas = {'id_categoria', 'nombre', 'dedicacion', 'meses', 'cantidad', 'turno', 'MB'}
+                columnas_requeridas = {'id_categoria', 'nombre', 'dedicacion', 'meses', 'cantidad', 'turno', 'MB','total_clp'}
                 if not columnas_requeridas.issubset(df.columns):
                     raise ValueError(f'El archivo debe contener las columnas: {columnas_requeridas}')
 
@@ -1223,13 +1193,13 @@ def cargar_gestion_permisos():
                 df['nombre'] = df['nombre'].astype(str).str.strip()
                 df['turno'] = df['turno'].astype(str).str.strip()
                 df['MB'] = df['MB'].astype(str).str.strip()
-                
-                # Obtener lista de registros existentes (id_categoria + nombre como clave única)
+
+                # Obtener registros existentes (id_categoria + nombre)
                 existentes = set(GestionPermisos.objects.values_list(
                     'id_categoria__id', 'nombre'
                 ))
-                
-                # Contadores para estadísticas
+
+                # Contadores
                 total_registros = 0
                 nuevos_registros = 0
                 omitidos = 0
@@ -1238,14 +1208,14 @@ def cargar_gestion_permisos():
                     total_registros += 1
                     id_categoria = row['id_categoria']
                     nombre = row['nombre']
-                    
-                    # Verificar si el registro ya existe
+
+                    # Verificar si ya existe
                     if (id_categoria, nombre) in existentes:
                         omitidos += 1
                         continue
-                        
+
                     try:
-                        # Validar y obtener categoría
+                        # Validar id_categoria
                         if not id_categoria:
                             print(f"Fila {index+2}: ID de categoría vacío - omitiendo")
                             omitidos += 1
@@ -1258,7 +1228,7 @@ def cargar_gestion_permisos():
                             omitidos += 1
                             continue
 
-                        # Función para convertir valores numéricos de forma segura
+                        # Función segura para convertir a Decimal
                         def to_decimal(valor, default=Decimal('0')):
                             try:
                                 return Decimal(str(valor).replace(',', '.')) if pd.notna(valor) else default
@@ -1266,26 +1236,35 @@ def cargar_gestion_permisos():
                                 print(f"Fila {index+2}: Valor inválido '{valor}' - usando {default} por defecto")
                                 return default
 
-                        # Convertir valores numéricos
+                        # Convertir dedicacion
                         dedicacion = to_decimal(row['dedicacion'])
-                        mb_valor = to_decimal(row['MB'])
 
-                        # Convertir valores enteros
+                        # Convertir meses y cantidad
                         try:
-                            meses = int(row['meses']) if pd.notna(row['meses']) else 0
-                            cantidad = int(row['cantidad']) if pd.notna(row['cantidad']) else 0
-                        except ValueError:
+                            meses = int(float(row['meses'])) if pd.notna(row['meses']) else 0
+                            cantidad = int(float(row['cantidad'])) if pd.notna(row['cantidad']) else 0
+                        except (ValueError, TypeError):
                             print(f"Fila {index+2}: Valor inválido para meses/cantidad - usando 0 por defecto")
                             meses = cantidad = 0
 
-                        # Validar campo turno
-                        turno = row['turno'] if row['turno'] and str(row['turno']).strip() != 'nan' else 'No especificado'
+                        # Turno
+                        turno = row['turno'] if row['turno'] and row['turno'].lower() != 'nan' else 'No especificado'
 
-                        # Calcular HH y total_usd
+                        # Manejar MB
+                        mb_obj = None
+                        mb_id = row['MB']
+                        if mb_id and mb_id != 'nan' and mb_id != 'None':
+                            try:
+                                mb_obj = MB.objects.get(id=int(float(mb_id)))
+                            except (MB.DoesNotExist, ValueError):
+                                print(f"Fila {index+2}: MB con ID '{mb_id}' no encontrado - usando None")
+                                mb_obj = None
+
+                        # Calcular HH y total_clp
                         HH = (dedicacion / 100) * meses * cantidad * 180
-                        total_usd = HH * mb_valor
+                        total_clp = to_decimal(row['total_clp'])
 
-                        # Crear nuevo registro
+                        # Crear nuevo permiso
                         print(f"Creando nuevo permiso para categoría {id_categoria} - {nombre}")
                         GestionPermisos.objects.create(
                             id_categoria=categoria,
@@ -1294,9 +1273,9 @@ def cargar_gestion_permisos():
                             meses=meses,
                             cantidad=cantidad,
                             turno=turno,
-                            MB=mb_valor,
+                            MB=mb_obj,
                             HH=HH,
-                            total_usd=total_usd
+                            total_clp=total_clp
                         )
                         nuevos_registros += 1
 
@@ -1885,7 +1864,6 @@ def cargar_servicios_apoyo():
 
 
 
-
 def cargar_otros_adm():
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'OtrosADM')
 
@@ -1901,20 +1879,18 @@ def cargar_otros_adm():
                 df = pd.read_excel(ruta_archivo)
 
                 # Verificar que las columnas necesarias estén en el archivo
-                columnas_requeridas = {'id_categoria', 'dedicacion', 'meses', 'cantidad', 'turno', 'MB'}
+                columnas_requeridas = {'id_categoria', 'dedicacion', 'meses', 'cantidad', 'turno', 'MB', 'total_clp'}
                 if not columnas_requeridas.issubset(df.columns):
                     raise ValueError(f'El archivo {archivo} debe contener las columnas {columnas_requeridas}')
 
                 for _, row in df.iterrows():
                     try:
-                        # Obtener la categoría
                         id_categoria_int = row['id_categoria'] if pd.notna(row['id_categoria']) else None
                         id_categoria = CategoriaNuevo.objects.get(id=id_categoria_int) if id_categoria_int else None
                     except (ValueError, CategoriaNuevo.DoesNotExist):
                         print(f'Categoría con id {row["id_categoria"]} no encontrada o no es válida. Saltando fila...')
                         continue
 
-                    # Convertir valores a Decimal
                     def convertir_a_decimal(valor):
                         try:
                             return Decimal(str(valor)) if pd.notna(valor) else Decimal('0')
@@ -1923,34 +1899,42 @@ def cargar_otros_adm():
                             return Decimal('0')
 
                     dedicacion = convertir_a_decimal(row['dedicacion'])
+                    total_clp = convertir_a_decimal(row['total_clp'])  # 🟰 Agregado para cargar total_clp
                     meses = int(row['meses']) if pd.notna(row['meses']) else 0
                     cantidad = int(row['cantidad']) if pd.notna(row['cantidad']) else 0
                     turno = row['turno']
 
-                    # Obtener el objeto MB por id
                     mb_seleccionado = None
                     if pd.notna(row['MB']):
                         try:
                             mb_seleccionado_int = int(row['MB'])  # Suponiendo que es un ID
-                            mb_seleccionado = MB.objects.get(id=mb_seleccionado_int)  # Buscar MB por ID
+                            mb_seleccionado = MB.objects.get(id=mb_seleccionado_int)
                         except (ValueError, MB.DoesNotExist):
                             print(f'MB con id {row["MB"]} no encontrado. Usando None.')
-                            mb_seleccionado = None
 
-                    # Crear o actualizar el registro en OtrosADM
-                    OtrosADM.objects.get_or_create(
+                    # 🟰 Cambiar get_or_create para incluir total_clp
+                    otros_adm, creado = OtrosADM.objects.get_or_create(
                         id_categoria=id_categoria,
                         dedicacion=dedicacion,
                         meses=meses,
                         cantidad=cantidad,
                         turno=turno,
-                        MB=mb_seleccionado,  # Asignar el objeto MB
+                        MB=mb_seleccionado,
+                        defaults={
+                            'total_clp': total_clp,
+                        }
                     )
+
+                    # 🟰 Si ya existía, actualizar total_clp
+                    if not creado:
+                        otros_adm.total_clp = total_clp
+                        otros_adm.save()
 
                 print(f'Archivo {archivo} cargado exitosamente en OtrosADM.')
 
             except Exception as e:
                 print(f'Error al procesar el archivo {archivo} para OtrosADM: {e}')
+
 
 
 

@@ -12,6 +12,7 @@ function listadoCategoria() {
             
             // ✅ Inicializar DataTable con los datos correctos
             const table = $('#tabla_categorias').DataTable({
+                deferRender: true,
                 data: response,
                 columns: [
                     { 
@@ -433,6 +434,7 @@ function listadoEquiposConstruccion() {
             }
             
             const table =$('#tabla_equipos_construccion').DataTable({
+                deferRender: true,
                 data: response,
                 columns: [
                     { data: "id" },
@@ -606,7 +608,7 @@ function listadoManoObra() {
             }
             
             const table=$('#tabla_mano_obra').DataTable({
-                scrollX: true,
+                
                 deferRender: true,
                 data: response,
                 columns: [
@@ -824,6 +826,7 @@ function listadoMaterialesOtros() {
             
             // ✅ Inicializar DataTable con los datos correctos
             const table=$('#tabla_materiales_otros').DataTable({
+                deferRender: true,
                 data: response,
                 columns: [
                     { data: "id" },
@@ -1006,6 +1009,7 @@ function listadoEspecificoCategoria() {
             
             // ✅ Inicializar DataTable con los datos correctos
             const table=$('#tabla_especifico_categoria').DataTable({
+                deferRender: true,
                 data: response,
                 columns: [
                     { data: "id" },
@@ -1186,6 +1190,7 @@ function listadoStaffEnami() {
             
             // ✅ Inicializar DataTable con los datos correctos
             const table=$('#tabla_staff_enami').DataTable({
+                deferRender: true,
                 data: response,
                 columns: [
                     { data: "id" },
@@ -1368,6 +1373,7 @@ function listadoCantidades() {
             
             // ✅ Inicializar DataTable con los datos correctos
             const table=$('#tabla_cantidades').DataTable({
+                deferRender: true,
                 data: response,
                 columns: [
                     { data: "id" },
@@ -1525,7 +1531,7 @@ function listadoContratoSubcontrato() {
             
             // ✅ Inicializar DataTable con los datos correctos
             const table=$('#tabla_contrato_subcontrato').DataTable({
-                
+                deferRender: true,
                 data: response,
                 columns: [
                     { data: "id" },
@@ -1715,7 +1721,8 @@ function listadoCotizacionMateriales() {
             
             // ✅ Inicializar DataTable con los datos correctos
             const table=$('#tabla_cotizacion_materiales').DataTable({
-                scrollX: true,
+                deferRender: true,
+                
                 data: response,
                 columns: [
                     { data: "id" },
@@ -1888,6 +1895,7 @@ function listadoIngenieriaDetallesContraparte() {
             
             // ✅ Inicializar DataTable con los datos correctos
             const table=$('#tabla_ingenieria_detalles_contraparte').DataTable({
+                deferRender: true,
                 data: response,
                 columns: [
                     { data: "id" },
@@ -2053,46 +2061,47 @@ function listadoGestionPermisos() {
         dataType: "json",
         headers: { "X-Requested-With": "XMLHttpRequest" },
         success: function(response) {
-            // ✅ Destruir instancia previa de DataTable si existe
             if ($.fn.DataTable.isDataTable('#tabla_gestion_permisos')) {
                 $('#tabla_gestion_permisos').DataTable().destroy();
             }
             
-            // ✅ Inicializar DataTable con los datos correctos
-            const table=$('#tabla_gestion_permisos').DataTable({
+            const table = $('#tabla_gestion_permisos').DataTable({
+                
+                deferRender: true,
                 data: response,
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
                     { data: "proyecto" },
                     { data: "nombre" },
-                    { data: "dedicacion",
-                        render: function (data) {
-                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
-                        }
-                     },
-                    { data: "meses",
-                        render: function (data) {
-                            return `${new Intl.NumberFormat('es-CL').format(data)}`;
-                        }
-                     },
-                    { data: "cantidad",
-                        render: function (data) {
-                            return `${new Intl.NumberFormat('es-CL').format(data)}`;
-                        }
-                     },
+                    { data: "dedicacion" },
+                    { data: "meses" },
+                    { data: "cantidad" },
                     { data: "turno" },
-                    { data: "MB" },
-                    { data: "HH",
+                    { 
+                        data: "MB",
                         render: function (data) {
                             return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
                         }
-                     },
-                    { data: "total_usd",
+                    },
+                    { 
+                        data: "HH",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                    },
+                    { 
+                        data: "total_clp",
                         render: function (data) {
                             return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
                         }
-                     },
+                    },
+                    { 
+                        data: "total_usd",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                    },
                     { 
                         data: null, 
                         render: function(data, type, row) {
@@ -2119,7 +2128,7 @@ function listadoGestionPermisos() {
                 }
             });
 
-            agregarFiltroGestionPermisos(table, response);
+            agregarFiltroProyectoPermisos(table, response);
         },
         error: function(xhr, status, error) {
             console.error("Error en la petición AJAX:", error);
@@ -2127,22 +2136,19 @@ function listadoGestionPermisos() {
     });
 }
 
-function agregarFiltroGestionPermisos(table, data) {
-    // Obtenemos los proyectos únicos
+function agregarFiltroProyectoPermisos(table, data) {
     const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
 
-    // Creamos el select para proyectos
-    const selectProyectos = $('<select>')
-        .attr('id', 'filtro-proyecto-gestion-permisos')
+    const select = $('<select>')
+        .attr('id', 'filtro-proyecto-permisos')
         .addClass('form-control form-control-sm')
         .css('width', '200px')
         .append($('<option>').val('').text('Todos los proyectos'));
 
     proyectos.forEach(function(proyecto) {
-        selectProyectos.append($('<option>').val(proyecto).text(proyecto));
+        select.append($('<option>').val(proyecto).text(proyecto));
     });
 
-    // Añadimos el select al contenedor
     const filterContainer = $('#tabla_gestion_permisos_wrapper .dataTables_filter');
     const searchLabel = filterContainer.find('label');
     const searchInput = searchLabel.find('input');
@@ -2156,17 +2162,16 @@ function agregarFiltroGestionPermisos(table, data) {
     searchLabel.css({ display: 'flex', alignItems: 'center', marginBottom: '0' });
     searchInput.addClass('ml-2').css('width', '200px');
 
-    if ($('#filtro-proyecto-gestion-permisos').length === 0) {
+    if ($('#filtro-proyecto-permisos').length === 0) {
         const filtroProyecto = $('<span>').addClass('d-flex align-items-center').append(
             $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
-            selectProyectos
+            select
         );
-
         filterContainer.append(filtroProyecto);
     }
 
-    // ✅ Función para actualizar la suma de total_usd
-    function actualizarSumaTotalGestionPermisos() {
+    // ✅ Actualizar la suma del total_usd
+    function actualizarSumaTotalPermisos() {
         let total = 0;
         table.rows({ search: 'applied' }).every(function () {
             const rowData = this.data();
@@ -2177,44 +2182,35 @@ function agregarFiltroGestionPermisos(table, data) {
         $('#suma-total-gestion-permisos strong').text(totalFormateado);
     }
 
-    // ✅ Filtro + actualización
-    $('#filtro-proyecto-gestion-permisos').on('change', function () {
+    $('#filtro-proyecto-permisos').on('change', function () {
         const valor = $(this).val();
         table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();
-        actualizarSumaTotalGestionPermisos();
+        actualizarSumaTotalPermisos();
     });
 
-    // ✅ Recalcular cada vez que se redibuja la tabla
-    table.on('draw', actualizarSumaTotalGestionPermisos);
+    table.on('draw', actualizarSumaTotalPermisos);
 
-    // ✅ Calcular al iniciar
-    actualizarSumaTotalGestionPermisos();
+    actualizarSumaTotalPermisos();
 }
 
-
-
-
-
-// ✅ Cargar la tabla al iniciar la página
+// ✅ Cargar la tabla al iniciar
 $(document).ready(function () {
     listadoGestionPermisos();
 });
 
-// ✅ Evento para eliminar registros
+// ✅ Evento para eliminar
 $(document).on("click", ".btn-eliminar-permiso", function () {
     let permisoId = $(this).data("id");
 
-    if (confirm("¿Estás seguro de que deseas eliminar este registro?")) {
+    if (confirm("¿Estás seguro de que deseas eliminar este permiso?")) {
         $.ajax({
-            url: "/eliminar-gestion-permisos/",
+            url: "/eliminar-gestion-permiso/",
             type: "POST",
             data: { id: permisoId },
             headers: { "X-CSRFToken": getCSRFToken() },
             success: function (response) {
                 if (response.success) {
-                    alert("Registro eliminado correctamente.");
-                    
-                    // ✅ Recargar la tabla después de eliminar
+                    alert("Permiso eliminado correctamente.");
                     listadoGestionPermisos();
                 } else {
                     alert("Error al eliminar: " + response.error);
@@ -2227,12 +2223,12 @@ $(document).on("click", ".btn-eliminar-permiso", function () {
     }
 });
 
-// ✅ Función para obtener el CSRF Token
 function getCSRFToken() {
     return document.cookie.split('; ')
         .find(row => row.startsWith('csrftoken='))
         ?.split('=')[1];
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -2250,6 +2246,7 @@ function listadoDueno() {
             
             // ✅ Inicializar DataTable con los datos correctos
             const table=$('#tabla_dueno').DataTable({
+                deferRender: true,
                 data: response,
                 columns: [
                     { data: "id" },
@@ -2424,6 +2421,7 @@ function listadoMB() {
             
             // ✅ Inicializar DataTable con los datos correctos
             $('#tabla_mb').DataTable({
+                deferRender: true,
                 data: response,
                 columns: [
                     { data: "id" },
@@ -2526,7 +2524,8 @@ function listadoAdministracionSupervision() {
             
             // ✅ Inicializar DataTable con los datos correctos
             const table=$('#tabla_administracion_supervision').DataTable({
-                scrollX: true,
+                deferRender: true,
+                
                 data: response,
                 columns: [
                     { data: "id" },
@@ -2728,7 +2727,8 @@ function listadoPersonalIndirectoContratista() {
             
             // ✅ Inicializar DataTable con los datos correctos
             const table=$('#tabla_personal_indirecto_contratista').DataTable({
-                scrollX: true,
+                deferRender: true,
+                
                 data: response,
                 columns: [
                     { data: "id" },
@@ -2930,11 +2930,13 @@ function listadoServiciosApoyo() {
             }
             
             // ✅ Initialize DataTable with the correct data
-            $('#tabla_servicios_apoyo').DataTable({
+            const table=$('#tabla_servicios_apoyo').DataTable({
+                deferRender: true,
                 data: response,
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
+                    { data: "proyecto" },
                     { data: "unidad" },
                     { data: "cantidad",
                         render: function (data) {
@@ -2982,12 +2984,70 @@ function listadoServiciosApoyo() {
                     }
                 }
             });
+            agregarFiltroProyectoServiciosApoyo(table, response);
         },
         error: function(xhr, status, error) {
             console.error("Error en la petición AJAX:", error);
         }
     });
 }
+
+function agregarFiltroProyectoServiciosApoyo(table, data) {
+    const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
+
+    const select = $('<select>')
+        .attr('id', 'filtro-proyecto-servicios-apoyo')
+        .addClass('form-control form-control-sm')
+        .css('width', '200px')
+        .append($('<option>').val('').text('Todos los proyectos'));
+
+    proyectos.forEach(function(proyecto) {
+        select.append($('<option>').val(proyecto).text(proyecto));
+    });
+
+    const filterContainer = $('#tabla_servicios_apoyo_wrapper .dataTables_filter');
+    const searchLabel = filterContainer.find('label');
+    const searchInput = searchLabel.find('input');
+
+    filterContainer.css({
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+    });
+
+    searchLabel.css({ display: 'flex', alignItems: 'center', marginBottom: '0' });
+    searchInput.addClass('ml-2').css('width', '200px');
+
+    if ($('#filtro-proyecto-servicios-apoyo').length === 0) {
+        const filtroProyecto = $('<span>').addClass('d-flex align-items-center').append(
+            $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
+            select
+        );
+        filterContainer.append(filtroProyecto);
+    }
+
+    function actualizarSumaServiciosApoyo() {
+        let total = 0;
+        table.rows({ search: 'applied' }).every(function () {
+            const rowData = this.data();
+            total += parseFloat(rowData.total_usd || 0); // 👈 CORREGIDO
+        });
+    
+        const totalFormateado = `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(total)}`;
+        $('#suma-total-servicios-apoyo strong').text(totalFormateado);
+    }
+    
+
+    $('#filtro-proyecto-servicios-apoyo').on('change', function () {
+        const valor = $(this).val();
+        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();
+        actualizarSumaServiciosApoyo();
+    });
+
+    table.on('draw', actualizarSumaServiciosApoyo);
+    actualizarSumaServiciosApoyo();
+}
+
 
 // ✅ Cargar la tabla al iniciar la página
 $(document).ready(function () {
@@ -3032,28 +3092,39 @@ function getCSRFToken() {
 
 function listadoOtrosADM() {
     $.ajax({
-        url: "/tabla_otros_adm/",  // Cambia esta URL si es necesario
+        url: "/tabla_otros_adm/",
         type: "GET",
         dataType: "json",
         headers: { "X-Requested-With": "XMLHttpRequest" },
         success: function(response) {
-            // ✅ Destruir instancia previa de DataTable si existe
+            // ✅ Destroy previous instance of DataTable if it exists
             if ($.fn.DataTable.isDataTable('#tabla_otros_adm')) {
                 $('#tabla_otros_adm').DataTable().destroy();
             }
             
-            // ✅ Inicializar DataTable con los datos correctos
-            $('#tabla_otros_adm').DataTable({
+            // ✅ Initialize DataTable with the correct data
+            const table = $('#tabla_otros_adm').DataTable({
+                deferRender: true,
                 data: response,
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
+                    { data: "proyecto" },
                     { data: "HH",
                         render: function (data) {
                             return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
                         }
                      },
-                    { data: "MB" },
+                    { data: "MB",
+                        render: function (data) {
+                            return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                     },
+                    { data: "total_clp",
+                        render: function (data) {
+                            return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
+                        }
+                    },
                     { data: "total_usd",
                         render: function (data) {
                             return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
@@ -3100,11 +3171,69 @@ function listadoOtrosADM() {
                     }
                 }
             });
+            
+            // Agregar filtro de proyecto y suma total
+            agregarFiltroProyectoOtrosADM(table, response);
         },
         error: function(xhr, status, error) {
             console.error("Error en la petición AJAX:", error);
         }
     });
+}
+
+function agregarFiltroProyectoOtrosADM(table, data) {
+    const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
+
+    const select = $('<select>')
+        .attr('id', 'filtro-proyecto-otros-adm')
+        .addClass('form-control form-control-sm')
+        .css('width', '200px')
+        .append($('<option>').val('').text('Todos los proyectos'));
+
+    proyectos.forEach(function(proyecto) {
+        select.append($('<option>').val(proyecto).text(proyecto));
+    });
+
+    const filterContainer = $('#tabla_otros_adm_wrapper .dataTables_filter');
+    const searchLabel = filterContainer.find('label');
+    const searchInput = searchLabel.find('input');
+
+    filterContainer.css({
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+    });
+
+    searchLabel.css({ display: 'flex', alignItems: 'center', marginBottom: '0' });
+    searchInput.addClass('ml-2').css('width', '200px');
+
+    if ($('#filtro-proyecto-otros-adm').length === 0) {
+        const filtroProyecto = $('<span>').addClass('d-flex align-items-center').append(
+            $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
+            select
+        );
+        filterContainer.append(filtroProyecto);
+    }
+
+    function actualizarSumaOtrosADM() {
+        let total = 0;
+        table.rows({ search: 'applied' }).every(function () {
+            const rowData = this.data();
+            total += parseFloat(rowData.total_usd || 0);
+        });
+    
+        const totalFormateado = `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(total)}`;
+        $('#suma-total-otros-adm strong').text(totalFormateado);
+    }
+
+    $('#filtro-proyecto-otros-adm').on('change', function () {
+        const valor = $(this).val();
+        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();
+        actualizarSumaOtrosADM();
+    });
+
+    table.on('draw', actualizarSumaOtrosADM);
+    actualizarSumaOtrosADM();
 }
 
 // ✅ Cargar la tabla al iniciar la página
@@ -3118,7 +3247,7 @@ $(document).on("click", ".btn-eliminar-otros-adm", function () {
 
     if (confirm("¿Estás seguro de que deseas eliminar este registro?")) {
         $.ajax({
-            url: "/eliminar-otros-adm/",  // Cambia esta URL si es necesario
+            url: "/eliminar-otros-adm/",
             type: "POST",
             data: { id: otrosAdmId },
             headers: { "X-CSRFToken": getCSRFToken() },
@@ -3163,6 +3292,7 @@ function listadoAdministrativoFinanciero() {
             
             // ✅ Inicializar DataTable con los datos correctos
             const table=$('#tabla_administrativo_financiero').DataTable({
+                deferRender: true,
                 data: response,
                 columns: [
                     { data: "id" },
@@ -3345,11 +3475,13 @@ function listadoDatosEP() {
             }
             
             // ✅ Inicializar DataTable con los datos correctos
-            $('#tabla_datos_ep').DataTable({
+            const table=$('#tabla_datos_ep').DataTable({
+                deferRender: true,
                 data: response,
                 columns: [
                     { data: "id" },
                     { data: "id_categoria" },
+                    { data: "proyecto" },
                     { data: "hh_profesionales",
                         render: function (data) {
                             return `${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
@@ -3385,12 +3517,55 @@ function listadoDatosEP() {
                     }
                 }
             });
+            agregarFiltroProyectoDatosEP(table, response);
         },
         error: function(xhr, status, error) {
             console.error("Error en la petición AJAX:", error);
         }
     });
 }
+
+function agregarFiltroProyectoDatosEP(table, data) {
+    const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
+
+    const select = $('<select>')
+        .attr('id', 'filtro-proyecto-datos-ep')
+        .addClass('form-control form-control-sm')
+        .css('width', '200px')
+        .append($('<option>').val('').text('Todos los proyectos'));
+
+    proyectos.forEach(function(proyecto) {
+        select.append($('<option>').val(proyecto).text(proyecto));
+    });
+
+    const filterContainer = $('#tabla_datos_ep_wrapper .dataTables_filter');
+    const searchLabel = filterContainer.find('label');
+    const searchInput = searchLabel.find('input');
+
+    filterContainer.css({
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+    });
+
+    searchLabel.css({ display: 'flex', alignItems: 'center', marginBottom: '0' });
+    searchInput.addClass('ml-2').css('width', '200px');
+
+    if ($('#filtro-proyecto-datos-ep').length === 0) {
+        const filtroProyecto = $('<span>').addClass('d-flex align-items-center').append(
+            $('<label>').addClass('mb-0 mr-2').text('Proyecto:'),
+            select
+        );
+        filterContainer.append(filtroProyecto);
+    }
+
+    $('#filtro-proyecto-datos-ep').on('change', function () {
+        const valor = $(this).val();
+        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();
+    });
+}
+
+
 
 // ✅ Cargar la tabla al iniciar la página
 $(document).ready(function () {
@@ -3447,14 +3622,13 @@ function listadoDatosOtrosEP() {
             }
             
             // Inicializar DataTable con los datos
-            $('#tabla_datos_otros_ep').DataTable({
+            const table=$('#tabla_datos_otros_ep').DataTable({
+                deferRender: true,
                 data: response,
                 columns: [
                     { data: "id", },
-                    { 
-                        data: "id_categoria", 
-                        
-                    },
+                    { data: "id_categoria"},
+                    { data: "proyecto"},
                     { data: "comprador", title: "Comprador",
                         render: function (data) {
                             return `$${new Intl.NumberFormat('es-CL', { minimumFractionDigits: 2 }).format(data)}`;
@@ -3516,6 +3690,8 @@ function listadoDatosOtrosEP() {
                     'copy', 'csv', 'excel', 'pdf', 'print'
                 ]
             });
+
+            agregarFiltroProyectoDatosOtrosEP(table, response);
         },
         error: function(xhr, status, error) {
             console.error("Error en la petición AJAX:", error);
@@ -3523,6 +3699,39 @@ function listadoDatosOtrosEP() {
         }
     });
 }
+
+function agregarFiltroProyectoDatosOtrosEP(table, data) {
+    const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
+
+    const select = $('<select>')
+        .attr('id', 'filtro-proyecto-datos-otros-ep')
+        .addClass('form-control form-control-sm')
+        .css('width', '200px')
+        .append($('<option>').val('').text('Todos los proyectos'));
+
+    proyectos.forEach(function(proyecto) {
+        select.append($('<option>').val(proyecto).text(proyecto));
+    });
+
+    // Crear contenedor para el filtro
+    const filterContainer = $('<div>').addClass('row mb-3')
+        .append(
+            $('<div>').addClass('col-md-4')
+                .append(
+                    $('<label>').addClass('form-label').text('Filtrar por proyecto:'),
+                    select
+                )
+        );
+
+    // Insertar el filtro antes de la tabla
+    $('#tabla_datos_otros_ep').closest('.table-responsive').before(filterContainer);
+
+    $('#filtro-proyecto-datos-otros-ep').on('change', function () {
+        const valor = $(this).val();
+        table.column(2).search(valor ? `^${valor}$` : '', true, false).draw();
+    });
+}
+
 
 // Cargar la tabla al iniciar la página
 $(document).ready(function () {

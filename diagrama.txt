@@ -1,6 +1,3 @@
-Para ingresarlo en dbdiagram.io
-
-
 Table ProyectoNuevo {
   id varchar(50) [primary key]
   nombre varchar(255)
@@ -190,7 +187,7 @@ Table GestionPermisos {
   meses integer
   cantidad integer
   turno varchar(50)
-  MB decimal(10,2) [default: 0]
+  MB varchar(50) [null, ref: > MB.id] 
   HH decimal(10,2) [default: 0]
   total_usd decimal(15,2) [default: 0]
 }
@@ -242,6 +239,7 @@ Table ServiciosApoyo {
   hh_totales decimal(10,2)
   tarifas_clp decimal(15,2)
   mb_id varchar(50) [null, ref: > MB.id]
+  total_clp decimal(15,2)
   total_usd decimal(15,2)
 }
 
@@ -250,6 +248,7 @@ Table OtrosADM {
   id_categoria varchar(50) [null, ref: > CategoriaNuevo.id]
   HH decimal(10,2) [null]
   MB_id varchar(50) [null, ref: > MB.id]
+  total_clp decimal(15,2)
   total_usd decimal(15,2) [null]
   dedicacion decimal(5,2) [null]
   meses integer
@@ -268,3 +267,9 @@ Table AdministrativoFinanciero {
 }
 
 Ref: "ApuEspecifico"."id" < "ApuEspecifico"."id_categoria"
+
+Table ArchivoSubido {
+  id integer [primary key, increment]
+  archivo varchar [note: "FileField, uploaded to 'uploads/'"]
+  fecha_subida datetime [note: "DateTimeField, auto_now_add=True"]
+  modelo_destino varchar(50) [note: "CharField with choices"]}

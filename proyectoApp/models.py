@@ -5,10 +5,6 @@ from django.db import transaction
 import uuid
 # Create your models here.
 
-
-
-
-
 class ProyectoNuevo(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
     nombre = models.CharField(max_length=255)
@@ -52,8 +48,6 @@ class ProyectoNuevo(models.Model):
     
     def __str__(self):
         return self.nombre
-
-
 
 
 class CategoriaNuevo(models.Model):
@@ -163,7 +157,7 @@ class CategoriaNuevo(models.Model):
                 self.total_costo = costo_utilidades
                 self.save(update_fields=['total_costo'])
 
-                # ⛔ Evitar llamada recursiva infinita
+                #  Evitar llamada recursiva infinita
                 if self.id_padre and not from_child:
                     self.id_padre.actualizar_total_costo(from_child=True)
 
@@ -259,14 +253,6 @@ class CategoriaNuevo(models.Model):
             return f"{self.id} - {self.nombre}"
     
 
-class CostoNuevo(models.Model):
-    id = models.AutoField(primary_key=True)
-    monto = models.DecimalField(max_digits=15, decimal_places=2, editable=False)
-    categoria = models.ForeignKey(CategoriaNuevo, on_delete=models.CASCADE, related_name='costos')
-
-    def __str__(self):
-        """Retorna el nombre de la categoría asociada"""
-        return f"{self.categoria.nombre} - Monto: {self.monto}"
 
 
 class Adquisiciones(models.Model):
@@ -388,10 +374,7 @@ class Cantidades(models.Model):
         self.cantidad_final = self.cantidad + (self.cantidad * (self.fc / 100))
         super().save(*args, **kwargs)
 
-        # Actualizar los costos asociados a la categoría
-        if self.id_categoria:
-            for costo in CostoNuevo.objects.filter(categoria=self.id_categoria):
-                costo.save()
+       
         
         if self.id_categoria:
             print(f"Actualizando categoría inmediata: {self.id_categoria.id}")  # Debugging
@@ -472,10 +455,6 @@ class MaterialesOtros(models.Model):
         # Guardar el objeto en la base de datos
         super().save(*args, **kwargs)
 
-        # Actualizar los costos asociados a la categoría
-        if self.id_categoria:
-            for costo in CostoNuevo.objects.filter(categoria=self.id_categoria):
-                costo.save()
 
         # Llamar a actualizar_total_costo() en la categoría relacionada
         if self.id_categoria:
@@ -507,12 +486,10 @@ class MaterialesOtros(models.Model):
         super().delete(*args, **kwargs)
 
         # 3️⃣ Actualizar costos en la categoría
-        if self.id_categoria:
-            for costo in CostoNuevo.objects.filter(categoria=self.id_categoria):
-                costo.save()
+       
 
             # Llamar a actualizar_total_costo() en la categoría relacionada
-            self.id_categoria.actualizar_total_costo()
+        self.id_categoria.actualizar_total_costo()
 
 
     def __str__(self):
@@ -572,7 +549,6 @@ class EquiposConstruccion(models.Model):
 
     def __str__(self):
         return f"Equipo en {self.id_categoria.nombre} - Total USD: {self.total_usd}"
-
 
 
 class ManoObra(models.Model):
@@ -645,7 +621,6 @@ class ManoObra(models.Model):
         return f"Mano de Obra {self.id} - {self.id_categoria}"
 
 
-
 class ApuEspecifico(models.Model):
     id = models.AutoField(primary_key=True)
     id_categoria = models.ForeignKey('CategoriaNuevo', null=True, blank=True, on_delete=models.SET_NULL, related_name="apus_especifico")
@@ -707,7 +682,6 @@ class ApuGeneral(models.Model):
     def __str__(self):
         return self.nombre
     
-
 
 class EspecificoCategoria(models.Model):
     id = models.AutoField(primary_key=True)
@@ -815,7 +789,6 @@ class StaffEnami(models.Model):
         return self.nombre
     
 
-
 class DatosEP(models.Model):
     id = models.CharField(max_length=50, primary_key=True)  # ID personalizado, no AutoField
     hh_profesionales = models.DecimalField(max_digits=10, decimal_places=2)  # Horas Hombre Profesionales
@@ -857,8 +830,6 @@ class DatosEP(models.Model):
 
     def __str__(self):
         return f"{self.id} - {self.id_categoria.nombre}"
-    
-    
 
 
 class DatosOtrosEP(models.Model):
@@ -1027,7 +998,6 @@ class ContratoSubcontrato(models.Model):
         return f"Contrato {self.id} - Categoría: {self.id_categoria.nombre}"
 
 
-
 class IngenieriaDetallesContraparte(models.Model):
     id = models.AutoField(primary_key=True)
     id_categoria = models.ForeignKey(CategoriaNuevo, on_delete=models.CASCADE)
@@ -1074,7 +1044,6 @@ class IngenieriaDetallesContraparte(models.Model):
         return self.nombre
 
 
-
 class GestionPermisos(models.Model):
     id = models.AutoField(primary_key=True)
     id_categoria = models.ForeignKey('CategoriaNuevo', on_delete=models.CASCADE)
@@ -1083,13 +1052,14 @@ class GestionPermisos(models.Model):
     meses = models.PositiveIntegerField()
     cantidad = models.PositiveIntegerField()
     turno = models.CharField(max_length=50)
-    MB = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # Selección manual de MB
+    MB = models.ForeignKey('MB', on_delete=models.SET_NULL, null=True, blank=True)  # Selección de MB
     HH = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # Se calculará antes de guardar
+    total_clp = models.DecimalField(max_digits=15, decimal_places=2, default=0)  # Se calculará antes de guardar
     total_usd = models.DecimalField(max_digits=15, decimal_places=2, default=0)  # Se calculará antes de guardar
 
     def save(self, *args, **kwargs):
         self.HH = (self.dedicacion / 100) * self.meses * self.cantidad * 180
-        self.total_usd = self.HH * self.MB
+        self.total_usd = self.total_clp / self.MB.mb if self.MB else 0
         super().save(*args, **kwargs)
 
          # ✅ Actualizar la categoría actual
@@ -1247,8 +1217,6 @@ class AdministracionSupervision(models.Model):
         return f"Administración y Supervisión - {self.id_categoria} - CLP: {self.costo_total_clp}, US$: {self.costo_total_us}, MB: {self.costo_total_mb}"
     
 
-
-
 class PersonalIndirectoContratista(models.Model):
     id = models.AutoField(primary_key=True)
     id_categoria = models.ForeignKey('CategoriaNuevo', on_delete=models.CASCADE)  # Relación con Categoría
@@ -1310,7 +1278,6 @@ class PersonalIndirectoContratista(models.Model):
             print(f"Actualizando categoría padre después de eliminar: {categoria_padre.id}")  # Debugging
             categoria_padre.actualizar_total_costo()
             categoria_padre = categoria_padre.id_padre  # Subir a la categoría superior
-
     
 
 class ServiciosApoyo(models.Model):
@@ -1325,7 +1292,7 @@ class ServiciosApoyo(models.Model):
 
     def save(self, *args, **kwargs):
         # ✅ Asegurar que `mb` tiene un valor antes de multiplicar
-        self.total_usd = self.hh_totales * self.mb.mb if self.hh_totales and self.mb else Decimal('0')
+        self.total_usd = self.tarifas_clp / self.mb.mb if self.hh_totales and self.mb else Decimal('0')
         super().save(*args, **kwargs)
 
         # ✅ Actualizar la categoría actual
@@ -1362,6 +1329,7 @@ class OtrosADM(models.Model):
     id = models.AutoField(primary_key=True)
     id_categoria = models.ForeignKey(CategoriaNuevo, on_delete=models.SET_NULL, null=True, blank=True)
     HH = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    total_clp = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
     MB = models.ForeignKey('MB', on_delete=models.SET_NULL, null=True, blank=True)  # Selección de MB
     total_usd = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
     dedicacion = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)  # Porcentaje
@@ -1372,7 +1340,7 @@ class OtrosADM(models.Model):
     def save(self, *args, **kwargs):
         # Calculamos HH y Total_USD antes de guardar
         self.HH = (self.dedicacion/100) * self.meses * self.cantidad * 180
-        self.total_usd = self.HH * self.MB.mb if self.MB else 0
+        self.total_usd = self.total_clp / self.MB.mb if self.MB else 0
         super().save(*args, **kwargs)
 
          # ✅ Actualizar la categoría actual
@@ -1459,7 +1427,6 @@ class ArchivoSubido(models.Model):
     modelo_destino = models.CharField(max_length=50, choices=[
         ('ProyectoNuevo', 'Proyecto Nuevo'),
         ('CategoriaNuevo', 'Categoría Nueva'),
-        ('CostoNuevo', 'Costo Nuevo'),
         ('Adquisiciones', 'Adquisiciones'),
         ('Cantidades', 'Cantidades'),
         ('MaterialesOtros', 'Materiales Otros'),
