@@ -191,11 +191,7 @@ class CategoriaNuevo(models.Model):
         elif nombre == "asistencia tecnica del vendor":
             total_costo += self.calcular_costo_asistencia_vendor()
         
-        else:
-            # 🔹 Costos directos
-            costos_directos = self.costos.aggregate(total=Sum('monto'))['total'] or Decimal('0.00')
-            total_costo += costos_directos
-
+        else:      
             # 🔹 Subcategorías
             hijos = self.subcategorias.all()
             total_hijos = sum(h.total_costo or Decimal('0.00') for h in hijos)
@@ -252,8 +248,6 @@ class CategoriaNuevo(models.Model):
     def __str__(self):
             return f"{self.id} - {self.nombre}"
     
-
-
 
 class Adquisiciones(models.Model):
     id = models.AutoField(primary_key=True)

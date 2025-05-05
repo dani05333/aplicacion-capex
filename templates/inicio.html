@@ -212,296 +212,298 @@
                 
 
                 <script>
+
                     // Inicializar gráficos
-                    const chartTorta = echarts.init(document.getElementById('graficoTorta'));
-                    const chartBarras = echarts.init(document.getElementById('graficoBarras'));
-                    let proyectoActualId = null;
-                
-                    // Cargar gráfico de torta
-                    function cargarGraficoTorta(proyectoId) {
-                        fetch(`/api/categorias-raiz/${proyectoId}/`)
-                            .then(response => response.json())
-                            .then(data => {
-                                const option = {
-                                    title: { text: 'Distribución de Costos', left: 'center' },
-                                    tooltip: { 
-                                        trigger: 'item',
-                                        formatter: '{a} <br/>{b}: ${c} ({d}%)'
-                                    },
-                                    legend: { orient: 'vertical', left: 'left' },
-                                    series: [{
-                                        name: 'Costo Total',
-                                        type: 'pie',
-                                        radius: '50%',
-                                        data: data,
-                                        emphasis: {
-                                            itemStyle: {
-                                                shadowBlur: 10,
-                                                shadowOffsetX: 0,
-                                                shadowColor: 'rgba(0, 0, 0, 0.5)'
-                                            }
-                                        }
-                                    }]
-                                };
-                                chartTorta.setOption(option);
-                            })
-                            .catch(error => console.error("Error cargando gráfico de torta:", error));
-                    }
-                
-                    // Función para cargar los niveles disponibles dinámicamente
-                    async function cargarNivelesDisponibles(proyectoId) {
-                        const nivelSelect = document.getElementById('nivelSelect');
-                        
-                        try {
-                            // Mostrar estado de carga
-                            const loadingOption = document.createElement('option');
-                            loadingOption.value = '';
-                            loadingOption.textContent = 'Cargando niveles...';
-                            loadingOption.disabled = true;
-                            
-                            // Limpiar opciones existentes (conservando "Todos los niveles")
-                            while (nivelSelect.options.length > 1) {
-                                nivelSelect.remove(1);
-                            }
-                            nivelSelect.appendChild(loadingOption);
-                            
-                            const response = await fetch(`/api/obtener-niveles-proyecto/${proyectoId}/`);
-                            
-                            if (!response.ok) {
-                                throw new Error('Error al obtener niveles');
-                            }
-                            
-                            const niveles = await response.json();
-                            
-                            // Eliminar opción de carga
-                            nivelSelect.remove(nivelSelect.options.length - 1);
-                            
-                            // Ordenar niveles y eliminar duplicados
-                            const nivelesUnicos = [...new Set(niveles)].sort((a, b) => a - b);
-                            
-                            // Agregar opciones dinámicas
-                            if (nivelesUnicos.length > 0) {
-                                nivelesUnicos.forEach(nivel => {
-                                    const option = new Option(`Nivel ${nivel}`, nivel);
-                                    nivelSelect.add(option);
-                                });
-                            } else {
-                                const option = new Option('No hay niveles disponibles', '');
-                                option.disabled = true;
-                                nivelSelect.add(option);
-                            }
-                        } catch (error) {
-                            console.error('Error:', error);
-                            nivelSelect.remove(nivelSelect.options.length - 1);
-                            const option = new Option('Error al cargar niveles', '');
-                            option.disabled = true;
-                            nivelSelect.add(option);
-                        }
-                    }
-                
-                    // Cargar gráfico de barras de comparación con filtrado por nivel
-                    function cargarGraficoBarras(proyectoId, nivel = null) {
-    let url = `/api/obtener-comparacion-costos/${proyectoId}/`;
-    if (nivel) {
-        url += `?nivel=${nivel}`;
-    }
+const chartTorta = echarts.init(document.getElementById('graficoTorta'));
+const chartBarras = echarts.init(document.getElementById('graficoBarras'));
+let proyectoActualId = null;
 
-    fetch(url)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Error en la respuesta del servidor');
-            }
-            return response.json();
-        })
+// Cargar gráfico de torta
+function cargarGraficoTorta(proyectoId) {
+    fetch(`/api/categorias-raiz/${proyectoId}/`)
+        .then(response => response.json())
         .then(data => {
-            if (data.error) {
-                console.error(data.error);
-                chartBarras.clear();
-                return;
-            }
-
             const option = {
-                title: {
-                    text: `{proyecto1|${data.nombres.actual}}\n{vs|vs}\n{proyecto2|${data.nombres.comparar}}` + 
-                          (nivel ? `\n{nivel|(Nivel ${nivel})}` : ''),
-                    left: 'center',
-                    top: '2%',  // Mueve el título más cerca del borde superior
-                    textStyle: {
-                        rich: {
-                            proyecto1: {
-                                color: '#1f77b4',
-                                fontWeight: 'bold',
-                                fontSize: 14,
-                                padding: [0, 0, 5, 0]
-                            },
-                            vs: {
-                                color: '#666',
-                                fontSize: 12,
-                                padding: [5, 0]
-                            },
-                            proyecto2: {
-                                color: '#ff7f0e',
-                                fontWeight: 'bold',
-                                fontSize: 14,
-                                padding: [5, 0, 0, 0]
-                            },
-                            nivel: {
-                                color: '#666',
-                                fontSize: 12,
-                                fontStyle: 'italic',
-                                padding: [10, 0, 0, 0]
-                            }
-                        }
-                    }
-                },
-                grid: {
-                    top: '25%',  // Aumenta este valor para dar más espacio al título
-                    bottom: 150
-                },
+                title: { text: 'Distribución de Costos', left: 'center' },
                 tooltip: { 
-                    trigger: 'axis',
-                    formatter: function(params) {
-                        let result = params[0].name + '<br/>';
-                        params.forEach(param => {
-                            result += `${param.seriesName}: $${param.value.toLocaleString()}<br/>`;
-                        });
-                        if (data.niveles) {
-                            result += `Nivel: ${data.niveles[params[0].dataIndex]}`;
-                        }
-                        return result;
-                    }
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: ${c} ({d}%)'
                 },
-                legend: {
-                    data: [data.nombres.actual, data.nombres.comparar],
-                    top: '15%'  // Ajusta la posición de la leyenda
-                },
-                xAxis: {
-                    type: 'category',
-                    data: data.categorias,
-                    axisLabel: { 
-                        rotate: 45,
-                        formatter: function(value) {
-                            return value.length > 15 ? value.substring(0, 15) + '...' : value;
-                        }
-                    }
-                },
-                yAxis: { 
-                    type: 'value',
-                    axisLabel: {
-                        formatter: '${value}'
-                    }
-                },
-                series: [
-                    {
-                        name: data.nombres.actual,
-                        type: 'bar',
-                        data: data.costos_proyecto_actual,
-                        color: '#1f77b4',
+                legend: { orient: 'vertical', left: 'left' },
+                series: [{
+                    name: 'Costo Total',
+                    type: 'pie',
+                    radius: '50%',
+                    data: data,
+                    emphasis: {
                         itemStyle: {
-                            borderRadius: [5, 5, 0, 0]
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
                         }
-                    },
-                    {
-                        name: data.nombres.comparar,
-                        type: 'bar',
-                        data: data.costos_proyecto_comparar,
-                        color: '#ff7f0e',
-                        itemStyle: {
-                            borderRadius: [5, 5, 0, 0]
-                        }
-                    }
-                ],
-                dataZoom: [{
-                    type: 'slider',
-                    show: true,
-                    xAxisIndex: [0],
-                    start: 0,
-                    end: 100,
-                    bottom: 30,
-                    height: 20,
-                    borderColor: 'transparent',
-                    backgroundColor: '#e6e6e6',
-                    fillerColor: 'rgba(0, 100, 255, 0.2)',
-                    handleStyle: {
-                        color: '#0050b3',
-                        borderColor: '#0050b3'
-                    },
-                    textStyle: {
-                        color: '#333'
                     }
                 }]
             };
-            chartBarras.setOption(option);
+            chartTorta.setOption(option);
         })
-        .catch(error => {
-            console.error('Error al cargar comparación:', error);
-            chartBarras.clear();
-        });
+        .catch(error => console.error("Error cargando gráfico de torta:", error));
 }
-                
-                    // Función para manejar el cambio de proyecto
-                    function onProyectoChange(proyectoId) {
-                        if (!proyectoId) {
-                            chartTorta.clear();
-                            chartBarras.clear();
-                            return;
-                        }
-                
-                        proyectoActualId = proyectoId;
-                        
-                        // Cargar niveles disponibles para este proyecto
-                        cargarNivelesDisponibles(proyectoId);
-                        
-                        // Cargar gráficos
-                        cargarGraficoTorta(proyectoId);
-                        cargarGraficoBarras(proyectoId);
-                    }
-                
-                    // Inicialización al cargar la página
-                    document.addEventListener("DOMContentLoaded", function () {
-                        const proyectoSelect = document.getElementById('proyectoSelect');
-                        const nivelSelect = document.getElementById('nivelSelect');
-                        const btnFiltrar = document.getElementById('btnFiltrar');
-                        const btnReset = document.getElementById('btnReset');
-                
-                        // Cargar gráfico para el primer proyecto si está seleccionado
-                        if (proyectoSelect && proyectoSelect.value) {
-                            onProyectoChange(proyectoSelect.value);
-                        }
-                
-                        // Agregar evento al selector de proyecto
-                        proyectoSelect.addEventListener('change', function () {
-                            onProyectoChange(this.value);
-                            // Resetear el filtro de nivel al cambiar de proyecto
-                            if (nivelSelect) nivelSelect.value = 'todos';
-                        });
-                
-                        // Agregar evento al botón de filtrar
-                        if (btnFiltrar) {
-                            btnFiltrar.addEventListener('click', function() {
-                                if (!proyectoActualId) return;
-                                
-                                const nivel = nivelSelect.value === 'todos' ? null : nivelSelect.value;
-                                cargarGraficoBarras(proyectoActualId, nivel);
-                            });
-                        }
-                
-                        // Agregar evento al botón de reset
-                        if (btnReset) {
-                            btnReset.addEventListener('click', function() {
-                                if (!proyectoActualId) return;
-                                
-                                if (nivelSelect) nivelSelect.value = 'todos';
-                                cargarGraficoBarras(proyectoActualId);
-                            });
-                        }
-                    });
-                
-                    // Función para redimensionar gráficos al cambiar el tamaño de la ventana
-                    window.addEventListener('resize', function() {
-                        chartTorta.resize();
-                        chartBarras.resize();
-                    });
+
+// Función para cargar los niveles disponibles dinámicamente
+async function cargarNivelesDisponibles(proyectoId) {
+    const nivelSelect = document.getElementById('nivelSelect');
+    
+    try {
+        // Mostrar estado de carga
+        const loadingOption = document.createElement('option');
+        loadingOption.value = '';
+        loadingOption.textContent = 'Cargando niveles...';
+        loadingOption.disabled = true;
+        
+        // Limpiar opciones existentes (conservando "Todos los niveles")
+        while (nivelSelect.options.length > 1) {
+            nivelSelect.remove(1);
+        }
+        nivelSelect.appendChild(loadingOption);
+        
+        const response = await fetch(`/api/obtener-niveles-proyecto/${proyectoId}/`);
+        
+        if (!response.ok) {
+            throw new Error('Error al obtener niveles');
+        }
+        
+        const niveles = await response.json();
+        
+        // Eliminar opción de carga
+        nivelSelect.remove(nivelSelect.options.length - 1);
+        
+        // Ordenar niveles y eliminar duplicados
+        const nivelesUnicos = [...new Set(niveles)].sort((a, b) => a - b);
+        
+        // Agregar opciones dinámicas
+        if (nivelesUnicos.length > 0) {
+            nivelesUnicos.forEach(nivel => {
+                const option = new Option(`Nivel ${nivel}`, nivel);
+                nivelSelect.add(option);
+            });
+        } else {
+            const option = new Option('No hay niveles disponibles', '');
+            option.disabled = true;
+            nivelSelect.add(option);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        nivelSelect.remove(nivelSelect.options.length - 1);
+        const option = new Option('Error al cargar niveles', '');
+        option.disabled = true;
+        nivelSelect.add(option);
+    }
+}
+
+// Cargar gráfico de barras de comparación con filtrado por nivel
+function cargarGraficoBarras(proyectoId, nivel = null) {
+let url = `/api/obtener-comparacion-costos/${proyectoId}/`;
+if (nivel) {
+url += `?nivel=${nivel}`;
+}
+
+fetch(url)
+.then(response => {
+if (!response.ok) {
+throw new Error('Error en la respuesta del servidor');
+}
+return response.json();
+})
+.then(data => {
+if (data.error) {
+console.error(data.error);
+chartBarras.clear();
+return;
+}
+
+const option = {
+title: {
+text: `{proyecto1|${data.nombres.actual}}\n{vs|vs}\n{proyecto2|${data.nombres.comparar}}` + 
+      (nivel ? `\n{nivel|(Nivel ${nivel})}` : ''),
+left: 'center',
+top: '2%',  // Mueve el título más cerca del borde superior
+textStyle: {
+    rich: {
+        proyecto1: {
+            color: '#1f77b4',
+            fontWeight: 'bold',
+            fontSize: 14,
+            padding: [0, 0, 5, 0]
+        },
+        vs: {
+            color: '#666',
+            fontSize: 12,
+            padding: [5, 0]
+        },
+        proyecto2: {
+            color: '#ff7f0e',
+            fontWeight: 'bold',
+            fontSize: 14,
+            padding: [5, 0, 0, 0]
+        },
+        nivel: {
+            color: '#666',
+            fontSize: 12,
+            fontStyle: 'italic',
+            padding: [10, 0, 0, 0]
+        }
+    }
+}
+},
+grid: {
+top: '25%',  // Aumenta este valor para dar más espacio al título
+bottom: 150
+},
+tooltip: { 
+trigger: 'axis',
+formatter: function(params) {
+    let result = params[0].name + '<br/>';
+    params.forEach(param => {
+        result += `${param.seriesName}: $${param.value.toLocaleString()}<br/>`;
+    });
+    if (data.niveles) {
+        result += `Nivel: ${data.niveles[params[0].dataIndex]}`;
+    }
+    return result;
+}
+},
+legend: {
+data: [data.nombres.actual, data.nombres.comparar],
+top: '15%'  // Ajusta la posición de la leyenda
+},
+xAxis: {
+type: 'category',
+data: data.categorias,
+axisLabel: { 
+    rotate: 45,
+    formatter: function(value) {
+        return value.length > 15 ? value.substring(0, 15) + '...' : value;
+    }
+}
+},
+yAxis: { 
+type: 'value',
+axisLabel: {
+    formatter: '${value}'
+}
+},
+series: [
+{
+    name: data.nombres.actual,
+    type: 'bar',
+    data: data.costos_proyecto_actual,
+    color: '#1f77b4',
+    itemStyle: {
+        borderRadius: [5, 5, 0, 0]
+    }
+},
+{
+    name: data.nombres.comparar,
+    type: 'bar',
+    data: data.costos_proyecto_comparar,
+    color: '#ff7f0e',
+    itemStyle: {
+        borderRadius: [5, 5, 0, 0]
+    }
+}
+],
+dataZoom: [{
+type: 'slider',
+show: true,
+xAxisIndex: [0],
+start: 0,
+end: 100,
+bottom: 30,
+height: 20,
+borderColor: 'transparent',
+backgroundColor: '#e6e6e6',
+fillerColor: 'rgba(0, 100, 255, 0.2)',
+handleStyle: {
+    color: '#0050b3',
+    borderColor: '#0050b3'
+},
+textStyle: {
+    color: '#333'
+}
+}]
+};
+chartBarras.setOption(option);
+})
+.catch(error => {
+console.error('Error al cargar comparación:', error);
+chartBarras.clear();
+});
+}
+
+// Función para manejar el cambio de proyecto
+function onProyectoChange(proyectoId) {
+    if (!proyectoId) {
+        chartTorta.clear();
+        chartBarras.clear();
+        return;
+    }
+
+    proyectoActualId = proyectoId;
+    
+    // Cargar niveles disponibles para este proyecto
+    cargarNivelesDisponibles(proyectoId);
+    
+    // Cargar gráficos
+    cargarGraficoTorta(proyectoId);
+    cargarGraficoBarras(proyectoId);
+}
+
+// Inicialización al cargar la página
+document.addEventListener("DOMContentLoaded", function () {
+    const proyectoSelect = document.getElementById('proyectoSelect');
+    const nivelSelect = document.getElementById('nivelSelect');
+    const btnFiltrar = document.getElementById('btnFiltrar');
+    const btnReset = document.getElementById('btnReset');
+
+    // Cargar gráfico para el primer proyecto si está seleccionado
+    if (proyectoSelect && proyectoSelect.value) {
+        onProyectoChange(proyectoSelect.value);
+    }
+
+    // Agregar evento al selector de proyecto
+    proyectoSelect.addEventListener('change', function () {
+        onProyectoChange(this.value);
+        // Resetear el filtro de nivel al cambiar de proyecto
+        if (nivelSelect) nivelSelect.value = 'todos';
+    });
+
+    // Agregar evento al botón de filtrar
+    if (btnFiltrar) {
+        btnFiltrar.addEventListener('click', function() {
+            if (!proyectoActualId) return;
+            
+            const nivel = nivelSelect.value === 'todos' ? null : nivelSelect.value;
+            cargarGraficoBarras(proyectoActualId, nivel);
+        });
+    }
+
+    // Agregar evento al botón de reset
+    if (btnReset) {
+        btnReset.addEventListener('click', function() {
+            if (!proyectoActualId) return;
+            
+            if (nivelSelect) nivelSelect.value = 'todos';
+            cargarGraficoBarras(proyectoActualId);
+        });
+    }
+});
+
+// Función para redimensionar gráficos al cambiar el tamaño de la ventana
+window.addEventListener('resize', function() {
+    chartTorta.resize();
+    chartBarras.resize();
+});
+                    
                 </script>
             
                 {% endblock %}

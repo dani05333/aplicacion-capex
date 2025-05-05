@@ -1,3 +1,4 @@
+// Funcion del datatable - CATEGORIA 
 function listadoCategoria() {
     $.ajax({
         url: "/tabla_categoria_nuevo/",
@@ -78,6 +79,7 @@ function listadoCategoria() {
     });
 }
 
+// Filtro de Proyecto y Suma Total - CATEGORIA 
 function agregarFiltroProyecto(table, data) {
     // Obtener todos los proyectos únicos
     var proyectos = [...new Set(data.map(item => item.proyecto__nombre))].filter(Boolean).sort();
@@ -147,8 +149,7 @@ function agregarFiltroProyecto(table, data) {
     actualizarSumaCategorias();
 }
 
-
-
+// Cargar la tabla al iniciar la página - CATEGORIA
 $(document).ready(function () {
     listadoCategoria();
     
@@ -187,6 +188,7 @@ $(document).ready(function () {
     });
 });
 
+// Evento para eliminar registros - CATEGORIA
 $(document).on("click", ".btn-eliminar-categoria", function () {
     let categoriaId = $(this).data("id");
 
@@ -211,17 +213,16 @@ $(document).on("click", ".btn-eliminar-categoria", function () {
     }
 });
 
-// ✅ Función para obtener el CSRF Token (necesario para Django)
+// Función para obtener el CSRF Token - CATEGORIA
 function getCSRFToken() {
     return document.cookie.split('; ')
         .find(row => row.startsWith('csrftoken='))
         ?.split('=')[1];
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+// Funcion del datatable - ADQUISICIONES
 function listadoAdquisiciones() {
     $.ajax({
         url: "/tabla_adquisiciones/",
@@ -314,6 +315,7 @@ function listadoAdquisiciones() {
     });
 }
 
+// Filtro de Proyecto y Suma Total - ADQUISICIONES
 function agregarFiltroProyectoAdquisiciones(table, data) {
     const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
 
@@ -373,14 +375,12 @@ function agregarFiltroProyectoAdquisiciones(table, data) {
 
 }
 
-
-
-// ✅ Cargar la tabla al iniciar la página
+// Cargar la tabla al iniciar la página - ADQUISICIONES
 $(document).ready(function () {
     listadoAdquisiciones();
 });
 
-// ✅ Evento para eliminar adquisiciones
+// Evento para eliminar registros - ADQUISICIONES
 $(document).on("click", ".btn-eliminar-adquisicion", function () {
     let adquisicionId = $(this).data("id");
 
@@ -407,21 +407,16 @@ $(document).on("click", ".btn-eliminar-adquisicion", function () {
     }
 });
 
-
-
-// ✅ Función para obtener el CSRF Token
+// Función para obtener el CSRF Token - ADQUISICIONES
 function getCSRFToken() {
     return document.cookie.split('; ')
         .find(row => row.startsWith('csrftoken='))
         ?.split('=')[1];
 }
 
-
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+// Funcion del datatable - EQUIPOS DE CONSTRUCCIÓN
 function listadoEquiposConstruccion() {
     $.ajax({
         url: "/tabla_equipos_construccion/",
@@ -495,6 +490,7 @@ function listadoEquiposConstruccion() {
     });
 }
 
+// Filtro de Proyecto y Suma Total - EQUIPOS DE CONSTRUCCIÓN
 function agregarFiltroProyectoEquipos(table, data) {
     const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
 
@@ -552,13 +548,12 @@ function agregarFiltroProyectoEquipos(table, data) {
     actualizarSumaUSD();
 }
 
-
-
+// Cargar la tabla al iniciar la página - EQUIPOS DE CONSTRUCCIÓN
 $(document).ready(function () {
     listadoEquiposConstruccion();
 });
 
-// ✅ Manejar clic en el botón eliminar
+// Evento para eliminar registros - EQUIPOS DE CONSTRUCCIÓN
 $(document).on("click", ".btn-eliminar-equipo", function () {
     let equipoId = $(this).data("id");
 
@@ -583,19 +578,16 @@ $(document).on("click", ".btn-eliminar-equipo", function () {
     }
 });
 
-// ✅ Función para obtener el CSRF Token en Django
+// Función para obtener el CSRF Token - EQUIPOS DE CONSTRUCCIÓN
 function getCSRFToken() {
     return document.cookie.split('; ')
         .find(row => row.startsWith('csrftoken='))
         ?.split('=')[1];
 }
 
-
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+// Funcion del datatable - MANO DE OBRA
 function listadoManoObra() {
     $.ajax({
         url: "/tabla_mano_obra/",
@@ -711,6 +703,7 @@ function listadoManoObra() {
     });
 }
 
+// Filtro de Proyecto y Suma Total - MANO DE OBRA
 function agregarFiltroProyectoManoObra(table, data) {
     const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
 
@@ -768,13 +761,12 @@ function agregarFiltroProyectoManoObra(table, data) {
     actualizarSumaUSDMano();
 }
 
-
-
+// Cargar la tabla al iniciar la página - MANO DE OBRA
 $(document).ready(function () {
     listadoManoObra();
 });
 
-// ✅ Manejar clic en el botón eliminar
+// Evento para eliminar registros - MANO DE OBRA
 $(document).on("click", ".btn-eliminar-mano", function () {
     let manoObraId = $(this).data("id");
 
@@ -799,19 +791,16 @@ $(document).on("click", ".btn-eliminar-mano", function () {
     }
 });
 
-// ✅ Función para obtener el CSRF Token en Django
+// Función para obtener el CSRF Token - MANO DE OBRA
 function getCSRFToken() {
     return document.cookie.split('; ')
         .find(row => row.startsWith('csrftoken='))
         ?.split('=')[1];
 }
 
-
-
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+// Funcion del datatable - MATERIALES OTROS
 function listadoMaterialesOtros() {
     $.ajax({
         url: "/tabla_materiales_otros/",
@@ -894,6 +883,7 @@ function listadoMaterialesOtros() {
     });
 }
 
+// Filtro de Proyecto y Suma Total - MATERIALES OTROS
 function agregarFiltroProyectoMaterialesOtros(table, data) {
     const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
 
@@ -951,12 +941,12 @@ function agregarFiltroProyectoMaterialesOtros(table, data) {
     actualizarSumaUSD();
 }
 
-
-
+// Cargar la tabla al iniciar la página - MATERIALES OTROS
 $(document).ready(function () {
     listadoMaterialesOtros();
 });
 
+// Evento para eliminar registros - MATERIALES OTROS
 $(document).on("click", ".btn-eliminar-material", function () {
     let materialId = $(this).data("id");
 
@@ -983,18 +973,16 @@ $(document).on("click", ".btn-eliminar-material", function () {
     }
 });
 
-
-// ✅ Función para obtener el CSRF Token (para evitar problemas con Django)
+// Función para obtener el CSRF Token - MATERIALES OTROS
 function getCSRFToken() {
     return document.cookie.split('; ')
         .find(row => row.startsWith('csrftoken='))
         ?.split('=')[1];
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+// Funcion del datatable - ESPECÍFICO CATEGORÍA
 function listadoEspecificoCategoria() {
     $.ajax({
         url: "/tabla_especifico_categoria/", // Asegúrate de crear esta URL en Django
@@ -1077,6 +1065,7 @@ function listadoEspecificoCategoria() {
     });
 }
 
+// Filtro de Proyecto y Suma Total - ESPECÍFICO CATEGORÍA
 function agregarFiltroProyectoEspecificoCategoria(table, data) {
     const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
 
@@ -1134,14 +1123,12 @@ function agregarFiltroProyectoEspecificoCategoria(table, data) {
     actualizarSumaTotal();
 }
 
-
-
-// ✅ Llamar a la función al cargar la página
+// Cargar la tabla al iniciar la página - ESPECÍFICO CATEGORÍA
 $(document).ready(function () {
     listadoEspecificoCategoria();
 });
 
-// ✅ Manejar la eliminación de un elemento
+// Evento para eliminar registros - ESPECÍFICO CATEGORÍA
 $(document).on("click", ".btn-eliminar-especifico", function () {
     let especificoId = $(this).data("id");
 
@@ -1166,16 +1153,16 @@ $(document).on("click", ".btn-eliminar-especifico", function () {
     }
 });
 
-// ✅ Función para obtener el CSRF Token
+// Función para obtener el CSRF Token - ESPECÍFICO CATEGORÍA
 function getCSRFToken() {
     return document.cookie.split('; ')
         .find(row => row.startsWith('csrftoken='))
         ?.split('=')[1];
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Funcion del datatable - STAFF ENAMI
 function listadoStaffEnami() {
     $.ajax({
         url: "/tabla_staff_enami/",  // Asegúrate de configurar la URL en Django
@@ -1262,6 +1249,7 @@ function listadoStaffEnami() {
     });
 }
 
+// // Filtro de Proyecto y Suma Total - STAFF ENAMI
 function agregarFiltroProyectoStaffEnami(table, data) {
     const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
 
@@ -1319,13 +1307,12 @@ function agregarFiltroProyectoStaffEnami(table, data) {
     actualizarSumaTotal();
 }
 
-
-
-// ✅ Llamar a la función al cargar la página
+// Cargar la tabla al iniciar la página - STAFF ENAMI
 $(document).ready(function () {
     listadoStaffEnami();
 });
 
+// Evento para eliminar registros - STAFF ENAMI
 $(document).on("click", ".btn-eliminar-staff", function () {
     let staffId = $(this).data("id");
 
@@ -1350,7 +1337,7 @@ $(document).on("click", ".btn-eliminar-staff", function () {
     }
 });
 
-// ✅ Función para obtener el CSRF Token
+// Función para obtener el CSRF Token - STAFF ENAMI
 function getCSRFToken() {
     return document.cookie.split('; ')
         .find(row => row.startsWith('csrftoken='))
@@ -1359,6 +1346,7 @@ function getCSRFToken() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Funcion del datatable - CANTIDADES
 function listadoCantidades() {
     $.ajax({
         url: "/tabla_cantidades/",
@@ -1432,6 +1420,7 @@ function listadoCantidades() {
     
 }
 
+// // Filtro de Proyecto y Suma Total - CANTIDADES
 function agregarFiltroProyectoCantidades(table, data) {
     const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
 
@@ -1473,13 +1462,12 @@ function agregarFiltroProyectoCantidades(table, data) {
     });
 }
 
-
-// ✅ Cargar la tabla al iniciar la página
+// Cargar la tabla al iniciar la página - CANTIDADES
 $(document).ready(function () {
     listadoCantidades();
 });
 
-// ✅ Evento para eliminar cantidades
+// Evento para eliminar registros - CANTIDADES
 $(document).on("click", ".btn-eliminar-cantidad", function () {
     let cantidadId = $(this).data("id");
 
@@ -1506,17 +1494,16 @@ $(document).on("click", ".btn-eliminar-cantidad", function () {
     }
 });
 
-// ✅ Función para obtener el CSRF Token
+// Función para obtener el CSRF Token - CANTIDADES
 function getCSRFToken() {
     return document.cookie.split('; ')
         .find(row => row.startsWith('csrftoken='))
         ?.split('=')[1];
 }
 
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Funcion del datatable - CONTRATO SUBCONTRATO
 function listadoContratoSubcontrato() {
     $.ajax({
         url: "/tabla_contrato_subcontrato/",
@@ -1606,6 +1593,7 @@ function listadoContratoSubcontrato() {
     });
 }
 
+// // Filtro de Proyecto y Suma Total - CONTRATO SUBCONTRATO
 function agregarFiltroProyectoContratoSubcontrato(table, data) {
     const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
 
@@ -1663,13 +1651,12 @@ function agregarFiltroProyectoContratoSubcontrato(table, data) {
     actualizarSumaTotal();
 }
 
-// ✅ Cargar la tabla al iniciar la página
-
+// Cargar la tabla al iniciar la página - CONTRATO SUBCONTRATO
 $(document).ready(function () {
     listadoContratoSubcontrato();
 });
 
-// ✅ Evento para eliminar contratos/subcontratos
+// Evento para eliminar contratos/subcontratos - CONTRATO SUBCONTRATO
 $(document).on("click", ".btn-eliminar-contrato", function () {
     let contratoId = $(this).data("id");
 
@@ -1696,17 +1683,16 @@ $(document).on("click", ".btn-eliminar-contrato", function () {
     }
 });
 
-// ✅ Función para obtener el CSRF Token
+// Función para obtener el CSRF Token - CONTRATO SUBCONTRATO
 function getCSRFToken() {
     return document.cookie.split('; ')
         .find(row => row.startsWith('csrftoken='))
         ?.split('=')[1];
 }
 
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+// Funcion del datatable - COTIZACION MATERIALES
 function listadoCotizacionMateriales() {
     $.ajax({
         url: "/tabla_cotizacion_materiales/",
@@ -1798,6 +1784,7 @@ function listadoCotizacionMateriales() {
     });
 }
 
+// // Filtro de Proyecto y Suma Total - COTIZACION MATERIALES
 function agregarFiltroProyectoCotizacionMateriales(table, data) {
     const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
 
@@ -1839,12 +1826,12 @@ function agregarFiltroProyectoCotizacionMateriales(table, data) {
     });
 }
 
-// ✅ Cargar la tabla al iniciar la página
+// Cargar la tabla al iniciar la página - COTIZACION MATERIALES
 $(document).ready(function () {
     listadoCotizacionMateriales();
 });
 
-// ✅ Evento para eliminar cotizaciones
+// Evento para eliminar registros - COTIZACION MATERIALES 
 $(document).on("click", ".btn-eliminar-cotizacion", function () {
     let cotizacionId = $(this).data("id");
 
@@ -1871,16 +1858,16 @@ $(document).on("click", ".btn-eliminar-cotizacion", function () {
     }
 });
 
-// ✅ Función para obtener el CSRF Token
+// Función para obtener el CSRF Token - COTIZACION MATERIALES
 function getCSRFToken() {
     return document.cookie.split('; ')
         .find(row => row.startsWith('csrftoken='))
         ?.split('=')[1];
 }
 
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Funcion del datatable - INGENIERIA DETALLES CONTRAPARTE
 function listadoIngenieriaDetallesContraparte() {
     $.ajax({
         url: "/tabla_ingenieria_detalles_contraparte/",
@@ -1949,6 +1936,7 @@ function listadoIngenieriaDetallesContraparte() {
     });
 }
 
+// // Filtro de Proyecto y Suma Total - INGENIERIA DETALLES CONTRAPARTE
 function agregarFiltroProyectoIngenieriaContraparte(table, data) {
     const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
 
@@ -2010,14 +1998,12 @@ function agregarFiltroProyectoIngenieriaContraparte(table, data) {
     actualizarSumaTotalIngenieria();
 }
 
-
-
-// ✅ Cargar la tabla al iniciar la página
+// Cargar la tabla al iniciar la página - INGENIERIA DETALLES CONTRAPARTE
 $(document).ready(function () {
     listadoIngenieriaDetallesContraparte();
 });
 
-// ✅ Evento para eliminar registros
+// Evento para eliminar registros - INGENIERIA DETALLES CONTRAPARTE
 $(document).on("click", ".btn-eliminar-ingenieria", function () {
     let ingenieriaId = $(this).data("id");
 
@@ -2044,16 +2030,16 @@ $(document).on("click", ".btn-eliminar-ingenieria", function () {
     }
 });
 
-// ✅ Función para obtener el CSRF Token
+// Función para obtener el CSRF Token - INGENIERIA DETALLES CONTRAPARTE
 function getCSRFToken() {
     return document.cookie.split('; ')
         .find(row => row.startsWith('csrftoken='))
         ?.split('=')[1];
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Funcion del datatable - GESTION PERMISOS
 function listadoGestionPermisos() {
     $.ajax({
         url: "/tabla_gestion_permisos/",
@@ -2136,6 +2122,7 @@ function listadoGestionPermisos() {
     });
 }
 
+// Filtro de Proyecto y Suma Total - GESTION PERMISOS
 function agregarFiltroProyectoPermisos(table, data) {
     const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
 
@@ -2193,12 +2180,12 @@ function agregarFiltroProyectoPermisos(table, data) {
     actualizarSumaTotalPermisos();
 }
 
-// ✅ Cargar la tabla al iniciar
+// Cargar la tabla al iniciar la pagina - GESTION PERMISOS
 $(document).ready(function () {
     listadoGestionPermisos();
 });
 
-// ✅ Evento para eliminar
+// Evento para eliminar registros - GESTION PERMISOS
 $(document).on("click", ".btn-eliminar-permiso", function () {
     let permisoId = $(this).data("id");
 
@@ -2223,15 +2210,16 @@ $(document).on("click", ".btn-eliminar-permiso", function () {
     }
 });
 
+// Función para obtener el CSRF Token - GESTION PERMISOS
 function getCSRFToken() {
     return document.cookie.split('; ')
         .find(row => row.startsWith('csrftoken='))
         ?.split('=')[1];
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Funcion del datatable - DUENO
 function listadoDueno() {
     $.ajax({
         url: "/tabla_dueno/",
@@ -2301,6 +2289,7 @@ function listadoDueno() {
     });
 }
 
+// Filtro de Proyecto y Suma Total - DUENO
 function agregarFiltroProyectoDueno(table, data) {
     // Obtenemos los proyectos únicos
     const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
@@ -2364,14 +2353,12 @@ function agregarFiltroProyectoDueno(table, data) {
     actualizarSumaTotalDueno();
 }
 
-
-
-// ✅ Cargar la tabla al iniciar la página
+// Cargar la tabla al iniciar la página - DUENO
 $(document).ready(function () {
     listadoDueno();
 });
 
-// ✅ Evento para eliminar registros
+// Evento para eliminar registros - DUENO
 $(document).on("click", ".btn-eliminar-dueno", function () {
     let duenoId = $(this).data("id");
 
@@ -2398,7 +2385,7 @@ $(document).on("click", ".btn-eliminar-dueno", function () {
     }
 });
 
-// ✅ Función para obtener el CSRF Token
+// Función para obtener el CSRF Token - DUENO
 function getCSRFToken() {
     return document.cookie.split('; ')
         .find(row => row.startsWith('csrftoken='))
@@ -2407,6 +2394,7 @@ function getCSRFToken() {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Funcion del datatable - MB
 function listadoMB() {
     $.ajax({
         url: "/tabla_mb/",
@@ -2468,13 +2456,12 @@ function listadoMB() {
     });
 }
 
-
-// ✅ Cargar la tabla al iniciar la página
+// Cargar la tabla al iniciar la página - MB
 $(document).ready(function () {
     listadoMB();
 });
 
-// ✅ Evento para eliminar registros
+// Evento para eliminar registros - MB
 $(document).on("click", ".btn-eliminar-mb", function () {
     let mbId = $(this).data("id");
 
@@ -2501,7 +2488,7 @@ $(document).on("click", ".btn-eliminar-mb", function () {
     }
 });
 
-// ✅ Función para obtener el CSRF Token
+// Función para obtener el CSRF Token - MB
 function getCSRFToken() {
     return document.cookie.split('; ')
         .find(row => row.startsWith('csrftoken='))
@@ -2510,6 +2497,7 @@ function getCSRFToken() {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Funcion del datatable - ADMINISTRACION SUPERVISION
 function listadoAdministracionSupervision() {
     $.ajax({
         url: "/tabla_administracion_supervision/",
@@ -2605,6 +2593,7 @@ function listadoAdministracionSupervision() {
     });
 }
 
+// Filtro de Proyecto y Suma Total - ADMINISTRACION SUPERVISION
 function agregarFiltroProyectoAdministracionSupervision(table, data) {
     // Obtener los proyectos únicos y ordenarlos
     const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
@@ -2669,15 +2658,12 @@ function agregarFiltroProyectoAdministracionSupervision(table, data) {
     actualizarSumaAdministracionSupervision();
 }
 
-
-
-
-// ✅ Cargar la tabla al iniciar la página
+// Cargar la tabla al iniciar la página - ADMINISTRACION SUPERVISION
 $(document).ready(function () {
     listadoAdministracionSupervision();
 });
 
-// ✅ Evento para eliminar registros
+// Evento para eliminar registros - ADMINISTRACION SUPERVISION
 $(document).on("click", ".btn-eliminar-administracion-supervision", function () {
     let adminSupId = $(this).data("id");
 
@@ -2704,7 +2690,7 @@ $(document).on("click", ".btn-eliminar-administracion-supervision", function () 
     }
 });
 
-// ✅ Función para obtener el CSRF Token
+// Función para obtener el CSRF Token - ADMINISTRACION SUPERVISION
 function getCSRFToken() {
     return document.cookie.split('; ')
         .find(row => row.startsWith('csrftoken='))
@@ -2713,6 +2699,7 @@ function getCSRFToken() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Funcion del datatable - PERSONAL INDIRECTO CONTRATISTA
 function listadoPersonalIndirectoContratista() {
     $.ajax({
         url: "/tabla_personal_indirecto_contratista/",
@@ -2811,6 +2798,7 @@ function listadoPersonalIndirectoContratista() {
     });
 }
 
+// Filtro de Proyecto y Suma Total - PERSONAL INDIRECTO CONTRATISTA
 function agregarFiltroProyectoPersonalIndirectoContratista(table, data) {
     // Obtener los proyectos únicos y ordenarlos
     const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
@@ -2875,13 +2863,12 @@ function agregarFiltroProyectoPersonalIndirectoContratista(table, data) {
     actualizarSumaPersonalIndirectoContratista();
 }
 
-
-// ✅ Cargar la tabla al iniciar la página
+// Cargar la tabla al iniciar la página - PERSONAL INDIRECTO CONTRATISTA
 $(document).ready(function () {
     listadoPersonalIndirectoContratista();
 });
 
-// ✅ Evento para eliminar registros
+// Evento para eliminar registros - PERSONAL INDIRECTO CONTRATISTA
 $(document).on("click", ".btn-eliminar-personal-indirecto-contratista", function () {
     let personalId = $(this).data("id");
 
@@ -2908,7 +2895,7 @@ $(document).on("click", ".btn-eliminar-personal-indirecto-contratista", function
     }
 });
 
-// ✅ Función para obtener el CSRF Token
+// Función para obtener el CSRF Token - PERSONAL INDIRECTO CONTRATISTA
 function getCSRFToken() {
     return document.cookie.split('; ')
         .find(row => row.startsWith('csrftoken='))
@@ -2917,6 +2904,7 @@ function getCSRFToken() {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Funcion del datatable - SERVICIOS DE APOYO
 function listadoServiciosApoyo() {
     $.ajax({
         url: "/tabla_servicios_apoyo/",  // Endpoint to fetch data
@@ -2992,6 +2980,7 @@ function listadoServiciosApoyo() {
     });
 }
 
+// Filtro de Proyecto y Suma Total - SERVICIOS DE APOYO
 function agregarFiltroProyectoServiciosApoyo(table, data) {
     const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
 
@@ -3047,14 +3036,13 @@ function agregarFiltroProyectoServiciosApoyo(table, data) {
     table.on('draw', actualizarSumaServiciosApoyo);
     actualizarSumaServiciosApoyo();
 }
-
-
-// ✅ Cargar la tabla al iniciar la página
+ 
+// Cargar la tabla al iniciar la página - SERVICIOS DE APOYO
 $(document).ready(function () {
     listadoServiciosApoyo();
 });
 
-// ✅ Event for deleting records
+// Evento para eliminar registros - SERVICIOS DE APOYO
 $(document).on("click", ".btn-eliminar-servicios-apoyo", function () {
     let servicioId = $(this).data("id");
 
@@ -3081,7 +3069,7 @@ $(document).on("click", ".btn-eliminar-servicios-apoyo", function () {
     }
 });
 
-// ✅ Function to get the CSRF Token
+// ✅ Function to get the CSRF Token - SERVICIOS DE APOYO
 function getCSRFToken() {
     return document.cookie.split('; ')
         .find(row => row.startsWith('csrftoken='))
@@ -3090,6 +3078,7 @@ function getCSRFToken() {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Funcion del datatable - OTROS ADMINISTRACION
 function listadoOtrosADM() {
     $.ajax({
         url: "/tabla_otros_adm/",
@@ -3181,6 +3170,7 @@ function listadoOtrosADM() {
     });
 }
 
+// Filtro de Proyecto y Suma Total - OTROS ADMINISTRACION
 function agregarFiltroProyectoOtrosADM(table, data) {
     const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
 
@@ -3236,12 +3226,12 @@ function agregarFiltroProyectoOtrosADM(table, data) {
     actualizarSumaOtrosADM();
 }
 
-// ✅ Cargar la tabla al iniciar la página
+// Cargar la tabla al iniciar la página - OTROS ADMINISTRACION
 $(document).ready(function () {
     listadoOtrosADM();
 });
 
-// ✅ Evento para eliminar registros
+// Evento para eliminar registros - OTROS ADMINISTRACION
 $(document).on("click", ".btn-eliminar-otros-adm", function () {
     let otrosAdmId = $(this).data("id");
 
@@ -3268,16 +3258,16 @@ $(document).on("click", ".btn-eliminar-otros-adm", function () {
     }
 });
 
-// ✅ Función para obtener el CSRF Token
+// Función para obtener el CSRF Token - OTROS ADMINISTRACION
 function getCSRFToken() {
     return document.cookie.split('; ')
         .find(row => row.startsWith('csrftoken='))
         ?.split('=')[1];
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Funcion del datatable - ADMINISTRATIVO FINANCIERO
 function listadoAdministrativoFinanciero() {
     $.ajax({
         url: "/tabla_administrativo_financiero/",  // Cambia esta URL si es necesario
@@ -3354,6 +3344,7 @@ function listadoAdministrativoFinanciero() {
     });
 }
 
+// Filtro de Proyecto y Suma Total - ADMINISTRATIVO FINANCIERO
 function agregarFiltroProyectoAdministrativoFinanciero(table, data) {
     // Obtener proyectos únicos y ordenarlos
     const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
@@ -3418,14 +3409,12 @@ function agregarFiltroProyectoAdministrativoFinanciero(table, data) {
     actualizarSumaAdministrativoFinanciero();
 }
 
-
-
-// ✅ Cargar la tabla al iniciar la página
+// Cargar la tabla al iniciar la página - ADMINISTRATIVO FINANCIERO
 $(document).ready(function () {
     listadoAdministrativoFinanciero();
 });
 
-// ✅ Evento para eliminar registros
+// Evento para eliminar registros - ADMINISTRATIVO FINANCIERO
 $(document).on("click", ".btn-eliminar-administrativo-financiero", function () {
     let administrativoFinancieroId = $(this).data("id");
 
@@ -3452,16 +3441,16 @@ $(document).on("click", ".btn-eliminar-administrativo-financiero", function () {
     }
 });
 
-// ✅ Función para obtener el CSRF Token
+// Función para obtener el CSRF Token - ADMINISTRATIVO FINANCIERO
 function getCSRFToken() {
     return document.cookie.split('; ')
         .find(row => row.startsWith('csrftoken='))
         ?.split('=')[1];
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Funcion del datatable - DATOS EP
 function listadoDatosEP() {
     $.ajax({
         url: "/tabla_datos_ep/",  // Cambia esta URL si es necesario
@@ -3525,6 +3514,7 @@ function listadoDatosEP() {
     });
 }
 
+// Filtro de Proyecto y Suma Total - DATOS EP
 function agregarFiltroProyectoDatosEP(table, data) {
     const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
 
@@ -3565,14 +3555,12 @@ function agregarFiltroProyectoDatosEP(table, data) {
     });
 }
 
-
-
-// ✅ Cargar la tabla al iniciar la página
+// Cargar la tabla al iniciar la página - DATOS EP
 $(document).ready(function () {
     listadoDatosEP();
 });
 
-// ✅ Evento para eliminar registros
+// Evento para eliminar registros - DATOS EP
 $(document).on("click", ".btn-eliminar-datos-ep", function () {
     let datosEPId = $(this).data("id");
 
@@ -3599,16 +3587,16 @@ $(document).on("click", ".btn-eliminar-datos-ep", function () {
     }
 });
 
-// ✅ Función para obtener el CSRF Token
+// Función para obtener el CSRF Token - DATOS EP
 function getCSRFToken() {
     return document.cookie.split('; ')
         .find(row => row.startsWith('csrftoken='))
         ?.split('=')[1];
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Funcion del datatable - OTROS EP
 function listadoDatosOtrosEP() {
     $.ajax({
         url: "/tabla_datos_otros_ep/",  // Asegúrate de tener esta URL configurada en tus urls.py
@@ -3700,6 +3688,7 @@ function listadoDatosOtrosEP() {
     });
 }
 
+// Filtro de Proyecto y Suma Total - OTROS EP
 function agregarFiltroProyectoDatosOtrosEP(table, data) {
     const proyectos = [...new Set(data.map(item => item.proyecto).filter(Boolean))].sort();
 
@@ -3732,13 +3721,12 @@ function agregarFiltroProyectoDatosOtrosEP(table, data) {
     });
 }
 
-
-// Cargar la tabla al iniciar la página
+// Cargar la tabla al iniciar la página - OTROS EP
 $(document).ready(function () {
     listadoDatosOtrosEP();
 });
 
-// Evento para eliminar registros de DatosOtrosEP
+// Evento para eliminar registros - OTROS EP 
 $(document).on("click", ".btn-eliminar-datos-otros-ep", function () {
     let datosId = $(this).data("id");
 
@@ -3746,9 +3734,10 @@ $(document).on("click", ".btn-eliminar-datos-otros-ep", function () {
         $.ajax({
             url: "/eliminar-datos-otros-ep/",  // Asegúrate de tener esta URL configurada
             type: "POST",
+            headers: { "X-CSRFToken": getCSRFToken() },
             data: { 
-                id: datosId,
-                csrfmiddlewaretoken: getCSRFToken() 
+                id: datosId
+                
             },
             success: function (response) {
                 if (response.success) {
@@ -3766,7 +3755,7 @@ $(document).on("click", ".btn-eliminar-datos-otros-ep", function () {
     }
 });
 
-// Función para obtener el CSRF Token (la misma que ya tenías)
+// Función para obtener el CSRF Token - OTROS EP
 function getCSRFToken() {
     return document.cookie.split('; ')
         .find(row => row.startsWith('csrftoken='))

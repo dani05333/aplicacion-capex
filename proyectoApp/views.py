@@ -1,38 +1,49 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.core.files.storage import FileSystemStorage
-from .models import ProyectoNuevo, CategoriaNuevo, Adquisiciones, MaterialesOtros, EquiposConstruccion, ManoObra, ApuGeneral, ApuEspecifico, ArchivoSubido, EspecificoCategoria, StaffEnami, DatosOtrosEP, DatosEP, Cantidades, ContratoSubcontrato, CotizacionMateriales, IngenieriaDetallesContraparte, GestionPermisos, Dueno, MB, AdministracionSupervision, PersonalIndirectoContratista, ServiciosApoyo, OtrosADM, AdministrativoFinanciero
-import os
+from django.shortcuts import render, get_object_or_404
 from django.conf import settings
-from .forms import ArchivoSubidoForm, ProyectoNuevoForm, CategoriaNuevoForm, AdquisicionesForm, MaterialesOtrosForm, EquiposConstruccionForm, ManoObraForm, APUGeneralForm, APUEspecificoForm, EspecificoCategoriaForm, StaffEnamiForm, DatosOtrosEPForm, DatosEPForm, CantidadesForm, ContratoSubcontratoForm, CotizacionMaterialesForm, IngenieriaDetallesContraparteForm, GestionPermisosForm, DuenoForm, MBForm, AdministracionSupervisionForm, PersonalIndirectoContratistaForm, ServiciosApoyoForm, OtrosADMForm, AdministrativoFinancieroForm
-import pandas as pd
-from django.contrib import messages
-from django.http import HttpResponse
-from django.views.generic import ListView, TemplateView, CreateView, UpdateView, DeleteView
-from .cargar_datos import cargar_proyecto_nuevo, cargar_categoria_nueva, cargar_adquisiciones, cargar_equipos_construccion, cargar_mano_obra, cargar_materiales_otros, cargar_apu_especifico, cargar_apu_general, cargar_especifico_categoria, cargar_staff_enami, cargar_datos_ep, cargar_datos_otros_ep, cargar_cantidades, cargar_contrato_subcontrato, cargar_cotizacion_materiales, cargar_ingenieria_detalles_contraparte, cargar_gestion_permisos, cargar_dueno, cargar_mb, cargar_administracion_supervision, cargar_personal_indirecto_contratista, cargar_servicios_apoyo, cargar_otros_adm, cargar_administrativo_financiero
-from django.db.models import Sum, Q, F, Subquery, OuterRef
-from django.http import JsonResponse
-from django.db import transaction
+from django.http import HttpResponse, JsonResponse
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.apps import apps
-from django import forms
 from django.urls import reverse_lazy
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+
+# 📦 Módulos y bibliotecas
+import os
+import zipfile
+import tempfile
+import pandas as pd
+
+# ⚙️ Modelos
+from .models import (
+    ProyectoNuevo, CategoriaNuevo, Adquisiciones, MaterialesOtros, EquiposConstruccion, ManoObra,
+    ApuGeneral, ApuEspecifico, EspecificoCategoria, StaffEnami, DatosOtrosEP, DatosEP,
+    Cantidades, ContratoSubcontrato, CotizacionMateriales, IngenieriaDetallesContraparte, GestionPermisos,
+    Dueno, MB, AdministracionSupervision, PersonalIndirectoContratista, ServiciosApoyo, OtrosADM, AdministrativoFinanciero
+)
+
+# 📝 Formularios
+from .forms import (
+    ArchivoSubidoForm, ProyectoNuevoForm, CategoriaNuevoForm, AdquisicionesForm, MaterialesOtrosForm, 
+    EquiposConstruccionForm, ManoObraForm, APUGeneralForm, APUEspecificoForm, EspecificoCategoriaForm, 
+    StaffEnamiForm, DatosOtrosEPForm, DatosEPForm, CantidadesForm, ContratoSubcontratoForm, CotizacionMaterialesForm, 
+    IngenieriaDetallesContraparteForm, GestionPermisosForm, DuenoForm, MBForm, AdministracionSupervisionForm, 
+    PersonalIndirectoContratistaForm, ServiciosApoyoForm, OtrosADMForm, AdministrativoFinancieroForm
+)
+
+# 🔄 Funciones de Carga de Datos
+from .cargar_datos import (
+    cargar_proyecto_nuevo, cargar_categoria_nueva, cargar_adquisiciones, cargar_equipos_construccion, 
+    cargar_mano_obra, cargar_materiales_otros, cargar_apu_especifico, cargar_apu_general, cargar_especifico_categoria, 
+    cargar_staff_enami, cargar_datos_ep, cargar_datos_otros_ep, cargar_cantidades, cargar_contrato_subcontrato, 
+    cargar_cotizacion_materiales, cargar_ingenieria_detalles_contraparte, cargar_gestion_permisos, cargar_dueno, 
+    cargar_mb, cargar_administracion_supervision, cargar_personal_indirecto_contratista, cargar_servicios_apoyo, 
+    cargar_otros_adm, cargar_administrativo_financiero
+)
+
+# 🔧 Otros Decoradores y Funciones
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.core.paginator import Paginator
-from django.core.serializers import serialize
-from django.views.decorators.csrf import csrf_exempt
-from django.views import View
-import json
-from django.utils.decorators import method_decorator
-import traceback
-from io import BytesIO  # Importación requerida
-import zipfile
-from openpyxl import Workbook
-import tempfile
-import sys
-import io
-from django.template.loader import render_to_string
-from functools import wraps
-from django.views.decorators.http import require_POST
+
 
 
 def obtener_proyecto_relacionado(request, proyecto_id):
@@ -44,7 +55,6 @@ def obtener_proyecto_relacionado(request, proyecto_id):
             return JsonResponse({'proyecto_relacionado': None})
     except ProyectoNuevo.DoesNotExist:
         return JsonResponse({'error': 'Proyecto no encontrado'}, status=404)
-    
 
 def comparar_costos(proyecto_id):
     try:
@@ -105,7 +115,6 @@ def comparar_costos(proyecto_id):
             "costos_proyecto_2": [],
             "costos_proyecto_3": []
         }
-
 
 def obtener_comparacion_costos(request, proyecto_id):
     try:
@@ -178,7 +187,6 @@ def obtener_comparacion_costos(request, proyecto_id):
     except ProyectoNuevo.DoesNotExist:
         return JsonResponse({'error': 'Proyecto no encontrado'}, status=404)
 
-
 def obtener_niveles_proyecto(request, proyecto_id):
     try:
         niveles = CategoriaNuevo.objects.filter(
@@ -188,10 +196,6 @@ def obtener_niveles_proyecto(request, proyecto_id):
         return JsonResponse(list(niveles), safe=False)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
-
-
-
-
 
 def Inicio(request):
     proyectos = ProyectoNuevo.objects.prefetch_related('categorias')
@@ -203,7 +207,6 @@ def Inicio(request):
         'proyectonuevo': proyectos
     }
     return render(request, 'inicio.html', context)
-
 
 def cargar_datos(request):
     if request.method == 'POST':
@@ -290,41 +293,6 @@ def cargar_datos(request):
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
-
-
-
-def listar_archivos(request):
-    # Ruta de la carpeta 'uploads' dentro de MEDIA_ROOT
-    ruta_uploads = os.path.join(settings.MEDIA_ROOT, 'uploads')
-
-    # Diccionario para almacenar carpetas y sus archivos
-    carpetas_y_archivos = {}
-
-    # Verificar si la carpeta 'uploads' existe
-    if os.path.exists(ruta_uploads):
-        # Recorremos la carpeta 'uploads' y sus subcarpetas
-        for root, dirs, files in os.walk(ruta_uploads):
-            # Evitar mostrar la carpeta 'uploads' misma, solo sus subcarpetas
-            if root != ruta_uploads:
-                # Obtenemos la ruta relativa de la carpeta
-                carpeta_relativa = os.path.relpath(root, settings.MEDIA_ROOT)
-                
-                # Lista para almacenar los archivos dentro de cada carpeta
-                archivos = [os.path.relpath(os.path.join(root, file), settings.MEDIA_ROOT) for file in files]
-
-                # Almacenamos los archivos por carpeta
-                carpetas_y_archivos[carpeta_relativa] = archivos
-        
-        return render(request, 'listar_archivos.html', {'carpetas_y_archivos': carpetas_y_archivos})
-    else:
-        return render(request, 'listar_archivos.html', {'error': 'La carpeta "uploads" no existe.'})
-
-
-
-
-
-
-
 class ListadoProyectoNuevo(ListView):
     model = ProyectoNuevo
     template_name = 'tabla_proyecto_nuevo.html'
@@ -336,11 +304,7 @@ class ListadoProyectoNuevo(ListView):
         for proyecto in proyectos:
             proyecto.costo_total = proyecto.calcular_costo_total()  # Precalcular el costo total
         return proyectos
-    
-
-    
-    
-    
+   
 class ActualizarProyectoNuevo(UpdateView):
     model = ProyectoNuevo
     form_class = ProyectoNuevoForm
@@ -375,7 +339,6 @@ class ListadoCategoriaNuevo(ListView):
 
         return super().get(request, *args, **kwargs)
     
-
 class ActualizarCategoriaNuevo(UpdateView):
     model = CategoriaNuevo
     form_class = CategoriaNuevoForm
@@ -388,8 +351,7 @@ class ActualizarCategoriaNuevo(UpdateView):
         context['accion'] = 'Editar'
         return context
     
-
-@csrf_exempt
+@csrf_exempt # Para pruebas, quitar en desarrollo
 def eliminar_categoria(request):
     if request.method == "POST":
         categoria_id = request.POST.get("id")
@@ -406,8 +368,6 @@ class CrearCategoriaNuevo(CreateView):
     form_class = CategoriaNuevoForm
     template_name = 'crear_categoria_nuevo.html'
     success_url = reverse_lazy('tabla_categoria_nuevo')
-
-
 
 class ListadoAdquisiciones(ListView):
     model = Adquisiciones
@@ -437,7 +397,7 @@ class ListadoAdquisiciones(ListView):
 class ActualizarAdquisiciones(UpdateView):
     model = Adquisiciones
     form_class = AdquisicionesForm
-    template_name = 'editar_adquisiciones.html'
+    template_name = 'crear_adquisiciones.html'
     success_url = reverse_lazy('tabla_adquisiciones')
     
     def get_context_data(self, **kwargs):
@@ -446,8 +406,7 @@ class ActualizarAdquisiciones(UpdateView):
         context['accion'] = 'Editar'
         return context
     
-
-@csrf_exempt
+@csrf_exempt # Para pruebas, quitar en desarrollo
 def eliminar_adquisicion(request):
     if request.method == "POST":
         adquisicion_id = request.POST.get("id")  # Obtener el ID desde la petición
@@ -492,7 +451,6 @@ class ListadoMaterialesOtros(ListView):
 
         return super().get(request, *args, **kwargs)
 
-
 class ActualizarMaterialesOtros(UpdateView):
     model = MaterialesOtros
     form_class = MaterialesOtrosForm
@@ -505,9 +463,7 @@ class ActualizarMaterialesOtros(UpdateView):
             context['accion'] = 'Editar'
             return context
 
-
-
-@csrf_exempt  # Para pruebas, pero mejor usa CSRF Token en producción
+@csrf_exempt  # Para pruebas, quitar en desarrollo
 def eliminar_material(request):
     if request.method == 'POST':
         material_id = request.POST.get('id')
@@ -549,8 +505,7 @@ class ListadoCantidades(ListView):
             return JsonResponse(data, safe=False)
 
         return super().get(request, *args, **kwargs)
-
-    
+   
 class ActualizarCantidades(UpdateView):
     model = Cantidades
     form_class = CantidadesForm
@@ -569,7 +524,7 @@ class CrearCantidades(CreateView):
     template_name = 'crear_cantidades.html'
     success_url = reverse_lazy('tabla_cantidades')
     
-@csrf_exempt
+@csrf_exempt # Para pruebas, quitar en desarrollo
 def eliminar_cantidad(request):
     if request.method == 'POST':
         cantidad_id = request.POST.get('id')
@@ -580,8 +535,6 @@ def eliminar_cantidad(request):
         except Cantidades.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Cantidad no encontrada'})
     return JsonResponse({'success': False, 'error': 'Método no permitido'})
-
-
 
 class ListadoEquiposConstruccion(ListView):
     model = EquiposConstruccion
@@ -605,8 +558,6 @@ class ListadoEquiposConstruccion(ListView):
             return JsonResponse(data, safe=False)
         return super().get(request, *args, **kwargs)
 
-    
-
 class ActualizarEquiposConstruccion(UpdateView):
     model = EquiposConstruccion
     form_class = EquiposConstruccionForm
@@ -619,8 +570,7 @@ class ActualizarEquiposConstruccion(UpdateView):
         context['accion'] = 'Editar'
         return context
 
-
-@csrf_exempt
+@csrf_exempt # Para pruebas, quitar en desarrollo
 def eliminar_equipo_construccion(request):
     if request.method == "POST":
         equipo_id = request.POST.get("id")  # Obtener el ID desde la petición
@@ -672,7 +622,6 @@ class ListadoManoObra(ListView):
 
         return super().get(request, *args, **kwargs)
 
-
 class ActualizarManoObra(UpdateView):
     model = ManoObra
     form_class = ManoObraForm
@@ -685,8 +634,7 @@ class ActualizarManoObra(UpdateView):
         context['accion'] = 'Editar'
         return context
     
-
-@csrf_exempt
+@csrf_exempt # Para pruebas, quitar en desarrollo
 def eliminar_mano_obra(request):
     if request.method == "POST":
         mano_obra_id = request.POST.get("id")  # Obtener el ID desde la petición
@@ -784,7 +732,6 @@ class ListadoEspecificoCategoria(ListView):
 
         return super().get(request, *args, **kwargs)
 
-
 class ActualizarEspecificoCategoria(UpdateView):
     model = EspecificoCategoria
     form_class = EspecificoCategoriaForm
@@ -802,7 +749,7 @@ class EliminarEspecificoCategoria(DeleteView):
     template_name = 'especifico_categoria_confirm_delete.html'
     success_url = reverse_lazy('tabla_especifico_categoria')
 
-@csrf_exempt  # Para pruebas, pero mejor usa CSRF Token en producción
+@csrf_exempt  # Para pruebas, quitar en desarrollo
 def eliminar_especifico_categoria(request):
     if request.method == 'POST':
         especifico_id = request.POST.get('id')  # Obtener el ID desde la petición
@@ -847,7 +794,6 @@ class ListadoStaffEnami(ListView):
 
         return super().get(request, *args, **kwargs)
 
-
 class ActualizarStaffEnami(UpdateView):
     model = StaffEnami
     form_class = StaffEnamiForm
@@ -865,7 +811,7 @@ class EliminarStaffEnami(DeleteView):
     template_name = 'staff_enami_confirm_delete.html'
     success_url = reverse_lazy('tabla_staff_enami')
 
-@csrf_exempt  # Solo para pruebas, usa CSRF Token en producción
+@csrf_exempt  # Para pruebas, quitar en desarrollo
 def eliminar_staff_enami(request):
     if request.method == 'POST':
         staff_id = request.POST.get('id')
@@ -876,7 +822,6 @@ def eliminar_staff_enami(request):
         except StaffEnami.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Registro no encontrado'})
     return JsonResponse({'success': False, 'error': 'Método no permitido'})
-
 
 class CrearStaffEnami(CreateView):
     model = StaffEnami
@@ -927,7 +872,7 @@ class ActualizarDatosOtrosEP(UpdateView):
         context['accion'] = 'Editar'
         return context
 
-@csrf_exempt  # Para desarrollo, en producción usa CSRF token adecuadamente
+@csrf_exempt  # Para pruebas, quitar en desarrollo
 def eliminar_datos_otros_ep(request):
     if request.method == 'POST':
         datos_id = request.POST.get('id')
@@ -1001,7 +946,7 @@ class ActualizarDatosEP(UpdateView):
         context['accion'] = 'Editar'
         return context
 
-@csrf_exempt  # Solo para desarrollo, en producción usa CSRF token adecuadamente
+@csrf_exempt  # Para pruebas, quitar en desarrollo
 def eliminar_datos_ep(request):
     if request.method == 'POST':
         datos_ep_id = request.POST.get('id')
@@ -1029,7 +974,6 @@ def eliminar_datos_ep(request):
         except DatosEP.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Registro no encontrado'})
     return JsonResponse({'success': False, 'error': 'Método no permitido'})
-
 
 class CrearDatosEP(CreateView):
     model = DatosEP
@@ -1067,8 +1011,7 @@ class ListadoCotizacionMateriales(ListView):
                 })
             return JsonResponse(data, safe=False)
         return super().get(request, *args, **kwargs)
-
-    
+  
 class ActualizarCotizacionMateriales(UpdateView):
     model = CotizacionMateriales
     form_class = CotizacionMaterialesForm
@@ -1087,7 +1030,7 @@ class CrearCotizacionMateriales(CreateView):
     template_name = 'crear_cotizacion_materiales.html'
     success_url = reverse_lazy('tabla_cotizacion_materiales')
 
-@csrf_exempt  # Solo para pruebas, usa CSRF Token en producción
+@csrf_exempt  # Para pruebas, quitar en desarrollo
 def eliminar_cotizacion_materiales(request):
     if request.method == 'POST':
         cotizacion_materiales_id = request.POST.get('id')
@@ -1124,8 +1067,7 @@ class ListadoContratoSubcontrato(ListView):
                 })
             return JsonResponse(data, safe=False)
         return super().get(request, *args, **kwargs)
-
-    
+   
 class ActualizarContratoSubcontrato(UpdateView):
     model = ContratoSubcontrato
     form_class = ContratoSubcontratoForm
@@ -1144,7 +1086,7 @@ class CrearContratoSubcontrato(CreateView):
     template_name = 'crear_contrato_subcontrato.html'
     success_url = reverse_lazy('tabla_contrato_subcontrato')
 
-@csrf_exempt  # Solo para pruebas, usa CSRF Token en producción
+@csrf_exempt  # Para pruebas, quitar en desarrollo
 def eliminar_contrato_subcontrato(request):
     if request.method == 'POST':
         contrato_subcontrato_id = request.POST.get('id')
@@ -1155,7 +1097,6 @@ def eliminar_contrato_subcontrato(request):
         except ContratoSubcontrato.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Registro no encontrado'})
     return JsonResponse({'success': False, 'error': 'Método no permitido'})
-
 
 class ListadoIngenieriaDetallesContraparte(ListView):
     model = IngenieriaDetallesContraparte
@@ -1179,8 +1120,7 @@ class ListadoIngenieriaDetallesContraparte(ListView):
             return JsonResponse(data, safe=False)
 
         return super().get(request, *args, **kwargs)
-
-    
+   
 class ActualizarIngenieriaDetallesContraparte(UpdateView):
     model = IngenieriaDetallesContraparte
     form_class = IngenieriaDetallesContraparteForm
@@ -1199,7 +1139,7 @@ class CrearIngenieriaDetallesContraparte(CreateView):
     template_name = 'crear_ingenieria_detalles_contraparte.html'
     success_url = reverse_lazy('tabla_ingenieria_detalles_contraparte')
 
-@csrf_exempt  # Solo para pruebas, usa CSRF Token en producción
+@csrf_exempt  # Para pruebas, quitar en desarrollo
 def eliminar_ingenieria_detalles_contraparte(request):
     if request.method == 'POST':
         ingenieria_id = request.POST.get('id')
@@ -1239,8 +1179,7 @@ class ListadoGestionPermisos(ListView):
             return JsonResponse(data, safe=False)
 
         return super().get(request, *args, **kwargs)
-
-    
+  
 class ActualizarGestionPermisos(UpdateView):
     model = GestionPermisos
     form_class = GestionPermisosForm
@@ -1259,7 +1198,7 @@ class CrearGestionPermisos(CreateView):
     template_name = 'crear_gestion_permisos.html'
     success_url = reverse_lazy('tabla_gestion_permisos') 
 
-@csrf_exempt  # Solo para pruebas, usa CSRF Token en producción
+@csrf_exempt  # Para pruebas, quitar en desarrollo
 def eliminar_gestion_permisos(request):
     if request.method == 'POST':
         permiso_id = request.POST.get('id')
@@ -1293,8 +1232,7 @@ class ListadoDueno(ListView):
             return JsonResponse(data, safe=False)
 
         return super().get(request, *args, **kwargs)
-
-    
+  
 class ActualizarDueno(UpdateView):
     model = Dueno
     form_class = DuenoForm
@@ -1313,7 +1251,7 @@ class CrearDueno(CreateView):
     template_name = 'crear_dueno.html'
     success_url = reverse_lazy('tabla_dueno')
 
-@csrf_exempt  # Solo para pruebas, usa CSRF Token en producción
+@csrf_exempt  # Para pruebas, quitar en desarrollo
 def eliminar_dueno(request):
     if request.method == 'POST':
         dueno_id = request.POST.get('id')
@@ -1355,7 +1293,7 @@ class CrearMB(CreateView):
     template_name = 'crear_mb.html'
     success_url = reverse_lazy('tabla_mb')
 
-@csrf_exempt  # Solo para pruebas, usa CSRF Token en producción
+@csrf_exempt  # Para pruebas, quitar en desarrollo
 def eliminar_mb(request):
     if request.method == 'POST':
         mb_id = request.POST.get('id')  # Obtener el ID del MB a eliminar
@@ -1394,8 +1332,7 @@ class ListadoAdministracionSupervision(ListView):
             return JsonResponse(data, safe=False)
 
         return super().get(request, *args, **kwargs)
-
-    
+  
 class ActualizarAdministracionSupervision(UpdateView):
     model = AdministracionSupervision
     form_class = AdministracionSupervisionForm 
@@ -1407,7 +1344,6 @@ class ActualizarAdministracionSupervision(UpdateView):
         context['titulo'] = 'Editar Administración y Supervisión'
         context['accion'] = 'Editar'
         return context
-
     
 class CrearAdministracionSupervision(CreateView):
     model = AdministracionSupervision
@@ -1415,7 +1351,7 @@ class CrearAdministracionSupervision(CreateView):
     template_name = 'crear_administracion_supervision.html'
     success_url = reverse_lazy('tabla_administracion_supervision')
 
-@csrf_exempt  # Solo para pruebas, usa CSRF Token en producción
+@csrf_exempt  # Para pruebas, quitar en desarrollo
 def eliminar_administracion_supervision(request):
     if request.method == 'POST':
         # Obtener el ID del objeto a eliminar
@@ -1486,7 +1422,7 @@ class CrearPersonalIndirectoContratista(CreateView):
     template_name = 'crear_personal_indirecto_contratista.html'
     success_url = reverse_lazy('tabla_personal_indirecto_contratista')
 
-@csrf_exempt  # Solo para pruebas, usa CSRF Token en producción
+@csrf_exempt  # Para pruebas, quitar en desarrollo
 def eliminar_personal_indirecto_contratista(request):
     if request.method == 'POST':
         # Obtener el ID del objeto a eliminar
@@ -1545,7 +1481,6 @@ class ListadoServiciosApoyo(ListView):
 
         return super().get(request, *args, **kwargs)
 
-    
 class ActualizarServiciosApoyo(UpdateView):
     model = ServiciosApoyo
     form_class = ServiciosApoyoForm
@@ -1564,7 +1499,7 @@ class CrearServiciosApoyo(CreateView):
     template_name = 'crear_servicios_apoyo.html'
     success_url = reverse_lazy('tabla_servicios_apoyo')
     
-@csrf_exempt  # Solo para pruebas, usa CSRF Token en producción
+@csrf_exempt  # Para pruebas, quitar en desarrollo
 def eliminar_servicios_apoyo(request):
     if request.method == 'POST':
         # Obtener el ID del objeto a eliminar
@@ -1629,7 +1564,7 @@ class CrearOtrosADM(CreateView):
     template_name = 'crear_otros_adm.html'
     success_url = reverse_lazy('tabla_otros_adm')
     
-@csrf_exempt  # Solo para pruebas, usa CSRF Token en producción
+@csrf_exempt  # Para pruebas, quitar en desarrollo
 def eliminar_otros_adm(request):
     if request.method == 'POST':
         # Obtener el ID del objeto a eliminar
@@ -1643,7 +1578,6 @@ def eliminar_otros_adm(request):
         except OtrosADM.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Registro no encontrado'})
     return JsonResponse({'success': False, 'error': 'Método no permitido'})
-
 
 class ListadoAdministrativoFinanciero(ListView):
     model = AdministrativoFinanciero
@@ -1676,7 +1610,6 @@ class ListadoAdministrativoFinanciero(ListView):
 
         return super().get(request, *args, **kwargs)
 
-    
 class ActualizarAdministrativoFinanciero(UpdateView):
     model = AdministrativoFinanciero
     form_class = AdministrativoFinancieroForm
@@ -1695,7 +1628,7 @@ class CrearAdministrativoFinanciero(CreateView):
     template_name = 'crear_administrativo_financiero.html'
     success_url = reverse_lazy('tabla_administrativo_financiero')
     
-@csrf_exempt  # Solo para pruebas, usa CSRF Token en producción
+@csrf_exempt  # Para pruebas, quitar en desarrollo
 def eliminar_administrativo_financiero(request):
     if request.method == 'POST':
         # Obtener el ID del objeto a eliminar
@@ -1710,11 +1643,7 @@ def eliminar_administrativo_financiero(request):
             return JsonResponse({'success': False, 'error': 'Registro no encontrado'})
     return JsonResponse({'success': False, 'error': 'Método no permitido'})
 
-    
-
-
-
-###############SUMA CATEGORIAS Y SUBCATEGORIAS#####################
+###############SUMA CATEGORIAS Y SUBCATEGORIAS######################################################################
 
 def detalle_proyecto(request, proyecto_id):
     proyecto = get_object_or_404(ProyectoNuevo, id=proyecto_id)
@@ -1722,16 +1651,13 @@ def detalle_proyecto(request, proyecto_id):
 
     return render(request, 'desplegable.html', {'proyecto': proyecto, 'categorias': categorias})
 
-
 def obtener_subcategorias(request, categoria_id):
     """Devuelve las subcategorías de una categoría en formato JSON."""
     subcategorias = CategoriaNuevo.objects.filter(id_padre_id=categoria_id).values('id', 'nombre', 'total_costo')
 
     return JsonResponse(list(subcategorias), safe=False)
 
-
-
-####ACA OBTENER SUBCATEGORIAS PARA DESPLEGABLE##########
+####ACA OBTENER SUBCATEGORIAS PARA DESPLEGABLE######################################################################
 
 @api_view(['GET'])
 def obtener_subcategorias(request, categoria_id):
@@ -1761,12 +1687,7 @@ def obtener_subcategorias(request, categoria_id):
 
     return Response(subcategoria_data)
 
-
-
-
-
-
-###################ACA RELACIONADO A SUBIR ARCHIVOS DESDE TEMPLATE#######################################
+###################ACA RELACIONADO A SUBIR ARCHIVOS DESDE TEMPLATE##################################################
 def subir_archivo(request):
     if request.method == 'POST':
         form = ArchivoSubidoForm(request.POST, request.FILES)
@@ -1803,8 +1724,7 @@ def subir_archivo(request):
 
     return render(request, 'subir_archivo.html', {'form': form})
 
-
-####################################################################################################################
+####################LISTAR PROYECTO PARA GRAFICO DE TORTA###########################################################
 
 def categorias_raiz_json(request, proyecto_id):
     categorias = CategoriaNuevo.objects.filter(id_padre__isnull=True, proyecto_id=proyecto_id).values('nombre', 'total_costo')
@@ -1815,7 +1735,7 @@ def listar_proyectos(request):
     proyectos = ProyectoNuevo.objects.values('id', 'nombre')
     return JsonResponse(list(proyectos), safe=False)
 
-#####################################################################################################################
+####################FUNCION PARA EXPORTAR EXCEL#####################################################################
 
 def exportar_excel(request, modelo_nombre):
     try:
@@ -1840,11 +1760,7 @@ def exportar_excel(request, modelo_nombre):
     except Exception as e:
         return HttpResponse(f"Error al exportar: {str(e)}", status=500)
 
-
-
-
-#########################################################################################################################
-
+####################FUNCION PARA DUPLICAR LOS PROYECTOS#############################################################
 
 def duplicar_proyecto(request, proyecto_id):
     try:
@@ -2033,10 +1949,7 @@ def duplicar_proyecto(request, proyecto_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
     
-
-
-
-########################################################################################################################
+####################FUNCION PARA ELIMINAR MASIVAMENTE LOS REGISTROS EN LA TABLA CATEGORIAS##########################
 
 @require_POST
 def eliminar_categorias_masivo(request):

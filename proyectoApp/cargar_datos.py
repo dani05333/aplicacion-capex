@@ -6,10 +6,12 @@ from django.db import transaction
 from datetime import datetime
 import traceback
 import numpy as np 
-from .models import ProyectoNuevo, CategoriaNuevo, Adquisiciones, MaterialesOtros, EquiposConstruccion, ManoObra, ApuGeneral, ApuEspecifico, EspecificoCategoria, StaffEnami, DatosEP, DatosOtrosEP, Cantidades, ContratoSubcontrato, CotizacionMateriales, IngenieriaDetallesContraparte, GestionPermisos, Dueno, MB, AdministracionSupervision, PersonalIndirectoContratista, ServiciosApoyo, OtrosADM, AdministrativoFinanciero
-
-
-
+from .models import (
+    ProyectoNuevo, CategoriaNuevo, Adquisiciones, MaterialesOtros, EquiposConstruccion, ManoObra,
+    ApuGeneral, ApuEspecifico, EspecificoCategoria, StaffEnami, DatosOtrosEP, DatosEP,
+    Cantidades, ContratoSubcontrato, CotizacionMateriales, IngenieriaDetallesContraparte, GestionPermisos,
+    Dueno, MB, AdministracionSupervision, PersonalIndirectoContratista, ServiciosApoyo, OtrosADM, AdministrativoFinanciero
+)
 
 def cargar_proyecto_nuevo():
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'ProyectoNuevo')
@@ -80,9 +82,6 @@ def cargar_proyecto_nuevo():
 
             except Exception as e:
                 print(f'Error al procesar el archivo {archivo}: {str(e)}')
-
-
-
                 
 def cargar_categoria_nueva():
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'CategoriaNuevo')
@@ -172,12 +171,6 @@ def cargar_categoria_nueva():
             except Exception as e:
                 print(f"Error al procesar el archivo {archivo}: {e}")
 
-
-
-
-
-
-
 def cargar_adquisiciones():
     # Directorio donde se encuentran los archivos Excel
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'Adquisiciones')
@@ -257,7 +250,6 @@ def cargar_adquisiciones():
             except Exception as e:
                 print(f'Error al procesar el archivo {archivo}: {e}')
 
-
 def cargar_cantidades():
     # Directorio donde se encuentran los archivos Excel
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'Cantidades')
@@ -308,8 +300,6 @@ def cargar_cantidades():
 
             except Exception as e:
                 print(f"Error al procesar el archivo {archivo}: {e}")
-
-
 
 def cargar_materiales_otros():
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'MaterialesOtros')
@@ -373,8 +363,6 @@ def cargar_materiales_otros():
             except Exception as e:
                 print(f'Error al procesar el archivo {archivo}: {e}')
 
-
-
 def cargar_equipos_construccion():
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'EquiposConstruccion')
 
@@ -431,12 +419,7 @@ def cargar_equipos_construccion():
                 print(f'Archivo {archivo} cargado exitosamente.')
 
             except Exception as e:
-                print(f'Error al procesar el archivo {archivo}: {e}')
-
-                
-
-
-
+                print(f'Error al procesar el archivo {archivo}: {e}')            
 
 def cargar_mano_obra():
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'ManoObra')
@@ -504,11 +487,6 @@ def cargar_mano_obra():
             except Exception as e:
                 print(f'Error al procesar el archivo {archivo}: {e}')
 
-
-
-
-                
-
 def cargar_apu_general():
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'ApuGeneral')
 
@@ -569,8 +547,6 @@ def cargar_apu_especifico():
             except Exception as e:
                 print(f' Error al procesar el archivo {archivo}: {e}')
 
-
-
 def cargar_especifico_categoria():
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'EspecificoCategoria')
 
@@ -621,7 +597,6 @@ def cargar_especifico_categoria():
 
             except Exception as e:
                 print(f'Error al procesar el archivo {archivo} para EspecificoCategoria: {e}')
-
 
 def cargar_staff_enami():
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'StaffEnami')
@@ -691,9 +666,6 @@ def cargar_staff_enami():
             except Exception as e:
                 print(f'Error al procesar el archivo {archivo} para StaffEnami: {e}')
 
-
-
-
 def cargar_datos_ep():
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'DatosEP')
 
@@ -738,9 +710,6 @@ def cargar_datos_ep():
 
             except Exception as e:
                 print(f'Error al procesar el archivo {archivo} para DatosEP: {e}')
-
-
-
 
 def cargar_datos_otros_ep():
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'DatosOtrosEP')
@@ -797,7 +766,6 @@ def cargar_datos_otros_ep():
 
             except Exception as e:
                 print(f'Error al procesar el archivo {archivo} para DatosOtrosEP: {e}')
-
 
 def cargar_contrato_subcontrato():
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'ContratoSubcontrato')
@@ -919,7 +887,6 @@ def cargar_contrato_subcontrato():
 
             except Exception as e:
                 print(f'\nError al procesar el archivo {archivo}: {str(e)}')
-
 
 def cargar_cotizacion_materiales():
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'CotizacionMateriales')
@@ -1047,7 +1014,6 @@ def cargar_cotizacion_materiales():
             except Exception as e:
                 print(f'\nError al procesar el archivo {archivo}: {str(e)}')
 
-
 def cargar_ingenieria_detalles_contraparte():
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'IngenieriaDetallesContraparte')
 
@@ -1154,9 +1120,6 @@ def cargar_ingenieria_detalles_contraparte():
 
             except Exception as e:
                 print(f'\nError al procesar el archivo {archivo}: {str(e)}')
-
-
-
 
 def cargar_gestion_permisos():
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'GestionPermisos')
@@ -1292,8 +1255,6 @@ def cargar_gestion_permisos():
             except Exception as e:
                 print(f'\nError al procesar el archivo {archivo}: {str(e)}')
 
-
-
 def cargar_dueno():
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'Dueno')
 
@@ -1395,7 +1356,6 @@ def cargar_dueno():
             except Exception as e:
                 print(f'\nError al procesar el archivo {archivo}: {str(e)}')
 
-
 def cargar_mb():
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'MB')
 
@@ -1489,8 +1449,6 @@ def cargar_mb():
 
             except Exception as e:
                 print(f'\nError al procesar el archivo {archivo} para MB: {str(e)}')
-
-
 
 def cargar_administracion_supervision():
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'AdministracionSupervision')
@@ -1614,8 +1572,6 @@ def cargar_administracion_supervision():
 
             except Exception as e:
                 print(f'\nError al procesar el archivo {archivo}: {str(e)}')
-
-
 
 def cargar_personal_indirecto_contratista():
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'PersonalIndirectoContratista')
@@ -1742,8 +1698,6 @@ def cargar_personal_indirecto_contratista():
             except Exception as e:
                 print(f'\nError al procesar el archivo {archivo}: {str(e)}')
 
-
-
 def cargar_servicios_apoyo():
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'ServiciosApoyo')
 
@@ -1861,9 +1815,6 @@ def cargar_servicios_apoyo():
             except Exception as e:
                 print(f'\nError al procesar el archivo {archivo}: {str(e)}')
 
-
-
-
 def cargar_otros_adm():
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'OtrosADM')
 
@@ -1934,9 +1885,6 @@ def cargar_otros_adm():
 
             except Exception as e:
                 print(f'Error al procesar el archivo {archivo} para OtrosADM: {e}')
-
-
-
 
 def cargar_administrativo_financiero():
     directorio_archivos = os.path.join(settings.BASE_DIR, 'uploads', 'AdministrativoFinanciero')

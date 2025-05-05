@@ -1,5 +1,10 @@
 from django import forms
-from .models import ArchivoSubido, ProyectoNuevo, CategoriaNuevo, Adquisiciones, MaterialesOtros, EquiposConstruccion, ManoObra, ApuGeneral, ApuEspecifico, EspecificoCategoria, StaffEnami, DatosOtrosEP, DatosEP, Cantidades, ContratoSubcontrato, CotizacionMateriales, IngenieriaDetallesContraparte, GestionPermisos, Dueno, MB, AdministracionSupervision, PersonalIndirectoContratista, ServiciosApoyo, OtrosADM, AdministrativoFinanciero
+from .models import (
+    ProyectoNuevo, CategoriaNuevo, Adquisiciones, MaterialesOtros, EquiposConstruccion, ManoObra,
+    ApuGeneral, ApuEspecifico, EspecificoCategoria, StaffEnami, DatosOtrosEP, DatosEP,
+    Cantidades, ContratoSubcontrato, CotizacionMateriales, IngenieriaDetallesContraparte, GestionPermisos,
+    Dueno, MB, AdministracionSupervision, PersonalIndirectoContratista, ServiciosApoyo, OtrosADM, AdministrativoFinanciero, ArchivoSubido
+)
 
 class ArchivoSubidoForm(forms.ModelForm):
     class Meta:
@@ -32,7 +37,6 @@ class CategoriaNuevoForm(forms.ModelForm):
             "nivel": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
             "final": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
-
 
 class AdquisicionesForm(forms.ModelForm):
     class Meta:
@@ -76,7 +80,6 @@ class MaterialesOtrosForm(forms.ModelForm):
             
         }
         
-
 class EquiposConstruccionForm(forms.ModelForm):
     class Meta:
         model = EquiposConstruccion
@@ -107,14 +110,11 @@ class ManoObraForm(forms.ModelForm):
             
         }
     
-   
-
 class APUGeneralForm(forms.ModelForm):
     class Meta:
         model = ApuGeneral
         fields = "__all__"
         
-
 class APUEspecificoForm(forms.ModelForm):
     class Meta:
         model = ApuEspecifico
@@ -174,7 +174,6 @@ class DatosEPForm(forms.ModelForm):
             "id_categoria": forms.Select(attrs={"class": "form-control"}),
         }
         
-
 class CotizacionMaterialesForm(forms.ModelForm):
     class Meta:
         model = CotizacionMateriales
@@ -208,7 +207,6 @@ class ContratoSubcontratoForm(forms.ModelForm):
             "fc_subcontrato": forms.NumberInput(attrs={"class": "form-control","min": 0, "placeholder": "FC Subcontrato"}),
         }
         
-
 class IngenieriaDetallesContraparteForm(forms.ModelForm):
     class Meta:
         model = IngenieriaDetallesContraparte
@@ -241,7 +239,6 @@ class GestionPermisosForm(forms.ModelForm):
             
         }
         
-
 class DuenoForm(forms.ModelForm):
     class Meta:
         model = Dueno
@@ -256,7 +253,6 @@ class DuenoForm(forms.ModelForm):
             
         }
         
-
 class MBForm(forms.ModelForm):
     class Meta:
         model = MB
@@ -286,7 +282,6 @@ class AdministracionSupervisionForm(forms.ModelForm):
             "mb_seleccionado": forms.Select(attrs={"class": "form-control"}),
         }
         
-
 class PersonalIndirectoContratistaForm(forms.ModelForm):
     class Meta:
         model = PersonalIndirectoContratista
