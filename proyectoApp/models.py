@@ -60,6 +60,25 @@ class CategoriaNuevo(models.Model):
     final = models.BooleanField(default=False)
     total_costo = models.DecimalField(max_digits=15, decimal_places=2, default=0.00, null=True, blank=True)
 
+
+#Verificar si esta parte del codigo (save) puede estar generando algun problema en la subida de archivos
+    def save(self, *args, **kwargs):
+        id_padre_anterior = None
+        if self.pk:
+            try:
+                original = CategoriaNuevo.objects.get(pk=self.pk)
+                id_padre_anterior = original.id_padre
+            except CategoriaNuevo.DoesNotExist:
+                id_padre_anterior = None  # El objeto no existía aún, posiblemente es nuevo
+
+        super().save(*args, **kwargs)
+
+        # Si se asignó un padre y es distinto al anterior, actualiza el total del padre
+        if self.id_padre and self.id_padre != id_padre_anterior:
+            self.id_padre.actualizar_total_costo()
+
+
+
     def delete(self, *args, **kwargs):
         """Sobrescribe delete() para actualizar totales en la categoría al eliminar adquisiciones."""
         categoria_padre = self.id_padre  # Guardar referencia al padre antes de eliminar

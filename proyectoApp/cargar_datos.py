@@ -166,6 +166,8 @@ def cargar_categoria_nueva():
                         print(f"Error al procesar categoría {row.get('id')}: {str(e)}")
                         continue
 
+                
+
                 print(f"Archivo {archivo} cargado exitosamente. Categorías procesadas: {len(categorias_creadas)}")
 
             except Exception as e:
@@ -561,7 +563,6 @@ def cargar_especifico_categoria():
             try:
                 df = pd.read_excel(ruta_archivo)
 
-                # Verificar si el archivo tiene las columnas necesarias
                 columnas_requeridas = {'id_categoria', 'unidad', 'cantidad', 'dedicacion', 'duracion', 'costo'}
                 if not columnas_requeridas.issubset(df.columns):
                     raise ValueError(f'El archivo {archivo} debe contener las columnas {columnas_requeridas}')
@@ -573,25 +574,37 @@ def cargar_especifico_categoria():
                         print(f'Categoría con id {row["id_categoria"]} no encontrada. Saltando fila...')
                         continue
 
-                    # Convertir valores a Decimal para evitar errores
+                    unidad = row['unidad']
                     cantidad = Decimal(str(row['cantidad'])) if pd.notna(row['cantidad']) else Decimal('0')
                     dedicacion = Decimal(str(row['dedicacion'])) if pd.notna(row['dedicacion']) else Decimal('0')
                     duracion = Decimal(str(row['duracion'])) if pd.notna(row['duracion']) else Decimal('0')
                     costo = Decimal(str(row['costo'])) if pd.notna(row['costo']) else Decimal('0')
-
-                    # Calcular el total
                     total = cantidad * duracion * (dedicacion / Decimal('100')) * costo
 
-                    # Guardar en la base de datos
-                    EspecificoCategoria.objects.get_or_create(
-                        id_categoria=id_categoria,
-                        unidad=row['unidad'],
-                        cantidad=cantidad,
-                        dedicacion=dedicacion,
-                        duracion=duracion,
-                        costo=costo,
-                        defaults={'total': total}
-                    )
+                    # Buscar si ya existe un registro con id_categoria y unidad
+                    obj = EspecificoCategoria.objects.filter(id_categoria=id_categoria, unidad=unidad).first()
+
+                    if obj:
+                        # Verificar si hubo cambios
+                        if (obj.cantidad != cantidad or obj.dedicacion != dedicacion or
+                            obj.duracion != duracion or obj.costo != costo or obj.total != total):
+                            obj.cantidad = cantidad
+                            obj.dedicacion = dedicacion
+                            obj.duracion = duracion
+                            obj.costo = costo
+                            obj.total = total
+                            obj.save()
+                    else:
+                        # Si no existe, crear uno nuevo
+                        EspecificoCategoria.objects.create(
+                            id_categoria=id_categoria,
+                            unidad=unidad,
+                            cantidad=cantidad,
+                            dedicacion=dedicacion,
+                            duracion=duracion,
+                            costo=costo,
+                            total=total
+                        )
 
                 print(f'Archivo {archivo} cargado exitosamente en EspecificoCategoria.')
 
