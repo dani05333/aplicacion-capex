@@ -146,7 +146,7 @@ class CategoriaNuevo(models.Model):
 
             if porcentaje is not None:
                 categorias_raiz = CategoriaNuevo.objects.filter(id_padre__isnull=True, proyecto=self.proyecto)
-                total_base = sum(c.total_costo or Decimal('0.00') for c in categorias_raiz if c.id != self.id)
+                total_base = sum(c.total_costo or Decimal('0.00') for c in categorias_raiz if c.nombre.strip().lower() not in ["contingencia", "utilidades"])
 
                 costo_contingencia = total_base * (porcentaje / Decimal('100'))
                 self.total_costo = costo_contingencia
@@ -169,7 +169,7 @@ class CategoriaNuevo(models.Model):
             if porcentaje is not None:
                 categorias_raiz = CategoriaNuevo.objects.filter(id_padre__isnull=True, proyecto=self.proyecto)
 
-                total_base = sum(c.total_costo or Decimal('0.00') for c in categorias_raiz if c.id != self.id)
+                total_base = sum(c.total_costo or Decimal('0.00') for c in categorias_raiz if c.nombre.strip().lower() not in ["contingencia", "utilidades"])
 
                 costo_utilidades = total_base * (porcentaje / Decimal('100'))
 
@@ -1438,30 +1438,30 @@ class ArchivoSubido(models.Model):
     archivo = models.FileField(upload_to='uploads/')
     fecha_subida = models.DateTimeField(auto_now_add=True)
     modelo_destino = models.CharField(max_length=50, choices=[
-        ('ProyectoNuevo', 'Proyecto Nuevo'),
-        ('CategoriaNuevo', 'Categoría Nueva'),
-        ('Adquisiciones', 'Adquisiciones'),
-        ('Cantidades', 'Cantidades'),
-        ('MaterialesOtros', 'Materiales Otros'),
-        ('EquiposConstruccion', 'Equipos Construcción'),
-        ('ManoObra', 'Mano Obra'),
-        ('EspecificoCategoria', 'Especifico Categoria'),
-        ('ApuEspecifico', 'Apu Especifico'),
-        ('ApuGeneral', 'Apu General'),
-        ('StaffEnami', 'Staff Enami'),
-        ('ContratoSubcontrato', 'Contrato Subcontrato'),
-        ('CotizacionMateriales', 'Cotizacion Materiales'),
-        ('IngenieriaDetallesContraparte','Ingenieria Detalles Contraparte'),
-        ('GestionPermisos','Gestion Permisos'),
-        ('Dueno','Dueño'),
-        ('MB','MB'),
-        ('AdministracionSupervision','Administracion Supervision'),
-        ('PersonalIndirectoContratista','Personal Indirecto Contratista'),
-        ('ServiciosApoyo','Servicios Apoyo'),
-        ('OtrosADM','Otros ADM'),
-        ('AdministrativoFinanciero','Administrativo Financiero'),
-        ('DatosEP','Datos EP'),
-        ('DatosOtrosEP','Datos Otros EP'),
+        ('ProyectoNuevo', '1. Proyecto Nuevo'),
+        ('CategoriaNuevo', '2. Categoría Nueva'),
+        ('Cantidades', '3. Cantidades'),
+        ('CotizacionMateriales', '4. Cotizacion Materiales'),
+        ('MB','5. MB'),
+        ('ManoObra', '6. Mano Obra'),
+        ('MaterialesOtros', '7. Materiales Otros'),
+        ('Adquisiciones', '8. Adquisiciones'),
+        ('EquiposConstruccion', '8. Equipos Construcción'),
+        ('EspecificoCategoria', '8. Especifico Categoria'),
+        ('ApuEspecifico', '8. Apu Especifico'),
+        ('ApuGeneral', '8. Apu General'),
+        ('StaffEnami', '8. Staff Enami'),
+        ('ContratoSubcontrato', '8. Contrato Subcontrato'),
+        ('IngenieriaDetallesContraparte','8. Ingenieria Detalles Contraparte'),
+        ('GestionPermisos','8. Gestion Permisos'),
+        ('Dueno','8. Dueño'),
+        ('AdministracionSupervision','8. Administracion Supervision'),
+        ('PersonalIndirectoContratista','8. Personal Indirecto Contratista'),
+        ('ServiciosApoyo','8. Servicios Apoyo'),
+        ('OtrosADM','8. Otros ADM'),
+        ('AdministrativoFinanciero','8. Administrativo Financiero'),
+        ('DatosEP','8. Datos EP'),
+        ('DatosOtrosEP','8. Datos Otros EP'),
         
         
     ])

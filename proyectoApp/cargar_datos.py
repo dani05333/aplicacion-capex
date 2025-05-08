@@ -574,20 +574,26 @@ def cargar_especifico_categoria():
                         print(f'Categoría con id {row["id_categoria"]} no encontrada. Saltando fila...')
                         continue
 
-                    unidad = row['unidad']
+                    unidad = str(row['unidad']).strip().lower()
                     cantidad = Decimal(str(row['cantidad'])) if pd.notna(row['cantidad']) else Decimal('0')
                     dedicacion = Decimal(str(row['dedicacion'])) if pd.notna(row['dedicacion']) else Decimal('0')
                     duracion = Decimal(str(row['duracion'])) if pd.notna(row['duracion']) else Decimal('0')
                     costo = Decimal(str(row['costo'])) if pd.notna(row['costo']) else Decimal('0')
                     total = cantidad * duracion * (dedicacion / Decimal('100')) * costo
 
-                    # Buscar si ya existe un registro con id_categoria y unidad
-                    obj = EspecificoCategoria.objects.filter(id_categoria=id_categoria, unidad=unidad).first()
+                    obj = EspecificoCategoria.objects.filter(
+                        id_categoria=id_categoria,
+                        unidad=unidad
+                    ).first()
 
                     if obj:
-                        # Verificar si hubo cambios
-                        if (obj.cantidad != cantidad or obj.dedicacion != dedicacion or
-                            obj.duracion != duracion or obj.costo != costo or obj.total != total):
+                        if (
+                            obj.cantidad != cantidad or
+                            obj.dedicacion != dedicacion or
+                            obj.duracion != duracion or
+                            obj.costo != costo or
+                            obj.total != total
+                        ):
                             obj.cantidad = cantidad
                             obj.dedicacion = dedicacion
                             obj.duracion = duracion
@@ -595,7 +601,6 @@ def cargar_especifico_categoria():
                             obj.total = total
                             obj.save()
                     else:
-                        # Si no existe, crear uno nuevo
                         EspecificoCategoria.objects.create(
                             id_categoria=id_categoria,
                             unidad=unidad,
@@ -607,6 +612,10 @@ def cargar_especifico_categoria():
                         )
 
                 print(f'Archivo {archivo} cargado exitosamente en EspecificoCategoria.')
+                
+
+                # etc.
+
 
             except Exception as e:
                 print(f'Error al procesar el archivo {archivo} para EspecificoCategoria: {e}')

@@ -1,0 +1,20 @@
+Tomar en cuenta y cosas por mejorar:
+
+*Cuantos más archivos Excel contenga una carpeta, mayor será el tiempo de carga, ya que el sistema verifica si alguno de los registros 
+en cada archivo ha sufrido cambios. Para agilizar este proceso, se recomienda mantener en la carpeta únicamente el archivo con el que 
+se está trabajando. Asegúrese de que los archivos de otros proyectos estén completamente listos y no requieran modificaciones antes de 
+retirarlos de la carpeta correspondiente.
+
+*El modelo EspecificoCategoria es el mismo que Gastos Generales Costructor, solo es un cambio de nombre que no se ha realizado.
+
+*La función de carga de EspecificoCategoria no genera duplicados en la carga. Sin embargo, actualmente no se ha logrado impedir que todos 
+los registros se actualicen en cada ejecución. Por alguna razón, el sistema detecta cambios en todos los registros, incluso cuando no los 
+hay. Este comportamiento podría deberse a una incompatibilidad en el manejo de valores numéricos, específicamente entre decimales y enteros.
+No obstante, esto no supone ningun problema en cuanto a errores de carga de datos, pero si relentiza la actualizacion de datos a traves de
+archivos Excel.
+
+*A ApuGeneral y ApuEspecifico no se les implementaron ciertas mejoras, como el manejo de datos en formato JSON o la integración con DataTables, 
+ya que no fueron utilizadas en ningún proyecto actual. Sin embargo, decidí mantener estas tablas en el sistema por si en el futuro resultan 
+útiles para algún proyecto. Aunque están operativas, no se encuentran completamente optimizadas.
+
+*Si se quiere acelerar la carga sacar print de debugging dentro de los modelos
